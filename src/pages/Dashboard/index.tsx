@@ -67,7 +67,7 @@ export default function Dashboard() {
       Boolean(new URL(link));
     } catch (e) {
       toast.error("Ocorreu um erro ", {
-        description: "Verifique se o link esta disponivel",
+        description: "Verifique se o produto esta disponível",
         position: "top-right",
       });
       return;
@@ -82,7 +82,7 @@ export default function Dashboard() {
       .catch((error: any) => {
         console.log(error);
         toast.error("Ocorreu um erro ", {
-          description: "Verifique se o link esta disponivel",
+          description: "Verifique se o produto esta disponível",
           position: "top-right",
         });
       })
@@ -139,14 +139,6 @@ export default function Dashboard() {
     };
   };
 
-  const diffPercent = (oldValue: number, newValue: number) => {
-    var diff = newValue - oldValue;
-
-    var diffPercente = (diff / Math.abs(oldValue)) * 100;
-
-    return `${parseFloat(diffPercente.toFixed(2))}%`;
-  };
-
   const updateAnExist = (newProduct: Product) => {
     const refreshedProducts = products.map((product) => {
       if (product.sku === newProduct.sku) {
@@ -184,7 +176,6 @@ export default function Dashboard() {
                     load={load}
                     product={product}
                     onDeleteItem={deleteItem}
-                    onDdiffPercent={diffPercent}
                     keyUsage={`f-${product.sku}`}
                   />
                 );
@@ -299,7 +290,6 @@ export default function Dashboard() {
                     load={load}
                     product={product}
                     onDeleteItem={deleteItem}
-                    onDdiffPercent={diffPercent}
                     keyUsage={product.sku}
                   />
                 );

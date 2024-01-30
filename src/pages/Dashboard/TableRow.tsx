@@ -11,7 +11,6 @@ import { Product } from ".";
 
 interface TableRowProps {
   onDeleteItem: (sku: string | number) => void;
-  onDdiffPercent: (n1: number, n2: number) => any;
   load: string | number;
   product: Product;
   keyUsage?: any;
@@ -34,10 +33,19 @@ export const TableMain = () => {
 const TableRowComponent = ({
   product,
   onDeleteItem,
-  onDdiffPercent,
   load,
   keyUsage,
 }: TableRowProps) => {
+  const diffPercent = (oldValue: number, newValue: number) => {
+    if (oldValue == 0 || newValue == 0) return;
+
+    var diff = newValue - oldValue;
+
+    var diffPercente = (diff / Math.abs(oldValue)) * 100;
+
+    return `(${parseFloat(diffPercente.toFixed(2))}%)`;
+  };
+
   return (
     <TableRow key={keyUsage}>
       <TableCell>
@@ -63,7 +71,7 @@ const TableRowComponent = ({
       <TableCell> {`R$ ${product.lastPrice}`}</TableCell>
       <TableCell>
         {" "}
-        {product.status.indexOf("InStock") != -1 || product.nowPrice != 0 ? (
+        {product?.status?.indexOf("InStock") != -1 || product.nowPrice != 0 ? (
           <Badge>ON</Badge>
         ) : (
           <Badge variant="destructive">OFF</Badge>
@@ -75,7 +83,7 @@ const TableRowComponent = ({
         {product.lastPrice !== product.nowPrice
           ? (product.nowPrice - product.lastPrice).toFixed(2)
           : 0}
-        ({onDdiffPercent(product.lastPrice, product.nowPrice)})
+        {diffPercent(product.lastPrice, product.nowPrice)}
       </TableCell>
       <TableCell>
         <Button variant="destructive" onClick={() => onDeleteItem(product.sku)}>
