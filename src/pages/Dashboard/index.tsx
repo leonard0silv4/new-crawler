@@ -1,20 +1,7 @@
 import { Button } from "@/components/ui/button";
-import {
-  Table,
-  TableHead,
-  TableHeader,
-  TableBody,
-  TableRow,
-  TableCell,
-} from "@/components/ui/table";
+import { Table, TableBody } from "@/components/ui/table";
 import { Input } from "@/components/ui/input";
-import {
-  Search,
-  PlusCircle,
-  RefreshCcw,
-  Trash2Icon,
-  Loader,
-} from "lucide-react";
+import { Search, PlusCircle, RefreshCcw, Loader } from "lucide-react";
 import {
   Dialog,
   DialogClose,
@@ -28,11 +15,12 @@ import {
 import { Progress } from "@/components/ui/progress";
 import { useEffect, useRef, useState } from "react";
 import instance from "@/config/axios";
-import { Badge } from "@/components/ui/badge";
+
 import { toast } from "sonner";
 import Header from "@/components/Header";
+import TableRowComponent, { TableMain } from "./TableRow";
 
-interface Product {
+export interface Product {
   sku: string;
   link: string;
   name: string;
@@ -78,8 +66,9 @@ export default function Dashboard() {
     try {
       Boolean(new URL(link));
     } catch (e) {
-      toast("Ocorreu um erro ", {
+      toast.error("Ocorreu um erro ", {
         description: "Verifique se o link esta disponivel",
+        position: "top-right",
       });
       return;
     }
@@ -92,8 +81,9 @@ export default function Dashboard() {
       })
       .catch((error: any) => {
         console.log(error);
-        toast("Ocorreu um erro ", {
+        toast.error("Ocorreu um erro ", {
           description: "Verifique se o link esta disponivel",
+          position: "top-right",
         });
       })
       .finally(() => {
@@ -133,9 +123,11 @@ export default function Dashboard() {
         setPercent(progress);
       } else {
         const productAtt = JSON.parse(event.data);
+        console.log("updateAnExist");
         updateAnExist(productAtt);
-        toast(productAtt.name, {
+        toast.success(productAtt.name, {
           description: "Atualizado",
+          position: "top-right",
         });
       }
     };
@@ -156,23 +148,21 @@ export default function Dashboard() {
   };
 
   const updateAnExist = (newProduct: Product) => {
-    setProducts((prevProducts) => {
-      const refreshedProducts = prevProducts.map((product) => {
-        if (product.sku === newProduct.sku) {
-          return {
-            ...product,
-            nowPrice: newProduct.nowPrice,
-            lastPrice: newProduct.lastPrice,
-          };
-        }
-        return product;
-      });
-      return refreshedProducts;
+    const refreshedProducts = products.map((product) => {
+      if (product.sku === newProduct.sku) {
+        return {
+          ...product,
+          nowPrice: newProduct.nowPrice,
+          lastPrice: newProduct.lastPrice,
+          status: newProduct.status,
+        };
+      }
+      return product;
     });
+    setProducts(refreshedProducts);
   };
 
   const FiltredResults = () => {
-    console.log(filterName);
     if (filterName?.length > 2) {
       const filtredProducts = products.filter((prd) =>
         prd.name.toLocaleLowerCase().includes(filterName.toLocaleLowerCase())
@@ -184,71 +174,19 @@ export default function Dashboard() {
         <div className="border rounded-lg p-2 ">
           <h2 className="text-2xl font-bold p-3">Filtrados</h2>
           <Table>
-            <TableHeader>
-              <TableHead>Imagem</TableHead>
-              <TableHead>Nome</TableHead>
-              <TableHead>Preço Atual</TableHead>
-              <TableHead>Ultimo Preço</TableHead>
-              <TableHead>Status</TableHead>
-              <TableHead>Variação</TableHead>
-              <TableHead></TableHead>
-            </TableHeader>
+            <TableMain />
 
             <TableBody>
               {filtredProducts.map((product) => {
                 return (
-                  <TableRow key={product.sku}>
-                    <TableCell>
-                      <img
-                        alt={product.name}
-                        title={product.name}
-                        style={{
-                          width: "50px",
-                          height: "50px",
-                          objectFit: "scale-down",
-                        }}
-                        src={product.image}
-                      />
-                    </TableCell>
-                    <TableCell>
-                      <a target="_blank" href={product.link}>
-                        {product.name.length > 30
-                          ? `${product.name.slice(0, 30)}...`
-                          : product.name}
-                      </a>
-                    </TableCell>
-                    <TableCell> {`R$ ${product.nowPrice}`}</TableCell>
-                    <TableCell> {`R$ ${product.lastPrice}`}</TableCell>
-                    <TableCell>
-                      {" "}
-                      {product.status.indexOf("InStock") != -1 ||
-                      product.nowPrice != 0 ? (
-                        <Badge>ON</Badge>
-                      ) : (
-                        <Badge variant="destructive">OFF</Badge>
-                      )}
-                    </TableCell>
-                    <TableCell>
-                      {" "}
-                      R$
-                      {product.lastPrice !== product.nowPrice
-                        ? (product.nowPrice - product.lastPrice).toFixed(2)
-                        : 0}
-                      ({diffPercent(product.lastPrice, product.nowPrice)})
-                    </TableCell>
-                    <TableCell>
-                      <Button
-                        variant="destructive"
-                        onClick={() => deleteItem(product.sku)}
-                      >
-                        {load == product.sku ? (
-                          <Loader className="w-4 h-4 animate-spin" />
-                        ) : (
-                          <Trash2Icon className="w-4 cursor-pointer" />
-                        )}
-                      </Button>
-                    </TableCell>
-                  </TableRow>
+                  <TableRowComponent
+                    key={`t-${product.sku}`}
+                    load={load}
+                    product={product}
+                    onDeleteItem={deleteItem}
+                    onDdiffPercent={diffPercent}
+                    keyUsage={`f-${product.sku}`}
+                  />
                 );
               })}
             </TableBody>
@@ -295,7 +233,7 @@ export default function Dashboard() {
             <RefreshCcw
               className={`w-4 h-4 mr-2 ${onUpdate ? "animate-spin" : ""}`}
             />
-            Atualizar lista
+            {onUpdate ? `Atualizando` : "Atualizar"} lista
           </Button>
 
           <Dialog>
@@ -348,73 +286,22 @@ export default function Dashboard() {
         </div>
 
         <FiltredResults />
+
         <div className="border rounded-lg p-2">
           <Table>
-            <TableHeader>
-              <TableHead>Imagem</TableHead>
-              <TableHead>Nome</TableHead>
-              <TableHead>Preço Atual</TableHead>
-              <TableHead>Ultimo Preço</TableHead>
-              <TableHead>Status</TableHead>
-              <TableHead>Variação</TableHead>
-              <TableHead></TableHead>
-            </TableHeader>
+            <TableMain />
 
             <TableBody>
               {products?.map((product, i) => {
                 return (
-                  <TableRow key={i}>
-                    <TableCell>
-                      <img
-                        alt={product.name}
-                        title={product.name}
-                        style={{
-                          width: "50px",
-                          height: "50px",
-                          objectFit: "scale-down",
-                        }}
-                        src={product.image}
-                      />
-                    </TableCell>
-                    <TableCell>
-                      <a target="_blank" href={product.link}>
-                        {product.name.length > 30
-                          ? `${product.name.slice(0, 30)}...`
-                          : product.name}
-                      </a>
-                    </TableCell>
-                    <TableCell> {`R$ ${product.nowPrice}`}</TableCell>
-                    <TableCell> {`R$ ${product.lastPrice}`}</TableCell>
-                    <TableCell>
-                      {" "}
-                      {product.status.indexOf("InStock") != -1 ||
-                      product.nowPrice != 0 ? (
-                        <Badge>ON</Badge>
-                      ) : (
-                        <Badge variant="destructive">OFF</Badge>
-                      )}
-                    </TableCell>
-                    <TableCell>
-                      {" "}
-                      R$
-                      {product.lastPrice !== product.nowPrice
-                        ? (product.nowPrice - product.lastPrice).toFixed(2)
-                        : 0}
-                      ({diffPercent(product.lastPrice, product.nowPrice)})
-                    </TableCell>
-                    <TableCell>
-                      <Button
-                        variant="destructive"
-                        onClick={() => deleteItem(product.sku)}
-                      >
-                        {load == product.sku ? (
-                          <Loader className="w-4 h-4 animate-spin" />
-                        ) : (
-                          <Trash2Icon className="w-4 cursor-pointer" />
-                        )}
-                      </Button>
-                    </TableCell>
-                  </TableRow>
+                  <TableRowComponent
+                    key={`b-${product.sku}`}
+                    load={load}
+                    product={product}
+                    onDeleteItem={deleteItem}
+                    onDdiffPercent={diffPercent}
+                    keyUsage={product.sku}
+                  />
                 );
               })}
             </TableBody>
