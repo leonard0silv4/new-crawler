@@ -283,7 +283,7 @@ export default function Dashboard() {
             <TableMain />
 
             <TableBody>
-              {products?.map((product, i) => {
+              {products?.map((product) => {
                 return (
                   <TableRowComponent
                     key={`b-${product.sku}`}
