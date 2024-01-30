@@ -1,5 +1,11 @@
 import { Button } from "@/components/ui/button";
-import { Table, TableBody } from "@/components/ui/table";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableFooter,
+  TableRow,
+} from "@/components/ui/table";
 import { Input } from "@/components/ui/input";
 import { Search, PlusCircle, RefreshCcw, Loader } from "lucide-react";
 import {
@@ -160,7 +166,7 @@ export default function Dashboard() {
         prd.name.toLocaleLowerCase().includes(filterName.toLocaleLowerCase())
       );
 
-      if (!filtredProducts.length) return;
+      if (!filtredProducts?.length) return;
 
       return (
         <div className="border rounded-lg p-2 ">
@@ -295,6 +301,11 @@ export default function Dashboard() {
                 );
               })}
             </TableBody>
+            <TableFooter>
+              <TableRow>
+                <TableCell colSpan={1}>Total : {products?.length}</TableCell>
+              </TableRow>
+            </TableFooter>
           </Table>
         </div>
       </div>

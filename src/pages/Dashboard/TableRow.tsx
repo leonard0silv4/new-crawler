@@ -50,19 +50,19 @@ const TableRowComponent = ({
     <TableRow key={keyUsage}>
       <TableCell>
         <img
-          alt={product.name}
-          title={product.name}
+          alt={product?.name}
+          title={product?.name}
           style={{
             width: "50px",
             height: "50px",
             objectFit: "scale-down",
           }}
-          src={product.image}
+          src={product?.image}
         />
       </TableCell>
       <TableCell>
-        <a target="_blank" href={product.link}>
-          {product.name.length > 30
+        <a title={product?.name} target="_blank" href={product.link}>
+          {product?.name?.length > 30
             ? `${product.name.slice(0, 30)}...`
             : product.name}
         </a>
