@@ -269,8 +269,8 @@ export default function Dashboard() {
 
         <h1 className="text-3xl font-bold">Produtos</h1>
 
-        <div className="flex items-center justify-between">
-          <form className="flex items-center gap-2">
+        <div className="md:flex md:items-center md:justify-between">
+          <form className="md:flex md:items-center md:gap-2">
             <Input
               value={filterName}
               onChange={(e) => setFilterName(e.target.value)}
@@ -278,17 +278,19 @@ export default function Dashboard() {
               placeholder="Buscar por nome"
               className="w-auto"
             />
-            <Button type="submit" variant="link">
+            <Button className="hidden lg:flex" type="submit" variant="link">
               <Search className="w-4 h-4 mr-2" />
               Filtrar resultados
             </Button>
           </form>
 
+          <br className="block lg:hidden" />
+
           <Button
             disabled={onUpdate}
             onClick={() => updateAll()}
             variant="outline"
-            className="ml-auto mr-5"
+            className="ml-auto mr-5 mb-4 lg:mb-0"
           >
             <RefreshCcw
               className={`w-4 h-4 mr-2 ${onUpdate ? "animate-spin" : ""}`}
@@ -313,7 +315,7 @@ export default function Dashboard() {
               </DialogHeader>
 
               <form onSubmit={(e) => AddLink(e)} className="space-y-6">
-                <div className="grid grid-cols-4 items-center text-left ">
+                <div className="grid grid-cols-4 items-center text-left">
                   <Input
                     onChange={(e) => setLink(e.target.value)}
                     value={link}
@@ -323,7 +325,7 @@ export default function Dashboard() {
                   />
                 </div>
 
-                <DialogFooter>
+                <DialogFooter className="gap-3">
                   <DialogClose asChild>
                     <Button type="button" variant="outline">
                       Cancelar
