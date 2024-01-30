@@ -30,6 +30,7 @@ import { useEffect, useRef, useState } from "react";
 import instance from "@/config/axios";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
+import Header from "@/components/Header";
 
 interface Product {
   sku: string;
@@ -260,158 +261,162 @@ export default function Dashboard() {
   };
 
   return (
-    <div className="p-6 max-w-7xl mx-auto space-y-4">
-      {onUpdate && <Progress value={Number(percent.replace("%", ""))} />}
+    <>
+      <Header />
 
-      <h1 className="text-3xl font-bold">Produtos</h1>
+      <div className="p-6 max-w-7xl mx-auto space-y-4">
+        {onUpdate && <Progress value={Number(percent.replace("%", ""))} />}
 
-      <div className="flex items-center justify-between">
-        <form className="flex items-center gap-2">
-          <Input
-            value={filterName}
-            onChange={(e) => setFilterName(e.target.value)}
-            name="name"
-            placeholder="Buscar por nome"
-            className="w-auto"
-          />
-          <Button type="submit" variant="link">
-            <Search className="w-4 h-4 mr-2" />
-            Filtrar resultados
-          </Button>
-        </form>
+        <h1 className="text-3xl font-bold">Produtos</h1>
 
-        <Button
-          disabled={onUpdate}
-          onClick={() => updateAll()}
-          variant="outline"
-          className="ml-auto mr-5"
-        >
-          <RefreshCcw className="w-4 h-4 mr-2" />
-          Atualizar lista
-        </Button>
-
-        <Dialog>
-          <DialogTrigger asChild>
-            <Button>
-              <PlusCircle className="w-4 h-4 mr-2" />
-              Novo Produto
+        <div className="flex items-center justify-between">
+          <form className="flex items-center gap-2">
+            <Input
+              value={filterName}
+              onChange={(e) => setFilterName(e.target.value)}
+              name="name"
+              placeholder="Buscar por nome"
+              className="w-auto"
+            />
+            <Button type="submit" variant="link">
+              <Search className="w-4 h-4 mr-2" />
+              Filtrar resultados
             </Button>
-          </DialogTrigger>
+          </form>
 
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>Novo produto</DialogTitle>
-              <DialogDescription>
-                Criar um novo acompanhamento
-              </DialogDescription>
-            </DialogHeader>
+          <Button
+            disabled={onUpdate}
+            onClick={() => updateAll()}
+            variant="outline"
+            className="ml-auto mr-5"
+          >
+            <RefreshCcw className="w-4 h-4 mr-2" />
+            Atualizar lista
+          </Button>
 
-            <form onSubmit={(e) => AddLink(e)} className="space-y-6">
-              <div className="grid grid-cols-4 items-center text-left ">
-                <Input
-                  onChange={(e) => setLink(e.target.value)}
-                  value={link}
-                  id="link"
-                  className="col-span-4"
-                  placeholder="URL"
-                />
-              </div>
+          <Dialog>
+            <DialogTrigger asChild>
+              <Button>
+                <PlusCircle className="w-4 h-4 mr-2" />
+                Novo Produto
+              </Button>
+            </DialogTrigger>
 
-              <DialogFooter>
-                <DialogClose asChild>
-                  <Button type="button" variant="outline">
-                    Cancelar
-                  </Button>
-                </DialogClose>
-                <Button
-                  disabled={load == "addLink"}
-                  onClick={(e) => AddLink(e)}
-                  type="submit"
-                >
-                  {load === "addLink" && (
-                    <Loader className="w-4 h-4 mr-2 animate-spin" />
-                  )}
-                  Salvar
-                </Button>
-              </DialogFooter>
-            </form>
-          </DialogContent>
-        </Dialog>
-      </div>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Novo produto</DialogTitle>
+                <DialogDescription>
+                  Criar um novo acompanhamento
+                </DialogDescription>
+              </DialogHeader>
 
-      <FiltredResults />
-      <div className="border rounded-lg p-2">
-        <Table>
-          <TableHeader>
-            <TableHead>Imagem</TableHead>
-            <TableHead>Nome</TableHead>
-            <TableHead>Preço Atual</TableHead>
-            <TableHead>Ultimo Preço</TableHead>
-            <TableHead>Status</TableHead>
-            <TableHead>Variação</TableHead>
-            <TableHead></TableHead>
-          </TableHeader>
+              <form onSubmit={(e) => AddLink(e)} className="space-y-6">
+                <div className="grid grid-cols-4 items-center text-left ">
+                  <Input
+                    onChange={(e) => setLink(e.target.value)}
+                    value={link}
+                    id="link"
+                    className="col-span-4"
+                    placeholder="URL"
+                  />
+                </div>
 
-          <TableBody>
-            {products?.map((product, i) => {
-              return (
-                <TableRow key={i}>
-                  <TableCell>
-                    <img
-                      alt={product.name}
-                      title={product.name}
-                      style={{
-                        width: "50px",
-                        height: "50px",
-                        objectFit: "scale-down",
-                      }}
-                      src={product.image}
-                    />
-                  </TableCell>
-                  <TableCell>
-                    <a target="_blank" href={product.link}>
-                      {product.name.length > 30
-                        ? `${product.name.slice(0, 30)}...`
-                        : product.name}
-                    </a>
-                  </TableCell>
-                  <TableCell> {`R$ ${product.nowPrice}`}</TableCell>
-                  <TableCell> {`R$ ${product.lastPrice}`}</TableCell>
-                  <TableCell>
-                    {" "}
-                    {product.status.indexOf("InStock") != -1 ||
-                    product.nowPrice != 0 ? (
-                      <Badge>ON</Badge>
-                    ) : (
-                      <Badge variant="destructive">OFF</Badge>
-                    )}
-                  </TableCell>
-                  <TableCell>
-                    {" "}
-                    R$
-                    {product.lastPrice !== product.nowPrice
-                      ? (product.nowPrice - product.lastPrice).toFixed(2)
-                      : 0}
-                    ({diffPercent(product.lastPrice, product.nowPrice)})
-                  </TableCell>
-                  <TableCell>
-                    <Button
-                      variant="destructive"
-                      onClick={() => deleteItem(product.sku)}
-                    >
-                      {load == product.sku ? (
-                        <Loader className="w-4 h-4 animate-spin" />
-                      ) : (
-                        <Trash2Icon className="w-4 cursor-pointer" />
-                      )}
+                <DialogFooter>
+                  <DialogClose asChild>
+                    <Button type="button" variant="outline">
+                      Cancelar
                     </Button>
-                  </TableCell>
-                </TableRow>
-              );
-            })}
-          </TableBody>
-        </Table>
+                  </DialogClose>
+                  <Button
+                    disabled={load == "addLink"}
+                    onClick={(e) => AddLink(e)}
+                    type="submit"
+                  >
+                    {load === "addLink" && (
+                      <Loader className="w-4 h-4 mr-2 animate-spin" />
+                    )}
+                    Salvar
+                  </Button>
+                </DialogFooter>
+              </form>
+            </DialogContent>
+          </Dialog>
+        </div>
+
+        <FiltredResults />
+        <div className="border rounded-lg p-2">
+          <Table>
+            <TableHeader>
+              <TableHead>Imagem</TableHead>
+              <TableHead>Nome</TableHead>
+              <TableHead>Preço Atual</TableHead>
+              <TableHead>Ultimo Preço</TableHead>
+              <TableHead>Status</TableHead>
+              <TableHead>Variação</TableHead>
+              <TableHead></TableHead>
+            </TableHeader>
+
+            <TableBody>
+              {products?.map((product, i) => {
+                return (
+                  <TableRow key={i}>
+                    <TableCell>
+                      <img
+                        alt={product.name}
+                        title={product.name}
+                        style={{
+                          width: "50px",
+                          height: "50px",
+                          objectFit: "scale-down",
+                        }}
+                        src={product.image}
+                      />
+                    </TableCell>
+                    <TableCell>
+                      <a target="_blank" href={product.link}>
+                        {product.name.length > 30
+                          ? `${product.name.slice(0, 30)}...`
+                          : product.name}
+                      </a>
+                    </TableCell>
+                    <TableCell> {`R$ ${product.nowPrice}`}</TableCell>
+                    <TableCell> {`R$ ${product.lastPrice}`}</TableCell>
+                    <TableCell>
+                      {" "}
+                      {product.status.indexOf("InStock") != -1 ||
+                      product.nowPrice != 0 ? (
+                        <Badge>ON</Badge>
+                      ) : (
+                        <Badge variant="destructive">OFF</Badge>
+                      )}
+                    </TableCell>
+                    <TableCell>
+                      {" "}
+                      R$
+                      {product.lastPrice !== product.nowPrice
+                        ? (product.nowPrice - product.lastPrice).toFixed(2)
+                        : 0}
+                      ({diffPercent(product.lastPrice, product.nowPrice)})
+                    </TableCell>
+                    <TableCell>
+                      <Button
+                        variant="destructive"
+                        onClick={() => deleteItem(product.sku)}
+                      >
+                        {load == product.sku ? (
+                          <Loader className="w-4 h-4 animate-spin" />
+                        ) : (
+                          <Trash2Icon className="w-4 cursor-pointer" />
+                        )}
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                );
+              })}
+            </TableBody>
+          </Table>
+        </div>
       </div>
-    </div>
+    </>
   );
 }
