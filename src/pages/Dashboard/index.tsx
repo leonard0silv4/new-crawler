@@ -290,7 +290,9 @@ export default function Dashboard() {
             variant="outline"
             className="ml-auto mr-5"
           >
-            <RefreshCcw className="w-4 h-4 mr-2" />
+            <RefreshCcw
+              className={`w-4 h-4 mr-2 ${onUpdate ? "animate-spin" : ""}`}
+            />
             Atualizar lista
           </Button>
 
