@@ -29,6 +29,7 @@
     "react-router-dom": "^6.21.3",
     "sonner": "^1.4.0",
     "sort-by": "^1.2.0",
+    "styled-components": "^6.1.8",
     "tailwind-merge": "^2.2.1",
     "tailwindcss-animate": "^1.0.7"
   },

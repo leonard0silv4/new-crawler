@@ -14,6 +14,7 @@ interface TableRowProps {
   load: string | number;
   product: Product;
   keyUsage?: any;
+  updated?: boolean;
 }
 
 export const TableMain = () => {
@@ -35,6 +36,7 @@ const TableRowComponent = ({
   onDeleteItem,
   load,
   keyUsage,
+  updated,
 }: TableRowProps) => {
   const diffPercent = (oldValue: number, newValue: number) => {
     if (oldValue == 0 || newValue == 0) return;
@@ -47,7 +49,7 @@ const TableRowComponent = ({
   };
 
   return (
-    <TableRow key={keyUsage}>
+    <TableRow className={updated ? "updated" : ""} key={keyUsage}>
       <TableCell>
         <img
           alt={product?.name}

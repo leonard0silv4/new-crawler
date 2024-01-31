@@ -11,7 +11,7 @@ const Header = () => {
                   className="bg-zinc-900 text-white rounded-md px-3 py-2 text-sm font-medium"
                   aria-current="page"
                 >
-                  Links
+                  Produtos
                 </a>
                 <a
                   href="/pedidos"

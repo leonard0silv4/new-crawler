@@ -25,6 +25,7 @@ import instance from "@/config/axios";
 import { toast } from "sonner";
 import Header from "@/components/Header";
 import TableRowComponent, { TableMain } from "./TableRow";
+import * as S from "./DashboardStyles";
 
 export interface Product {
   sku: string;
@@ -43,6 +44,7 @@ export default function Dashboard() {
   const [link, setLink] = useState("");
   const [load, setLoad] = useState("");
   const [filterName, setFilterName] = useState("");
+  const [skusUpdated, setSkusUpdated] = useState<any>([]);
 
   const [products, setProducts] = useState<Product[]>([]);
 
@@ -129,7 +131,8 @@ export default function Dashboard() {
         setPercent(progress);
       } else {
         const productAtt = JSON.parse(event.data);
-        console.log("updateAnExist");
+        setSkusUpdated((skusUpdated: any) => [...skusUpdated, productAtt.sku]);
+
         updateAnExist(productAtt);
         toast.success(productAtt.name, {
           description: "Atualizado",
@@ -183,6 +186,7 @@ export default function Dashboard() {
                     product={product}
                     onDeleteItem={deleteItem}
                     keyUsage={`f-${product.sku}`}
+                    updated={skusUpdated.includes(product.sku) ? true : false}
                   />
                 );
               })}
@@ -199,7 +203,7 @@ export default function Dashboard() {
     <>
       <Header />
 
-      <div className="p-6 max-w-7xl mx-auto space-y-4">
+      <S.Main className="p-6 max-w-7xl mx-auto space-y-4">
         {onUpdate && <Progress value={Number(percent.replace("%", ""))} />}
 
         <h1 className="text-3xl font-bold">Produtos</h1>
@@ -297,6 +301,7 @@ export default function Dashboard() {
                     product={product}
                     onDeleteItem={deleteItem}
                     keyUsage={product.sku}
+                    updated={skusUpdated.includes(product.sku) ? true : false}
                   />
                 );
               })}
@@ -308,7 +313,7 @@ export default function Dashboard() {
             </TableFooter>
           </Table>
         </div>
-      </div>
+      </S.Main>
     </>
   );
 }
