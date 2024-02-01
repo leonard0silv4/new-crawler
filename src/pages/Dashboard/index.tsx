@@ -25,6 +25,8 @@ import instance from "@/config/axios";
 import { toast } from "sonner";
 import Header from "@/components/Header";
 import TableRowComponent, { TableMain } from "./TableRow";
+import { NativeEventSource, EventSourcePolyfill } from "event-source-polyfill";
+
 import * as S from "./DashboardStyles";
 
 export interface Product {
@@ -45,6 +47,8 @@ export default function Dashboard() {
   const [load, setLoad] = useState("");
   const [filterName, setFilterName] = useState("");
   const [skusUpdated, setSkusUpdated] = useState<any>([]);
+
+  const EventSource = NativeEventSource || EventSourcePolyfill;
 
   const [products, setProducts] = useState<Product[]>([]);
 
@@ -118,8 +122,13 @@ export default function Dashboard() {
   };
 
   const updateAll = () => {
-    const eventSource = new EventSource(
-      `${import.meta.env.VITE_APP_BASE_URL}links/update`
+    var eventSource = new EventSourcePolyfill(
+      `${import.meta.env.VITE_APP_BASE_URL}links/update`,
+      {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("userToken")}`,
+        },
+      }
     );
 
     setOnUpdate(true);

@@ -2,7 +2,8 @@ import { Outlet, Navigate } from "react-router-dom";
 
 const PrivateRoutes = () => {
   let auth = {
-    token: window.localStorage !== undefined && localStorage.getItem("user"),
+    token:
+      window.localStorage !== undefined && localStorage.getItem("userToken"),
   };
   return auth.token ? <Outlet /> : <Navigate to="/login" />;
 };

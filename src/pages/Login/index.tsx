@@ -1,33 +1,41 @@
-import { useState, useEffect } from "react";
+import instance from "@/config/axios";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { toast } from "sonner";
 
 const Login = () => {
-  const [pass, setPass] = useState("");
   const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
 
   const navigate = useNavigate();
 
   const handleSubmit = (e: any) => {
-    if (email === "root@root.com.br" && pass === "root") {
-      if (window.localStorage !== undefined)
-        localStorage.setItem("user", "true");
+    instance
+      .post("/login", {
+        username: email,
+        password,
+      })
+      .then((response: any) => {
+        localStorage.setItem("userToken", response?.token);
 
-      navigate("/");
-    }
+        navigate("/");
+      })
+      .catch((err) => {
+        console.log("🚀 ~ handleSubmit ~ err:", err);
+        toast.error("Erro ", {
+          description: err?.response?.data?.error,
+          position: "top-center",
+        });
+      });
 
     e.preventDefault();
     return false;
   };
 
-  useEffect(() => {
-    if (window.localStorage !== undefined && localStorage.getItem("user")) {
-      navigate("/");
-    }
-  }, []);
   return (
     <>
       <div className="flex min-h-full flex-1 flex-col justify-center px-6 py-12 lg:px-8">
-        <div className="mt-10 sm:mx-auto sm:w-full sm:max-w-sm">
+        <div className="mt-20 sm:mx-auto sm:w-full sm:max-w-sm">
           <form className="space-y-6" onSubmit={(e) => handleSubmit(e)}>
             <div>
               <label
@@ -62,7 +70,7 @@ const Login = () => {
                 <input
                   id="password"
                   name="password"
-                  onChange={(e) => setPass(e.target.value)}
+                  onChange={(e) => setPassword(e.target.value)}
                   type="password"
                   autoComplete="current-password"
                   required
