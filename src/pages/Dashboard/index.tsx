@@ -48,8 +48,6 @@ export default function Dashboard() {
   const [filterName, setFilterName] = useState("");
   const [skusUpdated, setSkusUpdated] = useState<any>([]);
 
-  const EventSource = NativeEventSource || EventSourcePolyfill;
-
   const [products, setProducts] = useState<Product[]>([]);
 
   useEffect(() => {
