@@ -89,8 +89,7 @@ export default function Dashboard() {
         fetchData();
         setLink("");
       })
-      .catch((error: any) => {
-        console.log(error);
+      .catch(() => {
         toast.error("Ocorreu um erro ", {
           description: "Verifique se o produto esta disponível",
           position: "top-right",
@@ -150,6 +149,7 @@ export default function Dashboard() {
 
     eventSource.onerror = (error) => {
       console.error("Erro na conexão SSE:", error);
+      errorFn(error);
       eventSource.close();
       setOnUpdate(false);
     };
