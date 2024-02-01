@@ -25,7 +25,7 @@ import instance from "@/config/axios";
 import { toast } from "sonner";
 import Header from "@/components/Header";
 import TableRowComponent, { TableMain } from "./TableRow";
-import { NativeEventSource, EventSourcePolyfill } from "event-source-polyfill";
+import { EventSourcePolyfill } from "event-source-polyfill";
 
 import * as S from "./DashboardStyles";
 
