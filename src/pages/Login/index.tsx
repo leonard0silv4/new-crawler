@@ -21,7 +21,6 @@ const Login = () => {
         navigate("/");
       })
       .catch((err) => {
-        console.log("🚀 ~ handleSubmit ~ err:", err);
         toast.error("Erro ", {
           description: err?.response?.data?.error,
           position: "top-center",

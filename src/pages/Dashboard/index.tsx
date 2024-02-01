@@ -20,7 +20,7 @@ import {
 } from "@/components/ui/dialog";
 import { Progress } from "@/components/ui/progress";
 import { useEffect, useRef, useState } from "react";
-import instance from "@/config/axios";
+import instance, { errorFn } from "@/config/axios";
 
 import { toast } from "sonner";
 import Header from "@/components/Header";
@@ -90,7 +90,6 @@ export default function Dashboard() {
         setLink("");
       })
       .catch((error: any) => {
-        console.log(error);
         toast.error("Ocorreu um erro ", {
           description: "Verifique se o produto esta disponível",
           position: "top-right",
@@ -150,6 +149,7 @@ export default function Dashboard() {
 
     eventSource.onerror = (error) => {
       console.error("Erro na conexão SSE:", error);
+      errorFn(error);
       eventSource.close();
       setOnUpdate(false);
     };
