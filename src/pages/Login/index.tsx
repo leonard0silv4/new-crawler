@@ -1,4 +1,6 @@
+import { Button } from "@/components/ui/button";
 import instance from "@/config/axios";
+import { Loader2 } from "lucide-react";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
@@ -6,10 +8,12 @@ import { toast } from "sonner";
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [isLoad, setIsLoad] = useState(false);
 
   const navigate = useNavigate();
 
   const handleSubmit = (e: any) => {
+    setIsLoad(true);
     instance
       .post("/login", {
         username: email,
@@ -25,6 +29,9 @@ const Login = () => {
           description: err?.response?.data?.error,
           position: "top-center",
         });
+      })
+      .finally(() => {
+        setIsLoad(false);
       });
 
     e.preventDefault();
@@ -62,7 +69,7 @@ const Login = () => {
                   htmlFor="password"
                   className="block text-sm font-medium leading-6 text-gray-900"
                 >
-                  Password
+                  Senha
                 </label>
               </div>
               <div className="mt-2">
@@ -79,13 +86,15 @@ const Login = () => {
             </div>
 
             <div>
-              <button
-                onClick={handleSubmit}
+              <Button
+                disabled={isLoad}
+                onClick={(e) => handleSubmit(e)}
                 type="submit"
                 className="flex w-full justify-center rounded-md bg-indigo-600 px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
               >
+                {isLoad && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
                 Login
-              </button>
+              </Button>
             </div>
           </form>
         </div>
