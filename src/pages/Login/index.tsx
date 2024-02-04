@@ -39,9 +39,8 @@ const Login = () => {
   };
 
   useEffect(() => {
-    if (window.localStorage !== undefined && localStorage.getItem("token")) {
+    if (window.localStorage !== undefined && localStorage.getItem("userToken"))
       navigate("/");
-    }
   }, []);
 
   return (
