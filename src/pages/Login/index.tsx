@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
 import instance from "@/config/axios";
 import { Loader2 } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 
@@ -37,6 +37,12 @@ const Login = () => {
     e.preventDefault();
     return false;
   };
+
+  useEffect(() => {
+    if (window.localStorage !== undefined && localStorage.getItem("token")) {
+      navigate("/");
+    }
+  }, []);
 
   return (
     <>
