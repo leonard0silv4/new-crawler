@@ -7,6 +7,7 @@ import Dashboard from "./pages/Dashboard";
 import Login from "./pages/Login";
 import Sales from "./pages/Sales";
 import { Toaster } from "@/components/ui/sonner";
+import AccountCreate from "./pages/AccountCreate";
 
 function App() {
   return (
@@ -20,6 +21,7 @@ function App() {
             <Route element={<Sales />} path="/pedidos" />
           </Route>
           <Route element={<Login />} path="/login" />
+          <Route element={<AccountCreate />} path="/accountCreate" />
         </Routes>
       </Router>
     </>

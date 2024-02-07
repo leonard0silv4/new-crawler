@@ -42,10 +42,15 @@ const TableRowComponent = ({
     if (oldValue == 0 || newValue == 0) return;
 
     var diff = newValue - oldValue;
-
     var diffPercente = (diff / Math.abs(oldValue)) * 100;
-
     return `(${parseFloat(diffPercente.toFixed(2))}%)`;
+  };
+
+  const formatDate = (d: Date) => {
+    if (!d) return;
+    return new Date(d).toLocaleString("pt-BR", {
+      timeZone: "America/Sao_Paulo",
+    });
   };
 
   return (
@@ -64,6 +69,8 @@ const TableRowComponent = ({
       </TableCell>
       <TableCell>
         <a title={product?.name} target="_blank" href={product.link}>
+          {formatDate(product?.created_at)}
+          <br />
           {product?.name?.length > 30
             ? `${product.name.slice(0, 30)}...`
             : product.name}

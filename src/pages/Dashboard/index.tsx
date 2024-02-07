@@ -37,6 +37,7 @@ export interface Product {
   nowPrice: number;
   lastPrice: number;
   image: string;
+  created_at: any;
 }
 
 export default function Dashboard() {

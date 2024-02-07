@@ -3,6 +3,8 @@ import { toast } from 'sonner'
 
 export const errorFn = (error: any) => {
     if (error?.response?.status == 440 || error?.status == 440) {
+        localStorage.removeItem("userToken");
+
         toast.loading("Sessão expirada", {
             description: "Redirecionando para login...",
             position: "top-right",
