@@ -11,3 +11,9 @@ export const Main = styled.div`
         }
     }
 `;
+
+
+export const Link = styled.a`
+    max-width: 350px;
+    display: block;
+`

@@ -8,6 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Loader, Trash2Icon } from "lucide-react";
 import { Product } from ".";
+import { Link } from "./DashboardStyles";
 
 interface TableRowProps {
   onDeleteItem: (sku: string | number) => void;
@@ -68,18 +69,12 @@ const TableRowComponent = ({
         />
       </TableCell>
       <TableCell>
-        <a title={product?.name} target="_blank" href={product.link}>
-          {formatDate(product?.created_at)}
-          <br />
-          {product?.name?.length > 30
-            ? `${product.name.slice(0, 30)}...`
-            : product.name}
-        </a>
+        <p> Ultima atualização : {formatDate(product?.updatedAt)}</p>
+        <Link href={product.link}>{product.name}</Link>
       </TableCell>
       <TableCell> {`R$ ${product.nowPrice}`}</TableCell>
       <TableCell> {`R$ ${product.lastPrice}`}</TableCell>
       <TableCell>
-        {" "}
         {product?.status?.indexOf("InStock") != -1 || product.nowPrice != 0 ? (
           <Badge>ON</Badge>
         ) : (
@@ -87,7 +82,6 @@ const TableRowComponent = ({
         )}
       </TableCell>
       <TableCell>
-        {" "}
         R$
         {product.lastPrice !== product.nowPrice
           ? (product.nowPrice - product.lastPrice).toFixed(2)
