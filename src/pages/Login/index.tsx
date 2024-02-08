@@ -1,4 +1,6 @@
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+
 import instance from "@/config/axios";
 import { Loader2 } from "lucide-react";
 import { useEffect, useState } from "react";
@@ -56,14 +58,13 @@ const Login = () => {
                 Email
               </label>
               <div className="mt-2">
-                <input
-                  id="email"
-                  name="email"
-                  type="email"
+                <Input
+                  value={email}
                   onChange={(e) => setEmail(e.target.value)}
+                  name="email"
+                  placeholder="Email"
                   autoComplete="email"
-                  required
-                  className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6 px-3"
+                  className="w-full"
                 />
               </div>
             </div>
@@ -78,14 +79,14 @@ const Login = () => {
                 </label>
               </div>
               <div className="mt-2">
-                <input
-                  id="password"
-                  name="password"
-                  onChange={(e) => setPassword(e.target.value)}
+                <Input
                   type="password"
-                  autoComplete="current-password"
-                  required
-                  className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6 px-3"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  name="password"
+                  placeholder="Senha"
+                  autoComplete="password"
+                  className="w-full"
                 />
               </div>
             </div>
@@ -95,13 +96,22 @@ const Login = () => {
                 disabled={isLoad}
                 onClick={(e) => handleSubmit(e)}
                 type="submit"
-                className="flex w-full justify-center rounded-md bg-indigo-600 px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+                className="flex w-full justify-center rounded-md px-3 py-1.5 text-sm font-semibold leading-6  shadow-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
               >
                 {isLoad && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
                 Login
               </Button>
             </div>
           </form>
+
+          <p className="mt-10 text-center text-sm text-gray-500">
+            <a
+              href="/account-create"
+              className="font-semibold leading-6 text-gray-950 hover:text-gray-700"
+            >
+              Cadastre-se
+            </a>
+          </p>
         </div>
       </div>
     </>

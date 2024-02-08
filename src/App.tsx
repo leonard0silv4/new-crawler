@@ -18,10 +18,10 @@ function App() {
           <Route element={<PrivateRoutes />}>
             <Route element={<Dashboard />} path="/" />
             <Route element={<Dashboard />} path="/dashboard" />
-            <Route element={<Sales />} path="/pedidos" />
+            <Route element={<Sales />} path="/orders" />
           </Route>
           <Route element={<Login />} path="/login" />
-          <Route element={<AccountCreate />} path="/accountCreate" />
+          <Route element={<AccountCreate />} path="/account-create" />
         </Routes>
       </Router>
     </>

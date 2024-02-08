@@ -18,9 +18,17 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { Progress } from "@/components/ui/progress";
 import { useEffect, useRef, useState } from "react";
 import instance, { errorFn } from "@/config/axios";
+import moment from "moment";
 
 import { toast } from "sonner";
 import Header from "@/components/Header";
@@ -235,17 +243,32 @@ export default function Dashboard() {
 
           <br className="block lg:hidden" />
 
-          <Button
-            disabled={onUpdate}
-            onClick={() => updateAll()}
-            variant="outline"
-            className="ml-auto mr-5 mb-4 lg:mb-0"
-          >
-            <RefreshCcw
-              className={`w-4 h-4 mr-2 ${onUpdate ? "animate-spin" : ""}`}
-            />
-            {onUpdate ? `Atualizando` : "Atualizar"} lista
-          </Button>
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  disabled={onUpdate}
+                  onClick={() => updateAll()}
+                  variant="outline"
+                  className="ml-auto mr-5 mb-4 lg:mb-0"
+                >
+                  <RefreshCcw
+                    className={`w-4 h-4 mr-2 ${onUpdate ? "animate-spin" : ""}`}
+                  />
+                  {onUpdate ? `Atualizando` : "Atualizar"} lista
+                </Button>
+              </TooltipTrigger>
+
+              <TooltipContent>
+                <p>
+                  Ultima atualização:{" "}
+                  <b>
+                    {moment(products?.[0].updatedAt).format("DD/MM/YY h:mm:ss")}
+                  </b>
+                </p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
 
           <Dialog>
             <DialogTrigger asChild>
@@ -318,7 +341,7 @@ export default function Dashboard() {
             </TableBody>
             <TableFooter>
               <TableRow>
-                <TableCell colSpan={1}>Total : {products?.length}</TableCell>
+                <TableCell colSpan={7}>Total : {products?.length}</TableCell>
               </TableRow>
             </TableFooter>
           </Table>

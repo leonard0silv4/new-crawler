@@ -47,13 +47,6 @@ const TableRowComponent = ({
     return `(${parseFloat(diffPercente.toFixed(2))}%)`;
   };
 
-  const formatDate = (d: Date) => {
-    if (!d) return;
-    return new Date(d).toLocaleString("pt-BR", {
-      timeZone: "America/Sao_Paulo",
-    });
-  };
-
   return (
     <TableRow className={updated ? "updated" : ""} key={keyUsage}>
       <TableCell>
@@ -70,9 +63,6 @@ const TableRowComponent = ({
       </TableCell>
       <TableCell>
         <Link href={product.link}>{product.name}</Link>
-        <small>
-          <b> Ultima atualização : {formatDate(product?.updatedAt)}</b>
-        </small>
       </TableCell>
       <TableCell> {`R$ ${product.nowPrice}`}</TableCell>
       <TableCell> {`R$ ${product.lastPrice}`}</TableCell>
