@@ -69,8 +69,10 @@ const TableRowComponent = ({
         />
       </TableCell>
       <TableCell>
-        <p> Ultima atualização : {formatDate(product?.updatedAt)}</p>
         <Link href={product.link}>{product.name}</Link>
+        <small>
+          <b> Ultima atualização : {formatDate(product?.updatedAt)}</b>
+        </small>
       </TableCell>
       <TableCell> {`R$ ${product.nowPrice}`}</TableCell>
       <TableCell> {`R$ ${product.lastPrice}`}</TableCell>
