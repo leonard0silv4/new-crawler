@@ -263,7 +263,9 @@ export default function Dashboard() {
                 <p>
                   Ultima atualização:{" "}
                   <b>
-                    {moment(products?.[0].updatedAt).format("DD/MM/YY h:mm:ss")}
+                    {moment(products?.[0]?.updatedAt).format(
+                      "DD/MM/YY h:mm:ss"
+                    )}
                   </b>
                 </p>
               </TooltipContent>
