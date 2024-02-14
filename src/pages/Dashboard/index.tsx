@@ -41,9 +41,12 @@ export interface Product {
   sku: string;
   link: string;
   name: string;
+  seller: string;
+  dateMl: any;
   status: string;
   nowPrice: number;
   lastPrice: number;
+  myPrice: number;
   image: string;
   created_at: any;
   updatedAt: any;
@@ -54,6 +57,7 @@ export default function Dashboard() {
   const [percent, setPercent] = useState("");
   const isMounted = useRef(false);
   const [link, setLink] = useState("");
+  const [myPrice, setMyPrice] = useState("");
   const [load, setLoad] = useState("");
   const [filterName, setFilterName] = useState("");
   const [skusUpdated, setSkusUpdated] = useState<any>([]);
@@ -87,14 +91,26 @@ export default function Dashboard() {
       Boolean(new URL(link));
     } catch (e) {
       toast.error("Ocorreu um erro ", {
-        description: "Verifique se o produto esta disponível",
+        description: "URL inválida",
         position: "top-right",
       });
       return;
     }
+
+    if (!parseFloat(myPrice)) {
+      toast.error("Ocorreu um erro ", {
+        description: "Informe um valor válido para o preço atual",
+        position: "top-right",
+      });
+      return;
+    }
+
     setLoad("addLink");
     instance
-      .post("links", { link: link })
+      .post(link.includes("lista") ? "list/ml" : "links", {
+        link: link,
+        myPrice: parseFloat(myPrice),
+      })
       .then(() => {
         fetchData();
         setLink("");
@@ -284,11 +300,29 @@ export default function Dashboard() {
               <DialogHeader>
                 <DialogTitle>Novo produto</DialogTitle>
                 <DialogDescription>
-                  Criar um novo acompanhamento
+                  Criar um novo acompanhamento de produto(s)
                 </DialogDescription>
               </DialogHeader>
 
               <form onSubmit={(e) => AddLink(e)} className="space-y-6">
+                <div>
+                  <div className="relative mt-2 rounded-md shadow-sm">
+                    <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
+                      <span className="text-gray-900 sm:text-sm">R$</span>
+                    </div>
+                    <S.InputCustom>
+                      <Input
+                        onChange={(e) => setMyPrice(e.target.value)}
+                        value={myPrice}
+                        type="number"
+                        id="link"
+                        className="block w-full rounded-md  pl-10 pr-60 col-span-4 my-price"
+                        placeholder="Seu preço atual"
+                      />
+                    </S.InputCustom>
+                  </div>
+                </div>
+
                 <div className="grid grid-cols-4 items-center text-left">
                   <Input
                     onChange={(e) => setLink(e.target.value)}

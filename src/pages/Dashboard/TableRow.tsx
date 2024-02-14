@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Loader, Trash2Icon } from "lucide-react";
 import { Product } from ".";
 import { Link } from "./DashboardStyles";
+import moment from "moment";
 
 interface TableRowProps {
   onDeleteItem: (sku: string | number) => void;
@@ -23,10 +24,11 @@ export const TableMain = () => {
     <TableHeader>
       <TableHead>Imagem</TableHead>
       <TableHead>Nome</TableHead>
+      <TableHead>Meu preço</TableHead>
       <TableHead>Preço Atual</TableHead>
       <TableHead>Ultimo Preço</TableHead>
-      <TableHead>Status</TableHead>
       <TableHead>Variação</TableHead>
+      <TableHead>Status</TableHead>
       <TableHead></TableHead>
     </TableHeader>
   );
@@ -63,22 +65,30 @@ const TableRowComponent = ({
       </TableCell>
       <TableCell>
         <Link href={product.link}>{product.name}</Link>
+        <i>
+          Vendido por: <b>{product.seller}</b>
+        </i>
+        <p>
+          Postado há :{" "}
+          <Badge>{moment().diff(moment(product.dateMl), "days")} dias </Badge>
+        </p>
       </TableCell>
+      <TableCell> {`R$ ${product.myPrice}`}</TableCell>
       <TableCell> {`R$ ${product.nowPrice}`}</TableCell>
       <TableCell> {`R$ ${product.lastPrice}`}</TableCell>
-      <TableCell>
-        {product?.status?.indexOf("InStock") != -1 || product.nowPrice != 0 ? (
-          <Badge>ON</Badge>
-        ) : (
-          <Badge variant="destructive">OFF</Badge>
-        )}
-      </TableCell>
       <TableCell>
         R$
         {product.lastPrice !== product.nowPrice
           ? (product.nowPrice - product.lastPrice).toFixed(2)
           : 0}
         {diffPercent(product.lastPrice, product.nowPrice)}
+      </TableCell>
+      <TableCell>
+        {product?.status?.indexOf("InStock") != -1 || product.nowPrice != 0 ? (
+          <Badge>ON</Badge>
+        ) : (
+          <Badge variant="destructive">OFF</Badge>
+        )}
       </TableCell>
       <TableCell>
         <Button variant="destructive" onClick={() => onDeleteItem(product.sku)}>
