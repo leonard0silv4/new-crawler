@@ -103,15 +103,6 @@ const Login = () => {
               </Button>
             </div>
           </form>
-
-          <p className="mt-10 text-center text-sm text-gray-500">
-            <a
-              href="/account-create"
-              className="font-semibold leading-6 text-gray-950 hover:text-gray-700"
-            >
-              Cadastre-se
-            </a>
-          </p>
         </div>
       </div>
     </>
