@@ -4,6 +4,8 @@ import {
   TableBody,
   TableCell,
   TableFooter,
+  TableHead,
+  TableHeader,
   TableRow,
 } from "@/components/ui/table";
 import { Input } from "@/components/ui/input";
@@ -32,7 +34,7 @@ import moment from "moment";
 
 import { toast } from "sonner";
 import Header from "@/components/Header";
-import TableRowComponent, { TableMain } from "./TableRow";
+import TableRowComponent from "./TableRow";
 import { EventSourcePolyfill } from "event-source-polyfill";
 
 import * as S from "./DashboardStyles";
@@ -50,6 +52,7 @@ export interface Product {
   image: string;
   created_at: any;
   updatedAt: any;
+  _id?: any;
 }
 
 export default function Dashboard() {
@@ -75,7 +78,7 @@ export default function Dashboard() {
       .get("links", {
         params: {
           page: 1,
-          perPage: 100,
+          perPage: 200,
         },
       })
       .then(({ data: response }: any) => {
@@ -197,6 +200,32 @@ export default function Dashboard() {
     setProducts(refreshedProducts);
   };
 
+  const sortProducts = () => {
+    const sortedProducts = products.map((product) => {
+      return {
+        ...product,
+        priceDifferencePercentage:
+          ((product.nowPrice - product.lastPrice) / product.lastPrice) * 100,
+      };
+    });
+
+    sortedProducts.sort((a, b) => {
+      if (
+        a.priceDifferencePercentage === 0 &&
+        b.priceDifferencePercentage === 0
+      ) {
+        return 0;
+      } else if (a.priceDifferencePercentage === 0) {
+        return 1;
+      } else if (b.priceDifferencePercentage === 0) {
+        return -1;
+      } else {
+        return b.priceDifferencePercentage - a.priceDifferencePercentage;
+      }
+    });
+    setProducts(sortedProducts);
+  };
+
   const FiltredResults = () => {
     if (filterName?.length > 2) {
       const filtredProducts = products.filter((prd) =>
@@ -209,7 +238,16 @@ export default function Dashboard() {
         <div className="border rounded-lg p-2 ">
           <h2 className="text-2xl font-bold p-3">Filtrados</h2>
           <Table>
-            <TableMain />
+            <TableHeader>
+              <TableHead>Imagem</TableHead>
+              <TableHead>Nome</TableHead>
+              <TableHead>Meu preço</TableHead>
+              <TableHead>Preço Atual</TableHead>
+              <TableHead>Ultimo Preço</TableHead>
+              <TableHead>Variação</TableHead>
+              <TableHead>Status</TableHead>
+              <TableHead></TableHead>
+            </TableHeader>
 
             <TableBody>
               {filtredProducts.map((product) => {
@@ -359,7 +397,21 @@ export default function Dashboard() {
 
         <div className="border rounded-lg p-2">
           <Table>
-            <TableMain />
+            <TableHeader>
+              <TableHead>Imagem</TableHead>
+              <TableHead>Nome</TableHead>
+              <TableHead>Meu preço</TableHead>
+              <TableHead>Preço Atual</TableHead>
+              <TableHead>Ultimo Preço</TableHead>
+              <TableHead
+                className="cursor-pointer"
+                onClick={() => sortProducts()}
+              >
+                Variação
+              </TableHead>
+              <TableHead>Status</TableHead>
+              <TableHead></TableHead>
+            </TableHeader>
 
             <TableBody>
               {products?.map((product) => {

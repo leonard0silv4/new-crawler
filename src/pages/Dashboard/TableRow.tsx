@@ -1,15 +1,11 @@
-import {
-  TableRow,
-  TableCell,
-  TableHeader,
-  TableHead,
-} from "@/components/ui/table";
+import { TableRow, TableCell } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Loader, Trash2Icon } from "lucide-react";
 import { Product } from ".";
 import { Link } from "./DashboardStyles";
 import moment from "moment";
+import instance from "@/config/axios";
 
 interface TableRowProps {
   onDeleteItem: (sku: string | number) => void;
@@ -18,21 +14,6 @@ interface TableRowProps {
   keyUsage?: any;
   updated?: boolean;
 }
-
-export const TableMain = () => {
-  return (
-    <TableHeader>
-      <TableHead>Imagem</TableHead>
-      <TableHead>Nome</TableHead>
-      <TableHead>Meu preço</TableHead>
-      <TableHead>Preço Atual</TableHead>
-      <TableHead>Ultimo Preço</TableHead>
-      <TableHead>Variação</TableHead>
-      <TableHead>Status</TableHead>
-      <TableHead></TableHead>
-    </TableHeader>
-  );
-};
 
 const TableRowComponent = ({
   product,
@@ -47,6 +28,15 @@ const TableRowComponent = ({
     var diff = newValue - oldValue;
     var diffPercente = (diff / Math.abs(oldValue)) * 100;
     return `(${parseFloat(diffPercente.toFixed(2))}%)`;
+  };
+
+  const singleUpdate = (ev: any, prod: Product) => {
+    if (parseFloat(ev.currentTarget.textContent) != prod.myPrice) {
+      instance.put("/links", {
+        id: prod._id,
+        myPrice: parseFloat(ev.currentTarget.textContent),
+      });
+    }
   };
 
   return (
@@ -69,11 +59,28 @@ const TableRowComponent = ({
           Vendido por: <b>{product.seller}</b>
         </i>
         <p>
-          Postado há :{" "}
-          <Badge>{moment().diff(moment(product.dateMl), "days")} dias </Badge>
+          {product.dateMl && (
+            <>
+              Postado há :{" "}
+              <Badge>
+                {moment().diff(moment(product.dateMl), "days")} dias{" "}
+              </Badge>
+            </>
+          )}
         </p>
       </TableCell>
-      <TableCell> {`R$ ${product.myPrice}`}</TableCell>
+      <TableCell>
+        R$
+        <span
+          onBlur={(e) => {
+            singleUpdate(e, product);
+          }}
+          contentEditable
+          suppressContentEditableWarning={true}
+        >
+          {product.myPrice}
+        </span>
+      </TableCell>
       <TableCell> {`R$ ${product.nowPrice}`}</TableCell>
       <TableCell> {`R$ ${product.lastPrice}`}</TableCell>
       <TableCell>
