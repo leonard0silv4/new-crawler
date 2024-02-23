@@ -59,13 +59,11 @@ const TableRowComponent = ({
           Vendido por: <b>{product.seller}</b>
         </i>
         <p>
-          {product.dateMl && (
-            <>
-              Postado há :{" "}
-              <Badge>
-                {moment().diff(moment(product.dateMl), "days")} dias{" "}
-              </Badge>
-            </>
+          Data anúncio :{" "}
+          {product.dateMl ? (
+            <Badge>{moment().diff(moment(product.dateMl), "days")} dias</Badge>
+          ) : (
+            <Badge>Novo</Badge>
           )}
         </p>
       </TableCell>
