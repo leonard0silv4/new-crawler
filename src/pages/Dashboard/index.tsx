@@ -9,7 +9,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Input } from "@/components/ui/input";
-import { Search, PlusCircle, RefreshCcw, Loader } from "lucide-react";
+import { Search, PlusCircle, RefreshCcw, Loader, Variable } from "lucide-react";
 import {
   Dialog,
   DialogClose,
@@ -20,6 +20,18 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 
 import {
   Tooltip,
@@ -167,7 +179,7 @@ export default function Dashboard() {
       } else {
         const productAtt = JSON.parse(event.data);
         setSkusUpdated((skusUpdated: any) => [...skusUpdated, productAtt.sku]);
-
+        console.log(productAtt);
         updateAnExist(productAtt);
         toast.success(productAtt.name, {
           description: "Atualizado",
@@ -189,7 +201,7 @@ export default function Dashboard() {
       if (product.sku === newProduct.sku) {
         return {
           ...product,
-          nowPrice: newProduct.nowPrice,
+          nowPrice: newProduct?.nowPrice,
           lastPrice: newProduct.lastPrice,
           status: newProduct.status,
           updatedAt: new Date(),
@@ -269,6 +281,38 @@ export default function Dashboard() {
     }
 
     return;
+  };
+
+  const clearAllRates = async () => {
+    await instance.post("links/clearRates");
+    fetchData();
+    setSkusUpdated([]);
+  };
+
+  const ClearVariations = () => {
+    return (
+      <AlertDialog>
+        <AlertDialogTrigger asChild>
+          <Button variant="outline" className="ml-2 mb-4 lg:mb-0">
+            <Variable className="w-4 h-4" />
+          </Button>
+        </AlertDialogTrigger>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Tem certeza ?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Esta ação Limpará todas variações e não podera ser desfeita !
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <AlertDialogAction onClick={() => clearAllRates()}>
+              Limpar
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    );
   };
 
   return (
@@ -391,6 +435,8 @@ export default function Dashboard() {
               </form>
             </DialogContent>
           </Dialog>
+
+          <ClearVariations />
         </div>
 
         <FiltredResults />
