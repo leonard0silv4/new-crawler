@@ -89,7 +89,7 @@ const TableRowComponent = ({
         {diffPercent(product.lastPrice, product.nowPrice)}
       </TableCell>
       <TableCell>
-        {product?.status?.indexOf("InStock") != -1 || product.nowPrice != 0 ? (
+        {product?.status?.indexOf("InStock") != -1 ? (
           <Badge>ON</Badge>
         ) : (
           <Badge variant="destructive">OFF</Badge>

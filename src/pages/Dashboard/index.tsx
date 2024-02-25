@@ -284,9 +284,10 @@ export default function Dashboard() {
   };
 
   const clearAllRates = async () => {
-    await instance.post("links/clearRates");
-    fetchData();
-    setSkusUpdated([]);
+    instance.post("links/clearRates").then(() => {
+      fetchData();
+      setSkusUpdated([]);
+    });
   };
 
   const ClearVariations = () => {
