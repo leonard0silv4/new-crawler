@@ -203,7 +203,6 @@ export default function Dashboard() {
           ...product,
           nowPrice: newProduct?.nowPrice,
           lastPrice: newProduct.lastPrice,
-          status: newProduct.status,
           updatedAt: new Date(),
         };
       }
