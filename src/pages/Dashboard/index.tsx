@@ -90,7 +90,7 @@ export default function Dashboard() {
       .get("links", {
         params: {
           page: 1,
-          perPage: 200,
+          perPage: 5000,
         },
       })
       .then(({ data: response }: any) => {
