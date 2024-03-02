@@ -1,4 +1,3 @@
-import { TableRow, span } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Loader, Trash2Icon } from "lucide-react";
