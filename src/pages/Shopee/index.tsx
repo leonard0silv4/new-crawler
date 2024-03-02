@@ -1,5 +1,13 @@
 import { Button } from "@/components/ui/button";
-
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableFooter,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import { Input } from "@/components/ui/input";
 import { Search, PlusCircle, RefreshCcw, Loader, Variable } from "lucide-react";
 import {
@@ -25,17 +33,23 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { Progress } from "@/components/ui/progress";
 import { useEffect, useRef, useState } from "react";
 import instance, { errorFn } from "@/config/axios";
+import moment from "moment";
 
 import { toast } from "sonner";
 import Header from "@/components/Header";
-import TableRowComponent from "./TableRow";
+import TableRowComponent from "../Dashboard/TableRow";
 import { EventSourcePolyfill } from "event-source-polyfill";
-import { FixedSizeList } from "react-window";
 
-import * as S from "./DashboardStyles";
+import * as S from "../Dashboard/DashboardStyles";
 
 export interface Product {
   sku: string;
@@ -53,7 +67,7 @@ export interface Product {
   _id?: any;
 }
 
-export default function Dashboard() {
+export default function Shopee() {
   const [onUpdate, setOnUpdate] = useState(false);
   const [percent, setPercent] = useState("");
   const isMounted = useRef(false);
@@ -73,7 +87,7 @@ export default function Dashboard() {
 
   const fetchData = async () => {
     await instance
-      .get("links", {
+      .get("shopee/links", {
         params: {
           page: 1,
           perPage: 5000,
@@ -108,7 +122,7 @@ export default function Dashboard() {
 
     setLoad("addLink");
     instance
-      .post(link.includes("lista") ? "list/ml" : "links", {
+      .post(link.includes("lista") ? "list/shopee" : "links", {
         link: link,
         myPrice: parseFloat(myPrice),
       })
@@ -135,7 +149,7 @@ export default function Dashboard() {
   const deleteItem = (sku: any) => {
     setLoad(sku);
     instance
-      .delete(`links/${sku}`)
+      .delete(`shopee/links/${sku}`)
       .then(() => {
         setProducts((data) => data.filter((item) => item.sku != sku));
       })
@@ -147,7 +161,7 @@ export default function Dashboard() {
 
   const updateAll = () => {
     var eventSource = new EventSourcePolyfill(
-      `${import.meta.env.VITE_APP_BASE_URL}links/update`,
+      `${import.meta.env.VITE_APP_BASE_URL}shopee/links/update`,
       {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("userToken")}`,
@@ -233,45 +247,8 @@ export default function Dashboard() {
 
       return (
         <div className="border rounded-lg p-2 ">
-          <h2 className="text-2xl font-bold p-3">
-            Filtrados ({filtredProducts?.length})
-          </h2>
-
-          <S.ContainerLine className="scrollAdjust">
-            <span>Imagem</span>
-            <span>Nome</span>
-            <span>Meu preço</span>
-            <span>Preço Atual</span>
-            <span>Ultimo Preço</span>
-            <span className="cursor-pointer" onClick={() => sortProducts()}>
-              Variação
-            </span>
-            <span>Status</span>
-            <span></span>
-          </S.ContainerLine>
-          <FixedSizeList
-            itemData={filtredProducts}
-            height={740}
-            itemCount={filtredProducts.length}
-            itemSize={150}
-          >
-            {({ index, style }: any) => (
-              <TableRowComponent
-                style={style}
-                key={`b-${filtredProducts[index].sku}`}
-                load={load}
-                product={filtredProducts[index]}
-                onDeleteItem={deleteItem}
-                keyUsage={filtredProducts[index].sku}
-                updated={
-                  skusUpdated.includes(filtredProducts[index].sku)
-                    ? true
-                    : false
-                }
-              />
-            )}
-          </FixedSizeList>
-          {/* <Table>
+          <h2 className="text-2xl font-bold p-3">Filtrados</h2>
+          <Table>
             <TableHeader>
               <TableHead>Imagem</TableHead>
               <TableHead>Nome</TableHead>
@@ -297,7 +274,7 @@ export default function Dashboard() {
                 );
               })}
             </TableBody>
-          </Table> */}
+          </Table>
         </div>
       );
     }
@@ -345,9 +322,7 @@ export default function Dashboard() {
       <S.Main className="p-6 max-w-7xl mx-auto space-y-4">
         {onUpdate && <Progress value={Number(percent.replace("%", ""))} />}
 
-        <h1 className="text-3xl font-bold">
-          Produtos {products?.length > 0 ? `(${products.length})` : ""}
-        </h1>
+        <h1 className="text-3xl font-bold">Produtos</h1>
 
         <div className="md:flex md:items-center md:justify-between">
           <form className="md:flex md:items-center md:gap-2">
@@ -366,17 +341,34 @@ export default function Dashboard() {
 
           <br className="block lg:hidden" />
 
-          <Button
-            disabled={onUpdate}
-            onClick={() => updateAll()}
-            variant="outline"
-            className="ml-auto mr-5 mb-4 lg:mb-0"
-          >
-            <RefreshCcw
-              className={`w-4 h-4 mr-2 ${onUpdate ? "animate-spin" : ""}`}
-            />
-            {onUpdate ? `Atualizando` : "Atualizar"} lista
-          </Button>
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  disabled={onUpdate}
+                  onClick={() => updateAll()}
+                  variant="outline"
+                  className="ml-auto mr-5 mb-4 lg:mb-0"
+                >
+                  <RefreshCcw
+                    className={`w-4 h-4 mr-2 ${onUpdate ? "animate-spin" : ""}`}
+                  />
+                  {onUpdate ? `Atualizando` : "Atualizar"} lista
+                </Button>
+              </TooltipTrigger>
+
+              <TooltipContent>
+                <p>
+                  Ultima atualização:{" "}
+                  <b>
+                    {moment(products?.[0]?.updatedAt).format(
+                      "DD/MM/YY h:mm:ss"
+                    )}
+                  </b>
+                </p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
 
           <Dialog>
             <DialogTrigger asChild>
@@ -448,39 +440,45 @@ export default function Dashboard() {
         </div>
 
         <FiltredResults />
+
         <div className="border rounded-lg p-2">
-          <S.ContainerLine className="scrollAdjust">
-            <span>Imagem</span>
-            <span>Nome</span>
-            <span>Meu preço</span>
-            <span>Preço Atual</span>
-            <span>Ultimo Preço</span>
-            <span className="cursor-pointer" onClick={() => sortProducts()}>
-              Variação
-            </span>
-            <span>Status</span>
-            <span></span>
-          </S.ContainerLine>
-          <FixedSizeList
-            itemData={products}
-            height={740}
-            itemCount={products.length}
-            itemSize={150}
-          >
-            {({ index, style }: any) => (
-              <TableRowComponent
-                style={style}
-                key={`b-${products[index].sku}`}
-                load={load}
-                product={products[index]}
-                onDeleteItem={deleteItem}
-                keyUsage={products[index].sku}
-                updated={
-                  skusUpdated.includes(products[index].sku) ? true : false
-                }
-              />
-            )}
-          </FixedSizeList>
+          <Table>
+            <TableHeader>
+              <TableHead>Imagem</TableHead>
+              <TableHead>Nome</TableHead>
+              <TableHead>Meu preço</TableHead>
+              <TableHead>Preço Atual</TableHead>
+              <TableHead>Ultimo Preço</TableHead>
+              <TableHead
+                className="cursor-pointer"
+                onClick={() => sortProducts()}
+              >
+                Variação
+              </TableHead>
+              <TableHead>Status</TableHead>
+              <TableHead></TableHead>
+            </TableHeader>
+
+            <TableBody>
+              {products?.map((product) => {
+                return (
+                  <TableRowComponent
+                    key={`b-${product.sku}`}
+                    load={load}
+                    product={product}
+                    onDeleteItem={deleteItem}
+                    keyUsage={product.sku}
+                    updated={skusUpdated.includes(product.sku) ? true : false}
+                  />
+                );
+              })}
+            </TableBody>
+            <TableFooter>
+              <TableRow>
+                <TableCell colSpan={7}>Total : {products?.length}</TableCell>
+              </TableRow>
+            </TableFooter>
+          </Table>
         </div>
       </S.Main>
     </>

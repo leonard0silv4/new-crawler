@@ -34,6 +34,8 @@
     "react-dom": "^18.2.0",
     "react-hook-form": "^7.50.1",
     "react-router-dom": "^6.21.3",
+    "react-virtualized": "git+https://git@github.com/remorses/react-virtualized-fixed-import.git#9.22.3",
+    "react-window": "^1.8.10",
     "sonner": "^1.4.0",
     "sort-by": "^1.2.0",
     "styled-components": "^6.1.8",

@@ -8,6 +8,7 @@ import Login from "./pages/Login";
 import Sales from "./pages/Sales";
 import { Toaster } from "@/components/ui/sonner";
 import AccountCreate from "./pages/AccountCreate";
+import Shopee from "./pages/Shopee";
 
 function App() {
   return (
@@ -18,6 +19,7 @@ function App() {
           <Route element={<PrivateRoutes />}>
             <Route element={<Dashboard />} path="/" />
             <Route element={<Dashboard />} path="/dashboard" />
+            <Route element={<Shopee />} path="/shopee" />
             <Route element={<Sales />} path="/orders" />
           </Route>
           <Route element={<Login />} path="/login" />

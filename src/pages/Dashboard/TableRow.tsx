@@ -1,9 +1,9 @@
-import { TableRow, TableCell } from "@/components/ui/table";
+import { TableRow, span } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Loader, Trash2Icon } from "lucide-react";
 import { Product } from ".";
-import { Link } from "./DashboardStyles";
+import { Link, ContainerLine } from "./DashboardStyles";
 import moment from "moment";
 import instance from "@/config/axios";
 
@@ -13,6 +13,7 @@ interface TableRowProps {
   product: Product;
   keyUsage?: any;
   updated?: boolean;
+  style?: any;
 }
 
 const TableRowComponent = ({
@@ -21,6 +22,7 @@ const TableRowComponent = ({
   load,
   keyUsage,
   updated,
+  style,
 }: TableRowProps) => {
   const diffPercent = (oldValue: number, newValue: number) => {
     if (oldValue == 0 || newValue == 0) return;
@@ -40,8 +42,12 @@ const TableRowComponent = ({
   };
 
   return (
-    <TableRow className={updated ? "updated" : ""} key={keyUsage}>
-      <TableCell>
+    <ContainerLine
+      style={style}
+      className={updated ? "updated" : ""}
+      key={keyUsage}
+    >
+      <span>
         <img
           alt={product?.name}
           title={product?.name}
@@ -52,8 +58,8 @@ const TableRowComponent = ({
           }}
           src={product?.image}
         />
-      </TableCell>
-      <TableCell>
+      </span>
+      <span>
         <Link href={product.link}>{product.name}</Link>
         <i>
           Vendido por: <b>{product.seller}</b>
@@ -66,8 +72,8 @@ const TableRowComponent = ({
             <Badge>Novo</Badge>
           )}
         </p>
-      </TableCell>
-      <TableCell>
+      </span>
+      <span>
         R$
         <span
           onBlur={(e) => {
@@ -78,24 +84,24 @@ const TableRowComponent = ({
         >
           {product.myPrice}
         </span>
-      </TableCell>
-      <TableCell> {`R$ ${product.nowPrice}`}</TableCell>
-      <TableCell> {`R$ ${product.lastPrice}`}</TableCell>
-      <TableCell>
+      </span>
+      <span> {`R$ ${product.nowPrice}`}</span>
+      <span> {`R$ ${product.lastPrice}`}</span>
+      <span>
         R$
         {product.lastPrice !== product.nowPrice
           ? (product.nowPrice - product.lastPrice).toFixed(2)
           : 0}
         {diffPercent(product.lastPrice, product.nowPrice)}
-      </TableCell>
-      <TableCell>
+      </span>
+      <span>
         {product?.status == "http://schema.org/InStock" ? (
           <Badge>ON</Badge>
         ) : (
           <Badge variant="destructive">OFF</Badge>
         )}
-      </TableCell>
-      <TableCell>
+      </span>
+      <span>
         <Button variant="destructive" onClick={() => onDeleteItem(product.sku)}>
           {load == product.sku ? (
             <Loader className="w-4 h-4 animate-spin" />
@@ -103,8 +109,8 @@ const TableRowComponent = ({
             <Trash2Icon className="w-4 cursor-pointer" />
           )}
         </Button>
-      </TableCell>
-    </TableRow>
+      </span>
+    </ContainerLine>
   );
 };
 
