@@ -33,7 +33,7 @@ import { toast } from "sonner";
 import Header from "@/components/Header";
 import TableRowComponent from "./TableRow";
 import { EventSourcePolyfill } from "event-source-polyfill";
-import { FixedSizeList } from "react-window";
+import { FixedSizeList as List } from "react-window";
 
 import * as S from "./DashboardStyles";
 
@@ -249,11 +249,12 @@ export default function Dashboard() {
             <span>Status</span>
             <span></span>
           </S.ContainerLine>
-          <FixedSizeList
+          <List
             itemData={filtredProducts}
             height={740}
             itemCount={filtredProducts.length}
             itemSize={150}
+            width={1200}
           >
             {({ index, style }: any) => (
               <TableRowComponent
@@ -270,7 +271,7 @@ export default function Dashboard() {
                 }
               />
             )}
-          </FixedSizeList>
+          </List>
           {/* <Table>
             <TableHeader>
               <TableHead>Imagem</TableHead>
@@ -461,11 +462,12 @@ export default function Dashboard() {
             <span>Status</span>
             <span></span>
           </S.ContainerLine>
-          <FixedSizeList
+          <List
             itemData={products}
             height={740}
             itemCount={products.length}
             itemSize={150}
+            width={1200}
           >
             {({ index, style }: any) => (
               <TableRowComponent
@@ -480,7 +482,7 @@ export default function Dashboard() {
                 }
               />
             )}
-          </FixedSizeList>
+          </List>
         </div>
       </S.Main>
     </>
