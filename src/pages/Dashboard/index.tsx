@@ -79,6 +79,7 @@ export default function Dashboard() {
   }, []);
 
   const fetchData = async () => {
+    setLoad("initial");
     await instance
       .get("links", {
         params: {
@@ -90,7 +91,9 @@ export default function Dashboard() {
         setProducts(response);
       })
       .catch((err) => console.log(err))
-      .finally(() => {});
+      .finally(() => {
+        setLoad("");
+      });
   };
 
   const AddLink = (e: any) => {
@@ -468,6 +471,7 @@ export default function Dashboard() {
         </div>
 
         <FiltredResults />
+
         <div className="border rounded-lg p-2">
           <S.ContainerLine className="scrollAdjust">
             <span>Imagem</span>
@@ -481,27 +485,31 @@ export default function Dashboard() {
             <span>Status</span>
             <span></span>
           </S.ContainerLine>
-          <List
-            itemData={products}
-            height={740}
-            itemCount={products.length}
-            itemSize={150}
-            width={1200}
-          >
-            {({ index, style }: any) => (
-              <TableRowComponent
-                style={style}
-                key={`b-${products[index].sku}`}
-                load={load}
-                product={products[index]}
-                onDeleteItem={deleteItem}
-                keyUsage={products[index].sku}
-                updated={
-                  skusUpdated.includes(products[index].sku) ? true : false
-                }
-              />
-            )}
-          </List>
+          {load == "initial" ? (
+            <Loader className="w-10 h-10 animate-spin m-auto my-10" />
+          ) : (
+            <List
+              itemData={products}
+              height={740}
+              itemCount={products.length}
+              itemSize={150}
+              width={1200}
+            >
+              {({ index, style }: any) => (
+                <TableRowComponent
+                  style={style}
+                  key={`b-${products[index].sku}`}
+                  load={load}
+                  product={products[index]}
+                  onDeleteItem={deleteItem}
+                  keyUsage={products[index].sku}
+                  updated={
+                    skusUpdated.includes(products[index].sku) ? true : false
+                  }
+                />
+              )}
+            </List>
+          )}
         </div>
       </S.Main>
     </>
