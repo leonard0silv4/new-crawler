@@ -1,7 +1,14 @@
 import { Button } from "@/components/ui/button";
 
 import { Input } from "@/components/ui/input";
-import { Search, PlusCircle, RefreshCcw, Loader, Variable } from "lucide-react";
+import {
+  Search,
+  PlusCircle,
+  RefreshCcw,
+  Loader,
+  Variable,
+  Eraser,
+} from "lucide-react";
 import {
   Dialog,
   DialogClose,
@@ -272,33 +279,6 @@ export default function Dashboard() {
               />
             )}
           </List>
-          {/* <Table>
-            <TableHeader>
-              <TableHead>Imagem</TableHead>
-              <TableHead>Nome</TableHead>
-              <TableHead>Meu preço</TableHead>
-              <TableHead>Preço Atual</TableHead>
-              <TableHead>Ultimo Preço</TableHead>
-              <TableHead>Variação</TableHead>
-              <TableHead>Status</TableHead>
-              <TableHead></TableHead>
-            </TableHeader>
-
-            <TableBody>
-              {filtredProducts.map((product) => {
-                return (
-                  <TableRowComponent
-                    key={`t-${product.sku}`}
-                    load={load}
-                    product={product}
-                    onDeleteItem={deleteItem}
-                    keyUsage={`f-${product.sku}`}
-                    updated={skusUpdated.includes(product.sku) ? true : false}
-                  />
-                );
-              })}
-            </TableBody>
-          </Table> */}
         </div>
       );
     }
@@ -313,6 +293,11 @@ export default function Dashboard() {
     });
   };
 
+  const deleteAllItems = async () => {
+    await instance.delete("links");
+    setProducts({});
+  };
+
   const ClearVariations = () => {
     return (
       <AlertDialog>
@@ -323,15 +308,48 @@ export default function Dashboard() {
         </AlertDialogTrigger>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Tem certeza ?</AlertDialogTitle>
-            <AlertDialogDescription>
-              Esta ação Limpará todas variações e não podera ser desfeita !
-            </AlertDialogDescription>
+            <AlertDialogTitle>
+              Esta ação Limpará todas variações, e não podera ser desfeita !
+            </AlertDialogTitle>
+            <AlertDialogDescription>Tem certeza ?</AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Cancelar</AlertDialogCancel>
             <AlertDialogAction onClick={() => clearAllRates()}>
-              Limpar
+              Sim, limpar variações
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    );
+  };
+
+  const DeleteAll = () => {
+    return (
+      <AlertDialog>
+        <AlertDialogTrigger asChild>
+          <Button variant="destructive" className="ml-2 mb-4 lg:mb-0">
+            <Eraser className="w-4 h-4" />
+          </Button>
+        </AlertDialogTrigger>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>
+              Esta ação apagará todos os links que vc esta acompanhando, e não
+              podera ser desfeita !
+            </AlertDialogTitle>
+            <AlertDialogDescription>Tem certeza ?</AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <AlertDialogAction asChild>
+              <Button
+                variant="destructive"
+                onClick={() => deleteAllItems()}
+                className="Button red"
+              >
+                Sim, apagar tudo
+              </Button>
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
@@ -446,6 +464,7 @@ export default function Dashboard() {
           </Dialog>
 
           <ClearVariations />
+          <DeleteAll />
         </div>
 
         <FiltredResults />
