@@ -295,7 +295,7 @@ export default function Dashboard() {
 
   const deleteAllItems = async () => {
     await instance.delete("links");
-    setProducts({});
+    setProducts([]);
   };
 
   const ClearVariations = () => {
