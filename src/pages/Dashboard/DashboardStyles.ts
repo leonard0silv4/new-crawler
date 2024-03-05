@@ -50,43 +50,43 @@ export const ContainerLine = styled.li`
         font-size: 14px;
     }
 
-    > span:nth-child(1){
+    > > span:nth-child(1){
         
         width: 10%;
         display: flex ;
         align-items:center;
         justify-content: center
     }
-    span:nth-child(2){
+    > span:nth-child(2){
         width: 38%;
         
         display: block ;
     }
-    span:nth-child(3){
+    > span:nth-child(3){
         
         width: 10%;
         justify-content: center;
     }
-    span:nth-child(4){
+    > span:nth-child(4){
         
         width: 10%;
         justify-content: center;
     }
-    span:nth-child(5){
+    > span:nth-child(5){
         
         width: 10%;
         justify-content: center;
     }
-    span:nth-child(6){
+    > span:nth-child(6){
         
         width: 12%;
         justify-content: center;
     }
-    span:nth-child(7){
+    > span:nth-child(7){
         width: 8%;
         justify-content: center;
     }
-    span:nth-child(8){
+    > span:nth-child(8){
         width: 8%;
         justify-content: center;
     }
