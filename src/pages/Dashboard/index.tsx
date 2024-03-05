@@ -64,7 +64,6 @@ export default function Dashboard() {
   const [filterName, setFilterName] = useState("");
   const [skusUpdated, setSkusUpdated] = useState<any>([]);
 
-  const [filtredProducts, setFiltredProducts] = useState<Product[]>([]);
   const [products, setProducts] = useState<Product[]>([]);
 
   useEffect(() => {
