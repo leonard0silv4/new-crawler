@@ -12,14 +12,14 @@ import moment from "moment";
 import instance from "@/config/axios";
 
 interface TableRowProps {
-  onDeleteItem: (sku: string | number) => void;
-  load: string | number;
+  onDeleteItem?: (sku: string | number) => void;
+  load?: string | number;
   product: Product;
   keyUsage?: any;
   updated?: boolean;
   style?: any;
-  hasFiltred?: boolean;
-  setNewPrice?: (newPrice: number, idP: string, f: boolean) => void;
+
+  setNewPrice?: (newPrice: number, idP: string) => void;
 }
 
 const TableRowComponent = ({
@@ -30,7 +30,6 @@ const TableRowComponent = ({
   updated,
   style,
   setNewPrice,
-  hasFiltred = false,
 }: TableRowProps) => {
   const diffPercent = (oldValue: number, newValue: number) => {
     if (oldValue == 0 || newValue == 0) return;
@@ -47,7 +46,7 @@ const TableRowComponent = ({
         id: prod._id,
         myPrice: price,
       });
-      setNewPrice ? setNewPrice(price, prod._id, hasFiltred) : "";
+      setNewPrice && setNewPrice(price, prod._id);
     }
   };
 
@@ -117,7 +116,10 @@ const TableRowComponent = ({
         )}
       </span>
       <span>
-        <Button variant="destructive" onClick={() => onDeleteItem(product.sku)}>
+        <Button
+          variant="destructive"
+          onClick={() => onDeleteItem && onDeleteItem(product.sku)}
+        >
           {load == product.sku ? (
             <Loader className="w-4 h-4 animate-spin" />
           ) : (

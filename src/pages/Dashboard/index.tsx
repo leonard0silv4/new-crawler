@@ -36,6 +36,7 @@ import { EventSourcePolyfill } from "event-source-polyfill";
 import { FixedSizeList as List } from "react-window";
 
 import * as S from "./DashboardStyles";
+import FiltredProducts from "../FiltredProducts";
 
 export interface Product {
   sku: string;
@@ -201,9 +202,8 @@ export default function Dashboard() {
     setProducts(refreshedProducts);
   };
 
-  const setNewPrice = (newPrice: number, _id: string, hasFiltred = false) => {
-    const localProducts = hasFiltred ? filtredProducts : products;
-    const refreshedProducts = localProducts.map((product) => {
+  const setNewPrice = (newPrice: number, _id: string) => {
+    const refreshedProducts = products.map((product) => {
       if (product._id === _id) {
         return {
           ...product,
@@ -212,9 +212,8 @@ export default function Dashboard() {
       }
       return product;
     });
-    hasFiltred
-      ? setFiltredProducts(refreshedProducts)
-      : setProducts(refreshedProducts);
+
+    setProducts(refreshedProducts);
   };
 
   const sortProducts = () => {
@@ -241,17 +240,6 @@ export default function Dashboard() {
       }
     });
     setProducts(sortedProducts);
-  };
-
-  const FiltredResults = (e: any) => {
-    setFilterName(e);
-    if (e?.length > 2) {
-      const filtredProducts = products.filter((prd) =>
-        prd.name.toLocaleLowerCase().includes(filterName.toLocaleLowerCase())
-      );
-
-      setFiltredProducts(filtredProducts);
-    }
   };
 
   const clearAllRates = async () => {
@@ -331,16 +319,14 @@ export default function Dashboard() {
 
       <S.Main className="p-6 max-w-7xl mx-auto space-y-4">
         {onUpdate && <Progress value={Number(percent.replace("%", ""))} />}
-
         <h1 className="text-3xl font-bold">
           Produtos {products?.length > 0 ? `(${products.length})` : ""}
         </h1>
-
         <div className="md:flex md:items-center md:justify-between">
           <form className="md:flex md:items-center md:gap-2">
             <Input
               value={filterName}
-              onChange={(e) => FiltredResults(e.target.value)}
+              onChange={(e) => setFilterName(e.target.value)}
               name="name"
               placeholder="Buscar por nome"
               className="w-auto"
@@ -431,51 +417,13 @@ export default function Dashboard() {
           <DeleteAll />
         </div>
 
-        {filtredProducts?.length > 0 && (
-          <div className="border rounded-lg p-2 ">
-            <h2 className="text-2xl font-bold p-3">
-              Filtrados ({filtredProducts?.length})
-            </h2>
-
-            <S.ContainerLine className="scrollAdjust">
-              <span>Imagem</span>
-              <span>Nome</span>
-              <span>Meu preço</span>
-              <span>Preço Atual</span>
-              <span>Ultimo Preço</span>
-              <span className="cursor-pointer" onClick={() => sortProducts()}>
-                Variação
-              </span>
-              <span>Status</span>
-              <span></span>
-            </S.ContainerLine>
-            <List
-              itemData={filtredProducts}
-              height={740}
-              itemCount={filtredProducts.length}
-              itemSize={150}
-              width={1200}
-            >
-              {({ index, style }: any) => (
-                <TableRowComponent
-                  style={style}
-                  setNewPrice={setNewPrice}
-                  hasFiltred={true}
-                  key={`b-${filtredProducts[index].sku}`}
-                  load={load}
-                  product={filtredProducts[index]}
-                  onDeleteItem={deleteItem}
-                  keyUsage={`f-${filtredProducts[index].sku}`}
-                  updated={
-                    skusUpdated.includes(filtredProducts[index].sku)
-                      ? true
-                      : false
-                  }
-                />
-              )}
-            </List>
-          </div>
-        )}
+        <FiltredProducts
+          products={products}
+          filterByText={filterName}
+          setNewPrice={setNewPrice}
+          load={load}
+          onDeleteItem={deleteItem}
+        />
 
         <div className="border rounded-lg p-2">
           <S.ContainerLine className="scrollAdjust">
@@ -505,7 +453,6 @@ export default function Dashboard() {
                   style={style}
                   key={`b-${products[index].sku}`}
                   load={load}
-                  hasFiltred={false}
                   setNewPrice={setNewPrice}
                   product={products[index]}
                   onDeleteItem={deleteItem}
