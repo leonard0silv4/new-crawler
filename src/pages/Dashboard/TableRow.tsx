@@ -41,6 +41,7 @@ const TableRowComponent = ({
 
   const singleUpdate = async (ev: any, prod: Product) => {
     const price = parseFloat(ev.currentTarget.textContent);
+    console.log("a");
     if (price != prod.myPrice) {
       await instance.put("/links", {
         id: prod._id,

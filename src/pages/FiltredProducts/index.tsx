@@ -4,6 +4,9 @@ import TableRowComponent from "../Dashboard/TableRow";
 import { ContainerLine } from "../Dashboard/DashboardStyles";
 import { FixedSizeList as List } from "react-window";
 import { ArrowUp, ArrowDown } from "lucide-react";
+import instance from "@/config/axios";
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
 
 interface propsFiltred {
   products: Product[];
@@ -20,6 +23,7 @@ const FiltredProducts = ({
 }: propsFiltred) => {
   const [filtredProducts, setFiltredProducts] = useState<Product[]>([]);
   const [order, setOrder] = useState("");
+  const [auto, setAuto] = useState(true);
 
   useEffect(() => {
     if (filterByText?.length > 2) {
@@ -40,16 +44,35 @@ const FiltredProducts = ({
     setFiltredProducts(filtredProductsByOrder);
   };
 
-  const setNewPrice = (newPrice: number, _id: string) => {
-    const refreshedProducts = filtredProducts.map((product) => {
-      if (product._id === _id) {
-        return {
-          ...product,
+  const setNewPrice = async (newPrice: number, _id: string) => {
+    let refreshedProducts;
+    if (auto) {
+      refreshedProducts = filtredProducts.map((product) => {
+        if (product._id) {
+          return {
+            ...product,
+            myPrice: newPrice,
+          };
+        }
+        return product;
+      });
+      refreshedProducts.forEach((it) => {
+        instance.put("/links", {
+          id: it._id,
           myPrice: newPrice,
-        };
-      }
-      return product;
-    });
+        });
+      });
+    } else {
+      refreshedProducts = filtredProducts.map((product) => {
+        if (product._id === _id) {
+          return {
+            ...product,
+            myPrice: newPrice,
+          };
+        }
+        return product;
+      });
+    }
 
     setFiltredProducts(refreshedProducts);
   };
@@ -58,9 +81,16 @@ const FiltredProducts = ({
     filtredProducts?.length > 0 &&
     filterByText?.length > 2 && (
       <div className="border rounded-lg p-2 ">
-        <h2 className="text-2xl font-bold p-3">
-          Filtrados pelo termo: {filterByText} ({filtredProducts?.length})
-        </h2>
+        <div className="flex m-4">
+          <h2 className="text-2xl font-bold p-3 left">
+            Filtrados pelo termo: {filterByText} ({filtredProducts?.length})
+          </h2>
+
+          <div className="flex items-center space-x-2 p-5 ml-auto">
+            <Switch checked={auto} onCheckedChange={setAuto} id="autoupdate" />
+            <Label htmlFor="autoupdate">Habilitar atualização multipla</Label>
+          </div>
+        </div>
 
         <ContainerLine className="scrollAdjust">
           <span>Imagem</span>
