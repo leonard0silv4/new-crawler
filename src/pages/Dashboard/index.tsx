@@ -1,14 +1,7 @@
 import { Button } from "@/components/ui/button";
 
 import { Input } from "@/components/ui/input";
-import {
-  Search,
-  PlusCircle,
-  RefreshCcw,
-  Loader,
-  Variable,
-  Eraser,
-} from "lucide-react";
+import { PlusCircle, RefreshCcw, Loader, Variable, Eraser } from "lucide-react";
 import {
   Dialog,
   DialogClose,
@@ -70,6 +63,7 @@ export default function Dashboard() {
   const [filterName, setFilterName] = useState("");
   const [skusUpdated, setSkusUpdated] = useState<any>([]);
 
+  const [filtredProducts, setFiltredProducts] = useState<Product[]>([]);
   const [products, setProducts] = useState<Product[]>([]);
 
   useEffect(() => {
@@ -207,8 +201,9 @@ export default function Dashboard() {
     setProducts(refreshedProducts);
   };
 
-  const setNewPrice = (newPrice: number, _id: string) => {
-    const refreshedProducts = products.map((product) => {
+  const setNewPrice = (newPrice: number, _id: string, hasFiltred = false) => {
+    const localProducts = hasFiltred ? filtredProducts : products;
+    const refreshedProducts = localProducts.map((product) => {
       if (product._id === _id) {
         return {
           ...product,
@@ -217,8 +212,9 @@ export default function Dashboard() {
       }
       return product;
     });
-
-    setProducts(refreshedProducts);
+    hasFiltred
+      ? setFiltredProducts(refreshedProducts)
+      : setProducts(refreshedProducts);
   };
 
   const sortProducts = () => {
@@ -247,61 +243,15 @@ export default function Dashboard() {
     setProducts(sortedProducts);
   };
 
-  const FiltredResults = () => {
-    if (filterName?.length > 2) {
+  const FiltredResults = (e: any) => {
+    setFilterName(e);
+    if (e?.length > 2) {
       const filtredProducts = products.filter((prd) =>
         prd.name.toLocaleLowerCase().includes(filterName.toLocaleLowerCase())
       );
 
-      if (!filtredProducts?.length) return;
-
-      return (
-        <div className="border rounded-lg p-2 ">
-          <h2 className="text-2xl font-bold p-3">
-            Filtrados ({filtredProducts?.length})
-          </h2>
-
-          <S.ContainerLine className="scrollAdjust">
-            <span>Imagem</span>
-            <span>Nome</span>
-            <span>Meu preço</span>
-            <span>Preço Atual</span>
-            <span>Ultimo Preço</span>
-            <span className="cursor-pointer" onClick={() => sortProducts()}>
-              Variação
-            </span>
-            <span>Status</span>
-            <span></span>
-          </S.ContainerLine>
-          <List
-            itemData={filtredProducts}
-            height={740}
-            itemCount={filtredProducts.length}
-            itemSize={150}
-            width={1200}
-          >
-            {({ index, style }: any) => (
-              <TableRowComponent
-                style={style}
-                setNewPrice={setNewPrice}
-                key={`b-${filtredProducts[index].sku}`}
-                load={load}
-                product={filtredProducts[index]}
-                onDeleteItem={deleteItem}
-                keyUsage={filtredProducts[index].sku}
-                updated={
-                  skusUpdated.includes(filtredProducts[index].sku)
-                    ? true
-                    : false
-                }
-              />
-            )}
-          </List>
-        </div>
-      );
+      setFiltredProducts(filtredProducts);
     }
-
-    return;
   };
 
   const clearAllRates = async () => {
@@ -390,7 +340,7 @@ export default function Dashboard() {
           <form className="md:flex md:items-center md:gap-2">
             <Input
               value={filterName}
-              onChange={(e) => setFilterName(e.target.value)}
+              onChange={(e) => FiltredResults(e.target.value)}
               name="name"
               placeholder="Buscar por nome"
               className="w-auto"
@@ -481,7 +431,51 @@ export default function Dashboard() {
           <DeleteAll />
         </div>
 
-        <FiltredResults />
+        {filtredProducts?.length > 0 && (
+          <div className="border rounded-lg p-2 ">
+            <h2 className="text-2xl font-bold p-3">
+              Filtrados ({filtredProducts?.length})
+            </h2>
+
+            <S.ContainerLine className="scrollAdjust">
+              <span>Imagem</span>
+              <span>Nome</span>
+              <span>Meu preço</span>
+              <span>Preço Atual</span>
+              <span>Ultimo Preço</span>
+              <span className="cursor-pointer" onClick={() => sortProducts()}>
+                Variação
+              </span>
+              <span>Status</span>
+              <span></span>
+            </S.ContainerLine>
+            <List
+              itemData={filtredProducts}
+              height={740}
+              itemCount={filtredProducts.length}
+              itemSize={150}
+              width={1200}
+            >
+              {({ index, style }: any) => (
+                <TableRowComponent
+                  style={style}
+                  setNewPrice={setNewPrice}
+                  hasFiltred={true}
+                  key={`b-${filtredProducts[index].sku}`}
+                  load={load}
+                  product={filtredProducts[index]}
+                  onDeleteItem={deleteItem}
+                  keyUsage={`f-${filtredProducts[index].sku}`}
+                  updated={
+                    skusUpdated.includes(filtredProducts[index].sku)
+                      ? true
+                      : false
+                  }
+                />
+              )}
+            </List>
+          </div>
+        )}
 
         <div className="border rounded-lg p-2">
           <S.ContainerLine className="scrollAdjust">
@@ -511,6 +505,7 @@ export default function Dashboard() {
                   style={style}
                   key={`b-${products[index].sku}`}
                   load={load}
+                  hasFiltred={false}
                   setNewPrice={setNewPrice}
                   product={products[index]}
                   onDeleteItem={deleteItem}

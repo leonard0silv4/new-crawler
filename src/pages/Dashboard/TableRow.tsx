@@ -18,7 +18,8 @@ interface TableRowProps {
   keyUsage?: any;
   updated?: boolean;
   style?: any;
-  setNewPrice: (newPrice: number, idP: string) => void;
+  hasFiltred: boolean;
+  setNewPrice: (newPrice: number, idP: string, hasFiltred: boolean) => void;
 }
 
 const TableRowComponent = ({
@@ -29,6 +30,7 @@ const TableRowComponent = ({
   updated,
   style,
   setNewPrice,
+  hasFiltred,
 }: TableRowProps) => {
   const diffPercent = (oldValue: number, newValue: number) => {
     if (oldValue == 0 || newValue == 0) return;
@@ -45,7 +47,7 @@ const TableRowComponent = ({
         id: prod._id,
         myPrice: price,
       });
-      setNewPrice(price, prod._id);
+      setNewPrice(price, prod._id, hasFiltred);
     }
   };
 
