@@ -50,7 +50,7 @@ export const ContainerLine = styled.li`
         font-size: 14px;
     }
 
-    > > span:nth-child(1){
+     > span:nth-child(1){
         
         width: 10%;
         display: flex ;
