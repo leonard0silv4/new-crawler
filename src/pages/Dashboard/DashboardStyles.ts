@@ -58,13 +58,13 @@ export const ContainerLine = styled.li`
         justify-content: center
     }
     span:nth-child(2){
-        width: 40%;
+        width: 38%;
         
         display: block ;
     }
     span:nth-child(3){
         
-        width: 7%;
+        width: 10%;
         justify-content: center;
     }
     span:nth-child(4){
@@ -79,15 +79,15 @@ export const ContainerLine = styled.li`
     }
     span:nth-child(6){
         
-        width: 7%;
+        width: 12%;
         justify-content: center;
     }
     span:nth-child(7){
-        width: 10%;
+        width: 8%;
         justify-content: center;
     }
     span:nth-child(8){
-        width: 10%;
+        width: 8%;
         justify-content: center;
     }
 `

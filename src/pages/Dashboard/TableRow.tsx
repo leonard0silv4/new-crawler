@@ -1,6 +1,11 @@
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Loader, Trash2Icon } from "lucide-react";
+import {
+  Loader,
+  Trash2Icon,
+  ArrowUpFromDot,
+  ArrowDownToDot,
+} from "lucide-react";
 import { Product } from ".";
 import { Link, ContainerLine } from "./DashboardStyles";
 import moment from "moment";
@@ -13,6 +18,7 @@ interface TableRowProps {
   keyUsage?: any;
   updated?: boolean;
   style?: any;
+  setNewPrice: (newPrice: number, idP: string) => void;
 }
 
 const TableRowComponent = ({
@@ -22,6 +28,7 @@ const TableRowComponent = ({
   keyUsage,
   updated,
   style,
+  setNewPrice,
 }: TableRowProps) => {
   const diffPercent = (oldValue: number, newValue: number) => {
     if (oldValue == 0 || newValue == 0) return;
@@ -31,12 +38,14 @@ const TableRowComponent = ({
     return `(${parseFloat(diffPercente.toFixed(2))}%)`;
   };
 
-  const singleUpdate = (ev: any, prod: Product) => {
-    if (parseFloat(ev.currentTarget.textContent) != prod.myPrice) {
-      instance.put("/links", {
+  const singleUpdate = async (ev: any, prod: Product) => {
+    const price = parseFloat(ev.currentTarget.textContent);
+    if (price != prod.myPrice) {
+      await instance.put("/links", {
         id: prod._id,
-        myPrice: parseFloat(ev.currentTarget.textContent),
+        myPrice: price,
       });
+      setNewPrice(price, prod._id);
     }
   };
 
@@ -73,6 +82,11 @@ const TableRowComponent = ({
         </p>
       </span>
       <span>
+        {product.myPrice > product.nowPrice ? (
+          <ArrowUpFromDot className="text-red-600	 w-4 h-4 mr-2 icon" />
+        ) : (
+          <ArrowDownToDot className="text-green-600		 w-4 h-4 mr-2 icon" />
+        )}
         R$
         <span
           onBlur={(e) => {

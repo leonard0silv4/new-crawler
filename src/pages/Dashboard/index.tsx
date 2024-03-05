@@ -207,6 +207,20 @@ export default function Dashboard() {
     setProducts(refreshedProducts);
   };
 
+  const setNewPrice = (newPrice: number, _id: string) => {
+    const refreshedProducts = products.map((product) => {
+      if (product._id === _id) {
+        return {
+          ...product,
+          myPrice: newPrice,
+        };
+      }
+      return product;
+    });
+
+    setProducts(refreshedProducts);
+  };
+
   const sortProducts = () => {
     const sortedProducts = products.map((product) => {
       return {
@@ -269,6 +283,7 @@ export default function Dashboard() {
             {({ index, style }: any) => (
               <TableRowComponent
                 style={style}
+                setNewPrice={setNewPrice}
                 key={`b-${filtredProducts[index].sku}`}
                 load={load}
                 product={filtredProducts[index]}
@@ -380,10 +395,6 @@ export default function Dashboard() {
               placeholder="Buscar por nome"
               className="w-auto"
             />
-            <Button className="hidden lg:flex" type="submit" variant="link">
-              <Search className="w-4 h-4 mr-2" />
-              Filtrar resultados
-            </Button>
           </form>
 
           <br className="block lg:hidden" />
@@ -500,6 +511,7 @@ export default function Dashboard() {
                   style={style}
                   key={`b-${products[index].sku}`}
                   load={load}
+                  setNewPrice={setNewPrice}
                   product={products[index]}
                   onDeleteItem={deleteItem}
                   keyUsage={products[index].sku}
