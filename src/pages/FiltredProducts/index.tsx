@@ -67,8 +67,8 @@ const FiltredProducts = ({
           <span>Nome</span>
           <span>Meu preço</span>
           <span className="cursor-pointer" onClick={() => sort()}>
-            {order == "desc" && <ArrowUp className="w-3 h-3" />}
-            {order == "asc" && <ArrowDown className="w-3 h-3" />}
+            {order == "desc" && <ArrowUp className="w-3 h-3 mr-2" />}
+            {order == "asc" && <ArrowDown className="w-3 h-3 mr-2" />}
             Preço Atual
           </span>
           <span>Ultimo Preço</span>

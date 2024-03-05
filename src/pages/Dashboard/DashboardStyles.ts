@@ -42,6 +42,9 @@ export const ContainerLine = styled.li`
 
     &.scrollAdjust{
         padding-right: 19px;
+        > span{
+            font-weight: bold ;
+        }
     }
 
     > span{

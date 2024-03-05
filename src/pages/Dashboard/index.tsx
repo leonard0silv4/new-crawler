@@ -420,7 +420,6 @@ export default function Dashboard() {
         <FiltredProducts
           products={products}
           filterByText={filterName}
-          setNewPrice={setNewPrice}
           load={load}
           onDeleteItem={deleteItem}
         />
