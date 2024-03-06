@@ -5,8 +5,8 @@ import { ContainerLine } from "../Dashboard/DashboardStyles";
 import { FixedSizeList as List } from "react-window";
 import { ArrowUp, ArrowDown } from "lucide-react";
 import instance from "@/config/axios";
-import { Switch } from "@/components/ui/switch";
-import { Label } from "@/components/ui/label";
+
+import { Checkbox } from "@/components/ui/checkbox";
 
 interface propsFiltred {
   products: Product[];
@@ -85,10 +85,18 @@ const FiltredProducts = ({
           <h2 className="text-2xl font-bold p-3 left">
             Filtrados pelo termo: {filterByText} ({filtredProducts?.length})
           </h2>
-
           <div className="flex items-center space-x-2 p-5 ml-auto">
-            <Switch checked={auto} onCheckedChange={setAuto} id="autoupdate" />
-            <Label htmlFor="autoupdate">Habilitar atualização multipla</Label>
+            <Checkbox
+              checked={auto}
+              onCheckedChange={() => setAuto(!auto)}
+              id="auto"
+            />
+            <label
+              htmlFor="auto"
+              className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+            >
+              Habilitar atualização multipla
+            </label>
           </div>
         </div>
 
