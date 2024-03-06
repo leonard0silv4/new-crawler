@@ -204,6 +204,13 @@ export default function Dashboard() {
   const setNewPrice = (newPrice: number, _id: string) => {
     const refreshedProducts = products.map((product) => {
       if (product._id === _id) {
+        console.log("found:");
+        console.log(
+          "🚀 ~ setNewPrice ~ setNewPrice:",
+          product._id,
+          _id,
+          newPrice
+        );
         return {
           ...product,
           myPrice: newPrice,
@@ -211,7 +218,6 @@ export default function Dashboard() {
       }
       return product;
     });
-
     setProducts(refreshedProducts);
   };
 
@@ -421,6 +427,7 @@ export default function Dashboard() {
           filterByText={filterName}
           load={load}
           onDeleteItem={deleteItem}
+          setNewPriceOnMain={fetchData}
         />
 
         <div className="border rounded-lg p-2">

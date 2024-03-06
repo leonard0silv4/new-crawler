@@ -13,6 +13,7 @@ interface propsFiltred {
   filterByText: any;
   load: string | number;
   onDeleteItem: (sku: string | number) => void;
+  setNewPriceOnMain: () => void;
 }
 
 const FiltredProducts = ({
@@ -20,6 +21,7 @@ const FiltredProducts = ({
   filterByText,
   load,
   onDeleteItem,
+  setNewPriceOnMain,
 }: propsFiltred) => {
   const [filtredProducts, setFiltredProducts] = useState<Product[]>([]);
   const [order, setOrder] = useState("");
@@ -56,9 +58,9 @@ const FiltredProducts = ({
         }
         return product;
       });
-      refreshedProducts.forEach((it) => {
+      refreshedProducts.forEach((internalProduct: Product) => {
         instance.put("/links", {
-          id: it._id,
+          id: internalProduct._id,
           myPrice: newPrice,
         });
       });
@@ -73,7 +75,7 @@ const FiltredProducts = ({
         return product;
       });
     }
-
+    setNewPriceOnMain();
     setFiltredProducts(refreshedProducts);
   };
 
