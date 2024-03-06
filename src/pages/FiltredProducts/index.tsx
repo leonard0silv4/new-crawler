@@ -13,7 +13,7 @@ interface propsFiltred {
   filterByText: any;
   load: string | number;
   onDeleteItem: (sku: string | number) => void;
-  setNewPriceOnMain: () => void;
+  onSetProducts: React.Dispatch<React.SetStateAction<Product[]>>;
 }
 
 const FiltredProducts = ({
@@ -21,7 +21,7 @@ const FiltredProducts = ({
   filterByText,
   load,
   onDeleteItem,
-  setNewPriceOnMain,
+  onSetProducts,
 }: propsFiltred) => {
   const [filtredProducts, setFiltredProducts] = useState<Product[]>([]);
   const [order, setOrder] = useState("");
@@ -46,8 +46,8 @@ const FiltredProducts = ({
     setFiltredProducts(filtredProductsByOrder);
   };
 
-  const setNewPrice = async (newPrice: number, _id: string) => {
-    let refreshedProducts;
+  const setNewPrice = (newPrice: number, _id: string) => {
+    let refreshedProducts: Product[];
     if (auto) {
       refreshedProducts = filtredProducts.map((product) => {
         if (product._id) {
@@ -75,8 +75,16 @@ const FiltredProducts = ({
         return product;
       });
     }
-    setNewPriceOnMain();
     setFiltredProducts(refreshedProducts);
+
+    onSetProducts((prevProducts: Product[]) => {
+      return prevProducts.map((product: Product) => {
+        const updatedProduct = refreshedProducts.find(
+          (p) => p._id === product._id
+        );
+        return updatedProduct || product;
+      });
+    });
   };
 
   return (

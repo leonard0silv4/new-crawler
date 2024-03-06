@@ -427,7 +427,7 @@ export default function Dashboard() {
           filterByText={filterName}
           load={load}
           onDeleteItem={deleteItem}
-          setNewPriceOnMain={fetchData}
+          onSetProducts={setProducts}
         />
 
         <div className="border rounded-lg p-2">
