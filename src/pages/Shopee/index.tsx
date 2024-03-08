@@ -30,7 +30,6 @@ import { useEffect, useRef, useState } from "react";
 import instance, { errorFn } from "@/config/axios";
 
 import { toast } from "sonner";
-import Header from "@/components/Header";
 import TableRowComponent from "./TableRow";
 import { EventSourcePolyfill } from "event-source-polyfill";
 import { FixedSizeList as List } from "react-window";

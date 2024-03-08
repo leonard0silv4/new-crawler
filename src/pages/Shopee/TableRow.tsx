@@ -8,7 +8,7 @@ import {
 } from "lucide-react";
 import { Product } from "../Dashboard";
 import { Link, ContainerLine } from "../Dashboard/DashboardStyles";
-import moment from "moment";
+
 import instance from "@/config/axios";
 
 interface TableRowProps {
