@@ -87,6 +87,13 @@ const FiltredProducts = ({
     });
   };
 
+  if (filterByText?.length > 2 && !filtredProducts.length)
+    return (
+      <p>
+        <b>Busca sem resultados</b>
+      </p>
+    );
+
   return (
     filtredProducts?.length > 0 &&
     filterByText?.length > 2 && (

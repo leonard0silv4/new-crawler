@@ -7,7 +7,11 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 
-const Login = () => {
+interface LoginProps {
+  handleAuthentication: (boolean: boolean) => void;
+}
+
+const Login = ({ handleAuthentication }: LoginProps) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isLoad, setIsLoad] = useState(false);
@@ -23,8 +27,8 @@ const Login = () => {
       })
       .then((response: any) => {
         localStorage.setItem("userToken", response?.token);
-
         navigate("/");
+        handleAuthentication(true);
       })
       .catch((err) => {
         toast.error("Erro ", {

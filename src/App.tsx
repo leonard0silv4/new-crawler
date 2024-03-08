@@ -1,3 +1,4 @@
+import { useState } from "react";
 import "../app/globals.css";
 
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
@@ -9,12 +10,21 @@ import Sales from "./pages/Sales";
 import { Toaster } from "@/components/ui/sonner";
 import AccountCreate from "./pages/AccountCreate";
 import Shopee from "./pages/Shopee";
+import Header from "./components/Header";
 
 function App() {
+  const [isAuthenticated, setIsAuthenticated] = useState(
+    !!(window.localStorage !== undefined && localStorage.getItem("userToken"))
+  );
+
   return (
     <>
       <Toaster />
       <Router>
+        {isAuthenticated && (
+          <Header handleAuthentication={setIsAuthenticated} />
+        )}
+
         <Routes>
           <Route element={<PrivateRoutes />}>
             <Route element={<Dashboard />} path="/" />
@@ -22,7 +32,10 @@ function App() {
             <Route element={<Shopee />} path="/shopee" />
             <Route element={<Sales />} path="/orders" />
           </Route>
-          <Route element={<Login />} path="/login" />
+          <Route
+            element={<Login handleAuthentication={setIsAuthenticated} />}
+            path="/login"
+          />
           <Route element={<AccountCreate />} path="/account-create" />
         </Routes>
       </Router>

@@ -51,6 +51,8 @@ export interface Product {
   image: string;
   created_at: any;
   updatedAt: any;
+  storeName?: string;
+  ratingSeller?: string;
   _id?: any;
 }
 
@@ -79,6 +81,7 @@ export default function Dashboard() {
         params: {
           page: 1,
           perPage: 5000,
+          storeName: "mercadolivre",
         },
       })
       .then(({ data: response }: any) => {
@@ -112,7 +115,7 @@ export default function Dashboard() {
 
     setLoad("addLink");
     instance
-      .post(link.includes("lista") ? "list/ml" : "links", {
+      .post(link.includes("lista") ? "/list/batch" : "links", {
         link: link,
         myPrice: parseFloat(myPrice),
       })
@@ -151,7 +154,7 @@ export default function Dashboard() {
 
   const updateAll = () => {
     var eventSource = new EventSourcePolyfill(
-      `${import.meta.env.VITE_APP_BASE_URL}links/update`,
+      `${import.meta.env.VITE_APP_BASE_URL}links/update/mercadolivre`,
       {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("userToken")}`,
@@ -204,13 +207,6 @@ export default function Dashboard() {
   const setNewPrice = (newPrice: number, _id: string) => {
     const refreshedProducts = products.map((product) => {
       if (product._id === _id) {
-        console.log("found:");
-        console.log(
-          "🚀 ~ setNewPrice ~ setNewPrice:",
-          product._id,
-          _id,
-          newPrice
-        );
         return {
           ...product,
           myPrice: newPrice,
@@ -248,14 +244,14 @@ export default function Dashboard() {
   };
 
   const clearAllRates = async () => {
-    instance.post("links/clearRates").then(() => {
+    instance.post("links/clearRates/mercadolivre").then(() => {
       fetchData();
       setSkusUpdated([]);
     });
   };
 
   const deleteAllItems = async () => {
-    await instance.delete("links");
+    await instance.delete("links/clearAll/mercadolivre");
     setProducts([]);
   };
 
@@ -320,8 +316,6 @@ export default function Dashboard() {
 
   return (
     <>
-      <Header />
-
       <S.Main className="p-6 max-w-7xl mx-auto space-y-4">
         {onUpdate && <Progress value={Number(percent.replace("%", ""))} />}
         <h1 className="text-3xl font-bold">

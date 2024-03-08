@@ -11,6 +11,16 @@ export const Main = styled.div`
         }
     }
 
+    .border.rounded-lg.p-2{
+        @media(max-width: 768px){
+        overflow: scroll;
+    }    
+    }
+
+    @media(max-width: 768px){
+        overflow: hidden;
+    }
+
     
 `;
 
@@ -42,9 +52,18 @@ export const ContainerLine = styled.li`
 
     &.scrollAdjust{
         padding-right: 19px;
+
+        @media(max-width: 768px){
+            min-width:1200px;
+        }
+
         > span{
             font-weight: bold ;
+            
         }
+
+        
+
     }
 
     > span{

@@ -6,8 +6,8 @@ import {
   ArrowUpFromDot,
   ArrowDownToDot,
 } from "lucide-react";
-import { Product } from ".";
-import { Link, ContainerLine } from "./DashboardStyles";
+import { Product } from "../Dashboard";
+import { Link, ContainerLine } from "../Dashboard/DashboardStyles";
 import moment from "moment";
 import instance from "@/config/axios";
 
@@ -74,12 +74,7 @@ const TableRowComponent = ({
           Vendido por: <b>{product.seller}</b>
         </i>
         <p>
-          Data anúncio{"  "}
-          {product.dateMl ? (
-            <Badge>{moment().diff(moment(product.dateMl), "days")} dias</Badge>
-          ) : (
-            <Badge>Novo</Badge>
-          )}
+          Reputação do vendedor: <b>{product?.ratingSeller}</b>
         </p>
       </span>
       <span>

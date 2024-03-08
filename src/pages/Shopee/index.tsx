@@ -1,15 +1,7 @@
 import { Button } from "@/components/ui/button";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableFooter,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
+
 import { Input } from "@/components/ui/input";
-import { Search, PlusCircle, RefreshCcw, Loader, Variable } from "lucide-react";
+import { PlusCircle, RefreshCcw, Loader, Variable, Eraser } from "lucide-react";
 import {
   Dialog,
   DialogClose,
@@ -33,39 +25,19 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
 import { Progress } from "@/components/ui/progress";
 import { useEffect, useRef, useState } from "react";
 import instance, { errorFn } from "@/config/axios";
-import moment from "moment";
 
 import { toast } from "sonner";
 import Header from "@/components/Header";
-import TableRowComponent from "../Dashboard/TableRow";
+import TableRowComponent from "./TableRow";
 import { EventSourcePolyfill } from "event-source-polyfill";
+import { FixedSizeList as List } from "react-window";
 
 import * as S from "../Dashboard/DashboardStyles";
-
-export interface Product {
-  sku: string;
-  link: string;
-  name: string;
-  seller: string;
-  dateMl: any;
-  status: string;
-  nowPrice: number;
-  lastPrice: number;
-  myPrice: number;
-  image: string;
-  created_at: any;
-  updatedAt: any;
-  _id?: any;
-}
+import FiltredProducts from "../FiltredProducts";
+import { Product } from "../Dashboard";
 
 export default function Shopee() {
   const [onUpdate, setOnUpdate] = useState(false);
@@ -86,18 +58,22 @@ export default function Shopee() {
   }, []);
 
   const fetchData = async () => {
+    setLoad("initial");
     await instance
-      .get("shopee/links", {
+      .get("links", {
         params: {
           page: 1,
           perPage: 5000,
+          storeName: "shopee",
         },
       })
       .then(({ data: response }: any) => {
         setProducts(response);
       })
       .catch((err) => console.log(err))
-      .finally(() => {});
+      .finally(() => {
+        setLoad("");
+      });
   };
 
   const AddLink = (e: any) => {
@@ -122,9 +98,10 @@ export default function Shopee() {
 
     setLoad("addLink");
     instance
-      .post(link.includes("lista") ? "list/shopee" : "links", {
+      .post(link.includes("lista") ? "list/ml" : "links", {
         link: link,
         myPrice: parseFloat(myPrice),
+        storeName: "shopee",
       })
       .then(() => {
         fetchData();
@@ -149,7 +126,7 @@ export default function Shopee() {
   const deleteItem = (sku: any) => {
     setLoad(sku);
     instance
-      .delete(`shopee/links/${sku}`)
+      .delete(`links/${sku}`)
       .then(() => {
         setProducts((data) => data.filter((item) => item.sku != sku));
       })
@@ -161,7 +138,7 @@ export default function Shopee() {
 
   const updateAll = () => {
     var eventSource = new EventSourcePolyfill(
-      `${import.meta.env.VITE_APP_BASE_URL}shopee/links/update`,
+      `${import.meta.env.VITE_APP_BASE_URL}links/update/shopee`,
       {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("userToken")}`,
@@ -211,6 +188,26 @@ export default function Shopee() {
     setProducts(refreshedProducts);
   };
 
+  const setNewPrice = (newPrice: number, _id: string) => {
+    const refreshedProducts = products.map((product) => {
+      if (product._id === _id) {
+        console.log("found:");
+        console.log(
+          "🚀 ~ setNewPrice ~ setNewPrice:",
+          product._id,
+          _id,
+          newPrice
+        );
+        return {
+          ...product,
+          myPrice: newPrice,
+        };
+      }
+      return product;
+    });
+    setProducts(refreshedProducts);
+  };
+
   const sortProducts = () => {
     const sortedProducts = products.map((product) => {
       return {
@@ -237,56 +234,16 @@ export default function Shopee() {
     setProducts(sortedProducts);
   };
 
-  const FiltredResults = () => {
-    if (filterName?.length > 2) {
-      const filtredProducts = products.filter((prd) =>
-        prd.name.toLocaleLowerCase().includes(filterName.toLocaleLowerCase())
-      );
-
-      if (!filtredProducts?.length) return;
-
-      return (
-        <div className="border rounded-lg p-2 ">
-          <h2 className="text-2xl font-bold p-3">Filtrados</h2>
-          <Table>
-            <TableHeader>
-              <TableHead>Imagem</TableHead>
-              <TableHead>Nome</TableHead>
-              <TableHead>Meu preço</TableHead>
-              <TableHead>Preço Atual</TableHead>
-              <TableHead>Ultimo Preço</TableHead>
-              <TableHead>Variação</TableHead>
-              <TableHead>Status</TableHead>
-              <TableHead></TableHead>
-            </TableHeader>
-
-            <TableBody>
-              {filtredProducts.map((product) => {
-                return (
-                  <TableRowComponent
-                    key={`t-${product.sku}`}
-                    load={load}
-                    product={product}
-                    onDeleteItem={deleteItem}
-                    keyUsage={`f-${product.sku}`}
-                    updated={skusUpdated.includes(product.sku) ? true : false}
-                  />
-                );
-              })}
-            </TableBody>
-          </Table>
-        </div>
-      );
-    }
-
-    return;
-  };
-
   const clearAllRates = async () => {
-    instance.post("links/clearRates").then(() => {
+    instance.post("links/clearRates/shopee").then(() => {
       fetchData();
       setSkusUpdated([]);
     });
+  };
+
+  const deleteAllItems = async () => {
+    await instance.delete("links/clearAll/shopee");
+    setProducts([]);
   };
 
   const ClearVariations = () => {
@@ -299,15 +256,48 @@ export default function Shopee() {
         </AlertDialogTrigger>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Tem certeza ?</AlertDialogTitle>
-            <AlertDialogDescription>
-              Esta ação Limpará todas variações e não podera ser desfeita !
-            </AlertDialogDescription>
+            <AlertDialogTitle>
+              Esta ação Limpará todas variações, e não podera ser desfeita !
+            </AlertDialogTitle>
+            <AlertDialogDescription>Tem certeza ?</AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Cancelar</AlertDialogCancel>
             <AlertDialogAction onClick={() => clearAllRates()}>
-              Limpar
+              Sim, limpar variações
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    );
+  };
+
+  const DeleteAll = () => {
+    return (
+      <AlertDialog>
+        <AlertDialogTrigger asChild>
+          <Button variant="destructive" className="ml-2 mb-4 lg:mb-0">
+            <Eraser className="w-4 h-4" />
+          </Button>
+        </AlertDialogTrigger>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>
+              Esta ação apagará todos os links que vc esta acompanhando, e não
+              podera ser desfeita !
+            </AlertDialogTitle>
+            <AlertDialogDescription>Tem certeza ?</AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <AlertDialogAction asChild>
+              <Button
+                variant="destructive"
+                onClick={() => deleteAllItems()}
+                className="Button red"
+              >
+                Sim, apagar tudo
+              </Button>
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
@@ -317,14 +307,12 @@ export default function Shopee() {
 
   return (
     <>
-      <Header />
-
       <S.Main className="p-6 max-w-7xl mx-auto space-y-4">
         {onUpdate && <Progress value={Number(percent.replace("%", ""))} />}
-
-        <h1 className="text-3xl font-bold">Produtos</h1>
-
-        <div className="md:flex md:items-center md:justify-between">
+        <h1 className="text-3xl font-bold">
+          Produtos {products?.length > 0 ? `(${products.length})` : ""}
+        </h1>
+        <div className="md:flex md:items-center md:justify-between ">
           <form className="md:flex md:items-center md:gap-2">
             <Input
               value={filterName}
@@ -333,42 +321,21 @@ export default function Shopee() {
               placeholder="Buscar por nome"
               className="w-auto"
             />
-            <Button className="hidden lg:flex" type="submit" variant="link">
-              <Search className="w-4 h-4 mr-2" />
-              Filtrar resultados
-            </Button>
           </form>
 
           <br className="block lg:hidden" />
 
-          <TooltipProvider>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button
-                  disabled={onUpdate}
-                  onClick={() => updateAll()}
-                  variant="outline"
-                  className="ml-auto mr-5 mb-4 lg:mb-0"
-                >
-                  <RefreshCcw
-                    className={`w-4 h-4 mr-2 ${onUpdate ? "animate-spin" : ""}`}
-                  />
-                  {onUpdate ? `Atualizando` : "Atualizar"} lista
-                </Button>
-              </TooltipTrigger>
-
-              <TooltipContent>
-                <p>
-                  Ultima atualização:{" "}
-                  <b>
-                    {moment(products?.[0]?.updatedAt).format(
-                      "DD/MM/YY h:mm:ss"
-                    )}
-                  </b>
-                </p>
-              </TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
+          <Button
+            disabled={onUpdate}
+            onClick={() => updateAll()}
+            variant="outline"
+            className="ml-auto mr-5 mb-4 lg:mb-0"
+          >
+            <RefreshCcw
+              className={`w-4 h-4 mr-2 ${onUpdate ? "animate-spin" : ""}`}
+            />
+            {onUpdate ? `Atualizando` : "Atualizar"} lista
+          </Button>
 
           <Dialog>
             <DialogTrigger asChild>
@@ -437,49 +404,62 @@ export default function Shopee() {
           </Dialog>
 
           <ClearVariations />
+          <DeleteAll />
         </div>
 
-        <FiltredResults />
-
-        <div className="border rounded-lg p-2">
-          <Table>
-            <TableHeader>
-              <TableHead>Imagem</TableHead>
-              <TableHead>Nome</TableHead>
-              <TableHead>Meu preço</TableHead>
-              <TableHead>Preço Atual</TableHead>
-              <TableHead>Ultimo Preço</TableHead>
-              <TableHead
-                className="cursor-pointer"
-                onClick={() => sortProducts()}
-              >
+        <FiltredProducts
+          products={products}
+          filterByText={filterName}
+          load={load}
+          onDeleteItem={deleteItem}
+          onSetProducts={setProducts}
+        />
+        {products.length <= 0 && !load ? (
+          <div className="text-md text-center	pt-6 mt-6 block font-bold	">
+            Sem produtos cadastrados
+          </div>
+        ) : (
+          <div className="border rounded-lg p-2">
+            <S.ContainerLine className="scrollAdjust">
+              <span>Imagem</span>
+              <span>Nome</span>
+              <span>Meu preço</span>
+              <span>Preço Atual</span>
+              <span>Ultimo Preço</span>
+              <span className="cursor-pointer" onClick={() => sortProducts()}>
                 Variação
-              </TableHead>
-              <TableHead>Status</TableHead>
-              <TableHead></TableHead>
-            </TableHeader>
-
-            <TableBody>
-              {products?.map((product) => {
-                return (
+              </span>
+              <span>Status</span>
+              <span></span>
+            </S.ContainerLine>
+            {load == "initial" ? (
+              <Loader className="w-10 h-10 animate-spin m-auto my-10" />
+            ) : (
+              <List
+                itemData={products}
+                height={740}
+                itemCount={products.length}
+                itemSize={150}
+                width={1200}
+              >
+                {({ index, style }: any) => (
                   <TableRowComponent
-                    key={`b-${product.sku}`}
+                    style={style}
+                    key={`b-${products[index].sku}`}
                     load={load}
-                    product={product}
+                    setNewPrice={setNewPrice}
+                    product={products[index]}
                     onDeleteItem={deleteItem}
-                    keyUsage={product.sku}
-                    updated={skusUpdated.includes(product.sku) ? true : false}
+                    keyUsage={products[index].sku}
+                    updated={
+                      skusUpdated.includes(products[index].sku) ? true : false
+                    }
                   />
-                );
-              })}
-            </TableBody>
-            <TableFooter>
-              <TableRow>
-                <TableCell colSpan={7}>Total : {products?.length}</TableCell>
-              </TableRow>
-            </TableFooter>
-          </Table>
-        </div>
+                )}
+              </List>
+            )}
+          </div>
+        )}
       </S.Main>
     </>
   );
