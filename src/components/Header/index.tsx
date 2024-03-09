@@ -57,7 +57,7 @@ const Header = ({ handleAuthentication }: HeaderProps) => {
           >
             Mercado livre
           </NavLink>
-          {/* <NavLink
+          <NavLink
             className={({ isActive }: any) =>
               `${
                 isActive ? "underline " : ""
@@ -66,7 +66,7 @@ const Header = ({ handleAuthentication }: HeaderProps) => {
             to="/shopee"
           >
             Shopee
-          </NavLink> */}
+          </NavLink>
         </div>
         <div className="hidden lg:flex lg:flex-1 lg:justify-end">
           <a
@@ -118,7 +118,7 @@ const Header = ({ handleAuthentication }: HeaderProps) => {
                   >
                     Mercado livre
                   </NavLink>
-                  {/* <NavLink
+                  <NavLink
                     className={({ isActive }: any) =>
                       `${
                         isActive ? "underline " : ""
@@ -127,7 +127,7 @@ const Header = ({ handleAuthentication }: HeaderProps) => {
                     to="/shopee"
                   >
                     Shoppe
-                  </NavLink> */}
+                  </NavLink>
                 </div>
                 <div className="py-6">
                   <a
