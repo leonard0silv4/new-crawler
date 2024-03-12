@@ -150,7 +150,7 @@ export default function Shopee() {
 
     eventSource.onmessage = (event) => {
       const progress = event.data;
-      if (progress.indexOf("%") != -1) {
+      if (typeof progress == "string") {
         setPercent(progress);
       } else {
         const productAtt = JSON.parse(event.data);
@@ -282,7 +282,7 @@ export default function Shopee() {
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>
-              Esta ação apagará todos os links que vc esta acompanhando, e não
+              Esta ação apagará todos os links que você esta acompanhando, e não
               podera ser desfeita !
             </AlertDialogTitle>
             <AlertDialogDescription>Tem certeza ?</AlertDialogDescription>

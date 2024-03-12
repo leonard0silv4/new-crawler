@@ -166,7 +166,8 @@ export default function Dashboard() {
 
     eventSource.onmessage = (event) => {
       const progress = event.data;
-      if (progress.indexOf("%") != -1) {
+      console.log(typeof progress);
+      if (typeof progress == "string") {
         setPercent(progress);
       } else {
         const productAtt = JSON.parse(event.data);
@@ -291,7 +292,7 @@ export default function Dashboard() {
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>
-              Esta ação apagará todos os links que vc esta acompanhando, e não
+              Esta ação apagará todos os links que você esta acompanhando, e não
               podera ser desfeita !
             </AlertDialogTitle>
             <AlertDialogDescription>Tem certeza ?</AlertDialogDescription>
