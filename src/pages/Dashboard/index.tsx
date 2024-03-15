@@ -166,18 +166,17 @@ export default function Dashboard() {
 
     eventSource.onmessage = (event) => {
       const progress = event.data;
-      console.log(typeof progress);
-      if (typeof progress == "string") {
-        setPercent(progress);
-      } else {
+      console.log(progress);
+      if (progress.indexOf("}") != -1) {
         const productAtt = JSON.parse(event.data);
         setSkusUpdated((skusUpdated: any) => [...skusUpdated, productAtt.sku]);
-        console.log(productAtt);
         updateAnExist(productAtt);
         toast.success(productAtt.name, {
           description: "Atualizado",
           position: "top-right",
         });
+      } else {
+        setPercent(progress);
       }
     };
 
@@ -292,8 +291,8 @@ export default function Dashboard() {
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>
-              Esta ação apagará todos os links que você esta acompanhando, e não
-              podera ser desfeita !
+              Esta ação apagará todos os links({products?.length}) que você esta
+              acompanhando, e não podera ser desfeita !
             </AlertDialogTitle>
             <AlertDialogDescription>Tem certeza ?</AlertDialogDescription>
           </AlertDialogHeader>
