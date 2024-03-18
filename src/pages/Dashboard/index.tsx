@@ -166,9 +166,9 @@ export default function Dashboard() {
 
     eventSource.onmessage = (event) => {
       const progress = event.data;
-      console.log(progress);
       if (progress.indexOf("}") != -1) {
         const productAtt = JSON.parse(event.data);
+        console.log("atualiza produto", productAtt);
         setSkusUpdated((skusUpdated: any) => [...skusUpdated, productAtt.sku]);
         updateAnExist(productAtt);
         toast.success(productAtt.name, {
@@ -189,18 +189,19 @@ export default function Dashboard() {
   };
 
   const updateAnExist = (newProduct: Product) => {
-    const refreshedProducts = products.map((product) => {
-      if (product.sku === newProduct.sku) {
-        return {
-          ...product,
-          nowPrice: newProduct?.nowPrice,
-          lastPrice: newProduct.lastPrice,
-          updatedAt: new Date(),
-        };
-      }
-      return product;
+    setProducts((prevProducts) => {
+      return prevProducts.map((product) => {
+        if (product.sku === newProduct.sku) {
+          return {
+            ...product,
+            nowPrice: newProduct.nowPrice,
+            lastPrice: newProduct.lastPrice,
+            updatedAt: new Date(),
+          };
+        }
+        return product;
+      });
     });
-    setProducts(refreshedProducts);
   };
 
   const setNewPrice = (newPrice: number, _id: string) => {
@@ -213,6 +214,7 @@ export default function Dashboard() {
       }
       return product;
     });
+
     setProducts(refreshedProducts);
   };
 
