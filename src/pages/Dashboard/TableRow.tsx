@@ -5,11 +5,26 @@ import {
   Trash2Icon,
   ArrowUpFromDot,
   ArrowDownToDot,
+  Tag,
+  X,
 } from "lucide-react";
 import { Product } from ".";
 import { Link, ContainerLine } from "./DashboardStyles";
 import moment from "moment";
 import instance from "@/config/axios";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+import { Input } from "@/components/ui/input";
+import React from "react";
 
 interface TableRowProps {
   onDeleteItem?: (sku: string | number) => void;
@@ -18,8 +33,13 @@ interface TableRowProps {
   keyUsage?: any;
   updated?: boolean;
   style?: any;
-
   setNewPrice?: (newPrice: number, idP: string) => void;
+  updateTags?: (product: Product, tags: string) => void;
+  deleteTag?: (id: string, tag: string) => void;
+}
+
+interface AddTagProps {
+  product: Product;
 }
 
 const TableRowComponent = ({
@@ -30,6 +50,8 @@ const TableRowComponent = ({
   updated,
   style,
   setNewPrice,
+  updateTags,
+  deleteTag,
 }: TableRowProps) => {
   const diffPercent = (oldValue: number, newValue: number) => {
     if (oldValue == 0 || newValue == 0) return;
@@ -49,6 +71,53 @@ const TableRowComponent = ({
       setNewPrice && setNewPrice(price, prod._id);
     }
   };
+
+  const updateTagInternal = (prod: Product, tag: string) => {
+    updateTags && updateTags(prod, tag);
+  };
+
+  const deleteTagInternal = (id: string, tag: string) => {
+    deleteTag && deleteTag(id, tag);
+  };
+
+  const AddTag: React.FC<AddTagProps> = React.memo(({ product }) => {
+    const [newTag, setNewTag] = React.useState("");
+
+    return (
+      <AlertDialog>
+        <AlertDialogTrigger asChild>
+          <Button className="mt-2" variant="default">
+            <Tag className=" h-4 w-4" />
+          </Button>
+        </AlertDialogTrigger>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>{product.name}</AlertDialogTitle>
+            <AlertDialogDescription>
+              <Input
+                onChange={(e) => setNewTag(e.target.value)}
+                value={newTag}
+                type="text"
+                className="block w-full rounded-md mt-5 pl-5 pr-5 col-span-4 my-price"
+                placeholder="Adicionar tag"
+                onKeyDown={(e) => e.stopPropagation()}
+              />
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => {
+                updateTagInternal(product, newTag);
+              }}
+            >
+              Salvar tag
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    );
+  });
 
   return (
     <ContainerLine
@@ -74,13 +143,22 @@ const TableRowComponent = ({
           Vendido por: <b>{product.seller}</b>
         </i>
         <p>
-          Data anúncio{"  "}
-          {product.dateMl ? (
-            <Badge>{moment().diff(moment(product.dateMl), "days")} dias</Badge>
-          ) : (
-            <Badge>Novo</Badge>
-          )}
+          Data anúncio:{"  "}
+          {product.dateMl
+            ? `${moment().diff(moment(product.dateMl), "days")} dias`
+            : "Novo"}
         </p>
+        {product?.tags?.map((tag) => {
+          return (
+            <Badge className="mr-2" variant="secondary">
+              <X
+                onClick={() => deleteTagInternal(product._id, tag)}
+                className="text-red-600	w-4 h-4 cursor-pointer"
+              />
+              {tag}
+            </Badge>
+          );
+        })}
       </span>
       <span>
         {product.myPrice > product.nowPrice ? (
@@ -126,6 +204,7 @@ const TableRowComponent = ({
             <Trash2Icon className="w-4 cursor-pointer" />
           )}
         </Button>
+        <AddTag product={product} />
       </span>
     </ContainerLine>
   );

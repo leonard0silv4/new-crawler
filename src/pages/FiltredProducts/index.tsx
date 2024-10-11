@@ -5,37 +5,51 @@ import { ContainerLine } from "../Dashboard/DashboardStyles";
 import { FixedSizeList as List } from "react-window";
 import { ArrowUp, ArrowDown } from "lucide-react";
 import instance from "@/config/axios";
-
 import { Checkbox } from "@/components/ui/checkbox";
 
 interface propsFiltred {
   products: Product[];
   filterByText: any;
+  filterByTag: any;
   load: string | number;
   onDeleteItem: (sku: string | number) => void;
   onSetProducts: React.Dispatch<React.SetStateAction<Product[]>>;
+  updateTags?: (product: Product, tags: string) => void;
+  deleteTag?: (id: string, tag: string) => void;
 }
 
 const FiltredProducts = ({
   products,
   filterByText,
+  filterByTag,
   load,
   onDeleteItem,
   onSetProducts,
+  updateTags,
+  deleteTag,
 }: propsFiltred) => {
   const [filtredProducts, setFiltredProducts] = useState<Product[]>([]);
   const [order, setOrder] = useState("");
   const [auto, setAuto] = useState(true);
 
   useEffect(() => {
-    if (filterByText?.length > 2) {
-      const filtredProducts = products.filter((prd) =>
-        prd.name.toLocaleLowerCase().includes(filterByText.toLocaleLowerCase())
-      );
+    if (filterByText?.length > 2 || filterByTag) {
+      const filtred = products
+        .filter((prd) =>
+          prd.name
+            .toLocaleLowerCase()
+            .includes(filterByText.toLocaleLowerCase())
+        )
+        .filter(
+          (product) => product.tags && product.tags.includes(filterByTag)
+        );
 
-      setFiltredProducts(filtredProducts);
+      setFiltredProducts(filtred);
+    } else {
+      // Se não houver filtros aplicados, mostra todos os produtos
+      setFiltredProducts([]);
     }
-  }, [filterByText]);
+  }, [filterByText, filterByTag, products]);
 
   const sort = () => {
     setOrder(order == "asc" ? "desc" : "asc");
@@ -95,8 +109,7 @@ const FiltredProducts = ({
     );
 
   return (
-    filtredProducts?.length > 0 &&
-    filterByText?.length > 2 && (
+    filtredProducts?.length > 0 && (
       <div className="border rounded-lg p-2 ">
         <div className="flex m-4">
           <h2 className="text-2xl font-bold p-3 left">
@@ -135,7 +148,7 @@ const FiltredProducts = ({
           itemData={filtredProducts}
           height={740}
           itemCount={filtredProducts.length}
-          itemSize={150}
+          itemSize={170}
           width={1200}
         >
           {({ index, style }: any) => (
@@ -144,6 +157,8 @@ const FiltredProducts = ({
               key={`b-${filtredProducts[index].sku}`}
               load={load}
               setNewPrice={setNewPrice}
+              updateTags={updateTags}
+              deleteTag={deleteTag}
               product={filtredProducts[index]}
               onDeleteItem={onDeleteItem}
               keyUsage={`f-${filtredProducts[index].sku}`}

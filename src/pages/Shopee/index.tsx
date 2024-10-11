@@ -438,7 +438,7 @@ export default function Shopee() {
                 itemData={products}
                 height={740}
                 itemCount={products.length}
-                itemSize={150}
+                itemSize={170}
                 width={1200}
               >
                 {({ index, style }: any) => (

@@ -111,5 +111,6 @@ export const ContainerLine = styled.li`
     > span:nth-child(8){
         width: 8%;
         justify-content: center;
+        flex-direction: column;
     }
 `

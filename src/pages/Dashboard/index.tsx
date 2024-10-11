@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-
+import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { PlusCircle, RefreshCcw, Loader, Variable, Eraser } from "lucide-react";
 import {
@@ -24,6 +24,14 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 import { Progress } from "@/components/ui/progress";
 import { useEffect, useRef, useState } from "react";
@@ -53,6 +61,7 @@ export interface Product {
   storeName?: string;
   ratingSeller?: string;
   _id?: any;
+  tags?: string[];
 }
 
 export default function Dashboard() {
@@ -61,9 +70,12 @@ export default function Dashboard() {
   const isMounted = useRef(false);
   const [link, setLink] = useState("");
   const [myPrice, setMyPrice] = useState("");
+
   const [load, setLoad] = useState("");
   const [filterName, setFilterName] = useState("");
   const [skusUpdated, setSkusUpdated] = useState<any>([]);
+  const [uniqueTags, setUniqueTags] = useState<any>([]);
+  const [selectedTag, setSelectedTag] = useState<any>([]);
 
   const [products, setProducts] = useState<Product[]>([]);
 
@@ -90,6 +102,10 @@ export default function Dashboard() {
       .finally(() => {
         setLoad("");
       });
+
+    await instance.get("/tags").then((response) => {
+      setUniqueTags(response);
+    });
   };
 
   const AddLink = (e: any) => {
@@ -144,6 +160,7 @@ export default function Dashboard() {
       .delete(`links/${sku}`)
       .then(() => {
         setProducts((data) => data.filter((item) => item.sku != sku));
+        console.log("apagado com sucesso");
       })
       .catch((error) => {
         console.log("Error :", error);
@@ -256,6 +273,47 @@ export default function Dashboard() {
     setProducts([]);
   };
 
+  const deleteTag = async (id: string, tag: string) => {
+    await instance.delete(`/links/tags/${id}/${tag}`);
+
+    const refreshedProducts = products.map((product) => {
+      if (product._id === id && product.tags) {
+        return {
+          ...product,
+          tags: product.tags.filter((tagI) => tagI !== tag), // Remove a tag
+        };
+      }
+      return product;
+    });
+
+    setProducts(refreshedProducts); // Atualiza o estado dos produtos
+  };
+
+  const updateTags = async (productUpdate: Product, newTag: string) => {
+    const updatedTags = productUpdate.tags
+      ? [...productUpdate.tags, newTag] // Adiciona a nova tag ao array existente
+      : [newTag]; // Cria um novo array se não houver tags
+
+    // Fazendo a requisição para atualizar o backend
+    await instance.put("/links", {
+      id: productUpdate._id,
+      tags: updatedTags, // Enviando o array atualizado
+    });
+
+    // Atualizando os produtos localmente com as novas tags
+    const refreshedProducts = products.map((product) => {
+      if (product._id === productUpdate._id) {
+        return {
+          ...product,
+          tags: updatedTags, // Atualizando as tags do produto correspondente
+        };
+      }
+      return product;
+    });
+
+    setProducts(refreshedProducts); // Atualiza o estado dos produtos com o novo array
+  };
+
   const ClearVariations = () => {
     return (
       <AlertDialog>
@@ -315,6 +373,15 @@ export default function Dashboard() {
     );
   };
 
+  const tagSelect = (value: string) => {
+    setSelectedTag(value);
+  };
+
+  const handleClearFilters = () => {
+    setSelectedTag(null);
+    setFilterName("");
+  };
+
   return (
     <>
       <S.Main className="p-6 max-w-7xl mx-auto space-y-4">
@@ -332,6 +399,29 @@ export default function Dashboard() {
               className="w-auto"
             />
           </form>
+
+          <form className="md:flex md:items-center md:gap-2">
+            {uniqueTags ? (
+              <Select
+                value={selectedTag}
+                onValueChange={(value) => tagSelect(value)}
+              >
+                <SelectTrigger className="w-[180px] ml-5">
+                  <SelectValue placeholder="Tag" />
+                </SelectTrigger>
+                <SelectContent>
+                  {uniqueTags.map((t: string) => {
+                    return <SelectItem value={t}>{t}</SelectItem>;
+                  })}
+                </SelectContent>
+              </Select>
+            ) : (
+              ""
+            )}
+          </form>
+          <Button onClick={() => handleClearFilters()} className="ml-5">
+            <Eraser className="w-4 h-4" />
+          </Button>
 
           <br className="block lg:hidden" />
 
@@ -420,6 +510,9 @@ export default function Dashboard() {
         <FiltredProducts
           products={products}
           filterByText={filterName}
+          filterByTag={selectedTag}
+          updateTags={updateTags}
+          deleteTag={deleteTag}
           load={load}
           onDeleteItem={deleteItem}
           onSetProducts={setProducts}
@@ -445,7 +538,7 @@ export default function Dashboard() {
               itemData={products}
               height={740}
               itemCount={products.length}
-              itemSize={150}
+              itemSize={170}
               width={1200}
             >
               {({ index, style }: any) => (
@@ -454,6 +547,8 @@ export default function Dashboard() {
                   key={`b-${products[index].sku}`}
                   load={load}
                   setNewPrice={setNewPrice}
+                  updateTags={updateTags}
+                  deleteTag={deleteTag}
                   product={products[index]}
                   onDeleteItem={deleteItem}
                   keyUsage={products[index].sku}
