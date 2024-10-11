@@ -10,7 +10,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 interface propsFiltred {
   products: Product[];
   filterByText: any;
-  filterByTag: any;
+  filterByTag?: any;
   load: string | number;
   onDeleteItem: (sku: string | number) => void;
   onSetProducts: React.Dispatch<React.SetStateAction<Product[]>>;
