@@ -102,6 +102,10 @@ export default function Dashboard() {
         setLoad("");
       });
 
+    getTags();
+  };
+
+  const getTags = async () => {
     await instance.get("/tags").then((response) => {
       setUniqueTags(response);
     });
@@ -286,6 +290,7 @@ export default function Dashboard() {
     });
 
     setProducts(refreshedProducts); // Atualiza o estado dos produtos
+    getTags();
   };
 
   const updateTags = async (productUpdate: Product, newTag: string) => {
@@ -311,6 +316,7 @@ export default function Dashboard() {
     });
 
     setProducts(refreshedProducts); // Atualiza o estado dos produtos com o novo array
+    getTags();
   };
 
   const ClearVariations = () => {
