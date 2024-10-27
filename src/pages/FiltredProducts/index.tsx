@@ -33,8 +33,10 @@ const FiltredProducts = ({
   const [auto, setAuto] = useState(true);
 
   useEffect(() => {
-    if (filterByText?.length > 2 || filterByTag) {
-      const filtred = products
+    let filtred = products;
+
+    if (filterByText?.length > 2 && filterByTag) {
+      filtred = products
         .filter((prd) =>
           prd.name
             .toLocaleLowerCase()
@@ -43,7 +45,20 @@ const FiltredProducts = ({
         .filter(
           (product) => product.tags && product.tags.includes(filterByTag)
         );
-
+      setFiltredProducts(filtred);
+    }
+    // Se houver apenas o texto, aplica o filtro de texto
+    else if (filterByText?.length > 2) {
+      filtred = products.filter((prd) =>
+        prd.name.toLocaleLowerCase().includes(filterByText.toLocaleLowerCase())
+      );
+      setFiltredProducts(filtred);
+    }
+    // Se houver apenas a tag, aplica o filtro de tag
+    else if (filterByTag) {
+      filtred = products.filter(
+        (product) => product.tags && product.tags.includes(filterByTag)
+      );
       setFiltredProducts(filtred);
     } else {
       // Se não houver filtros aplicados, mostra todos os produtos

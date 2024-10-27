@@ -75,6 +75,7 @@ export default function Dashboard() {
   const [skusUpdated, setSkusUpdated] = useState<any>([]);
   const [uniqueTags, setUniqueTags] = useState<any>([]);
   const [selectedTag, setSelectedTag] = useState<any>([]);
+  const [loadingTags, setLoadingTags] = useState(true);
 
   const [products, setProducts] = useState<Product[]>([]);
 
@@ -106,9 +107,11 @@ export default function Dashboard() {
   };
 
   const getTags = async () => {
+    setLoadingTags(true);
     await instance.get("/tags").then((response) => {
       setUniqueTags(response);
     });
+    setLoadingTags(false);
   };
 
   const AddLink = (e: any) => {
@@ -378,10 +381,6 @@ export default function Dashboard() {
     );
   };
 
-  const tagSelect = (value: string) => {
-    setSelectedTag(value);
-  };
-
   const handleClearFilters = () => {
     setSelectedTag(null);
     setFilterName("");
@@ -408,16 +407,27 @@ export default function Dashboard() {
           <form className="md:flex md:items-center md:gap-2">
             {uniqueTags ? (
               <Select
+                disabled={loadingTags}
                 value={selectedTag}
-                onValueChange={(value) => tagSelect(value)}
+                onValueChange={(value) => setSelectedTag(value)}
               >
                 <SelectTrigger className="w-[180px] ml-5">
-                  <SelectValue placeholder="Tag" />
+                  <SelectValue
+                    placeholder={loadingTags ? "Loading..." : "Tag"}
+                  />
                 </SelectTrigger>
                 <SelectContent>
-                  {uniqueTags.map((t: string) => {
-                    return <SelectItem value={t}>{t}</SelectItem>;
-                  })}
+                  {!loadingTags ? (
+                    uniqueTags.map((t: string) => (
+                      <SelectItem key={t} value={t}>
+                        {t}
+                      </SelectItem>
+                    ))
+                  ) : (
+                    <SelectItem value="loading" disabled>
+                      Carregando...
+                    </SelectItem>
+                  )}
                 </SelectContent>
               </Select>
             ) : (
