@@ -74,7 +74,7 @@ export default function Dashboard() {
   const [filterName, setFilterName] = useState("");
   const [skusUpdated, setSkusUpdated] = useState<any>([]);
   const [uniqueTags, setUniqueTags] = useState<any>([]);
-  const [selectedTag, setSelectedTag] = useState<any>([]);
+  const [selectedTag, setSelectedTag] = useState<any>("");
   const [loadingTags, setLoadingTags] = useState(true);
 
   const [products, setProducts] = useState<Product[]>([]);
