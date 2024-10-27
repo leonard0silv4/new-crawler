@@ -34,7 +34,8 @@ const FiltredProducts = ({
 
   useEffect(() => {
     let filtred = products;
-
+    console.log(filterByText?.length);
+    console.log(filterByTag);
     if (filterByText?.length > 2 && filterByTag) {
       filtred = products
         .filter((prd) =>
@@ -45,6 +46,7 @@ const FiltredProducts = ({
         .filter(
           (product) => product.tags && product.tags.includes(filterByTag)
         );
+      console.log("f1 name and tag");
       setFiltredProducts(filtred);
     }
     // Se houver apenas o texto, aplica o filtro de texto
@@ -52,13 +54,16 @@ const FiltredProducts = ({
       filtred = products.filter((prd) =>
         prd.name.toLocaleLowerCase().includes(filterByText.toLocaleLowerCase())
       );
+      console.log("f2 name");
       setFiltredProducts(filtred);
     }
     // Se houver apenas a tag, aplica o filtro de tag
-    else if (filterByTag) {
+    else if (filterByTag?.lenght > 0) {
+      console.log(filterByTag);
       filtred = products.filter(
         (product) => product.tags && product.tags.includes(filterByTag)
       );
+      console.log("f3 tag");
       setFiltredProducts(filtred);
     } else {
       // Se não houver filtros aplicados, mostra todos os produtos
