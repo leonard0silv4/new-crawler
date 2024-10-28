@@ -533,7 +533,7 @@ export default function Dashboard() {
           onSetProducts={setProducts}
         />
 
-        <div className="border rounded-lg p-2">
+        <div className="border rounded-lg p-2 ">
           <S.ContainerLine className="scrollAdjust">
             <span>Imagem</span>
             <span>Nome</span>

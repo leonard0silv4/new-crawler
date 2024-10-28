@@ -58,7 +58,7 @@ const FiltredProducts = ({
       setFiltredProducts(filtred);
     }
     // Se houver apenas a tag, aplica o filtro de tag
-    else if (filterByTag?.lenght > 0) {
+    else if (filterByTag) {
       console.log(filterByTag);
       filtred = products.filter(
         (product) => product.tags && product.tags.includes(filterByTag)
