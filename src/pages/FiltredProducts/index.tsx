@@ -80,6 +80,16 @@ const FiltredProducts = ({
     setFiltredProducts(filtredProductsByOrder);
   };
 
+  const sortByMyPrice = () => {
+    const filtredProducts2 = [...filtredProducts].sort((a, b) => {
+      if (a.myPrice > a.nowPrice && b.myPrice <= b.nowPrice) return -1;
+      if (a.myPrice <= a.nowPrice && b.myPrice > b.nowPrice) return 1;
+      return 0;
+    });
+
+    setFiltredProducts(filtredProducts2);
+  };
+
   const setNewPrice = (newPrice: number, _id: string) => {
     let refreshedProducts: Product[];
     if (auto) {
@@ -153,7 +163,9 @@ const FiltredProducts = ({
         <ContainerLine className="scrollAdjust">
           <span>Imagem</span>
           <span>Nome</span>
-          <span>Meu preço</span>
+          <span className="cursor-pointer" onClick={() => sortByMyPrice()}>
+            Meu preço
+          </span>
           <span className="cursor-pointer" onClick={() => sort()}>
             {order == "desc" && <ArrowUp className="w-3 h-3 mr-2" />}
             {order == "asc" && <ArrowDown className="w-3 h-3 mr-2" />}

@@ -68,6 +68,7 @@ export default function Dashboard() {
   const [percent, setPercent] = useState("");
   const isMounted = useRef(false);
   const [link, setLink] = useState("");
+  const [tagNew, setNewTag] = useState("");
   const [myPrice, setMyPrice] = useState("");
 
   const [load, setLoad] = useState("");
@@ -138,6 +139,7 @@ export default function Dashboard() {
     instance
       .post(link.includes("lista") ? "/list/batch" : "links", {
         link: link,
+        tag: tagNew,
         myPrice: parseFloat(myPrice),
       })
       .then(() => {
@@ -264,6 +266,16 @@ export default function Dashboard() {
         return b.priceDifferencePercentage - a.priceDifferencePercentage;
       }
     });
+    setProducts(sortedProducts);
+  };
+
+  const sortByMyPrice = () => {
+    const sortedProducts = [...products].sort((a, b) => {
+      if (a.myPrice > a.nowPrice && b.myPrice <= b.nowPrice) return -1;
+      if (a.myPrice <= a.nowPrice && b.myPrice > b.nowPrice) return 1;
+      return 0;
+    });
+
     setProducts(sortedProducts);
   };
 
@@ -497,6 +509,16 @@ export default function Dashboard() {
                   />
                 </div>
 
+                <div className="grid grid-cols-4 items-center text-left">
+                  <Input
+                    onChange={(e) => setNewTag(e.target.value)}
+                    value={tagNew}
+                    id="tag"
+                    className="col-span-4"
+                    placeholder="Tag"
+                  />
+                </div>
+
                 <DialogFooter className="gap-3">
                   <DialogClose asChild>
                     <Button type="button" variant="outline">
@@ -537,7 +559,9 @@ export default function Dashboard() {
           <S.ContainerLine className="scrollAdjust">
             <span>Imagem</span>
             <span>Nome</span>
-            <span>Meu preço</span>
+            <span className="cursor-pointer" onClick={() => sortByMyPrice()}>
+              Meu preço
+            </span>
             <span>Preço Atual</span>
             <span>Ultimo Preço</span>
             <span className="cursor-pointer" onClick={() => sortProducts()}>
