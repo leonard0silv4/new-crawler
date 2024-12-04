@@ -187,7 +187,7 @@ const TableRowComponent = ({
         {diffPercent(product.lastPrice, product.nowPrice)}
       </span>
       <span>
-        {product?.status == "http://schema.org/InStock" ? (
+        {product?.status == "https://schema.org/InStock" ? (
           <Badge>ON</Badge>
         ) : (
           <Badge variant="destructive">OFF</Badge>
