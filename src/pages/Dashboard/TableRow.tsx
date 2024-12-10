@@ -8,8 +8,6 @@ import {
   Tag,
   X,
   Zap,
-  ZapOff,
-  Gem,
   Gavel,
 } from "lucide-react";
 import { Product } from ".";
