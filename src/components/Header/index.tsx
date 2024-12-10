@@ -1,3 +1,4 @@
+import { Bolt } from "lucide-react";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { NavLink } from "react-router-dom";
@@ -76,6 +77,9 @@ const Header = ({ handleAuthentication }: HeaderProps) => {
           >
             Sair
           </a>
+          <NavLink className="text-zinc-200 ml-3" to="/config">
+            <Bolt />
+          </NavLink>
         </div>
       </nav>
       {menuOpen && (

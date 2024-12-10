@@ -7,6 +7,7 @@ import PrivateRoutes from "./utils";
 import Dashboard from "./pages/Dashboard";
 import Login from "./pages/Login";
 import Sales from "./pages/Sales";
+import Config from "./pages/Config";
 import { Toaster } from "@/components/ui/sonner";
 import AccountCreate from "./pages/AccountCreate";
 import Shopee from "./pages/Shopee";
@@ -31,6 +32,7 @@ function App() {
             <Route element={<Dashboard />} path="/dashboard" />
             <Route element={<Shopee />} path="/shopee" />
             <Route element={<Sales />} path="/orders" />
+            <Route element={<Config />} path="/config" />
           </Route>
           <Route
             element={<Login handleAuthentication={setIsAuthenticated} />}

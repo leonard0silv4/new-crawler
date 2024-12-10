@@ -61,6 +61,8 @@ export interface Product {
   ratingSeller?: string;
   _id?: any;
   tags?: string[];
+  full?: Boolean;
+  catalog?: Boolean;
 }
 
 export default function Dashboard() {
@@ -220,7 +222,9 @@ export default function Dashboard() {
           return {
             ...product,
             nowPrice: newProduct.nowPrice,
+            seller: newProduct.seller,
             lastPrice: newProduct.lastPrice,
+            ...(newProduct.myPrice != null && { myPrice: newProduct.myPrice }), // Só inclui myPrice se autoPrice não for null ou undefined
             updatedAt: new Date(),
           };
         }

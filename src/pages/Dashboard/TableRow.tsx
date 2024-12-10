@@ -7,6 +7,10 @@ import {
   ArrowDownToDot,
   Tag,
   X,
+  Zap,
+  ZapOff,
+  Gem,
+  Gavel,
 } from "lucide-react";
 import { Product } from ".";
 import { Link, ContainerLine } from "./DashboardStyles";
@@ -138,7 +142,19 @@ const TableRowComponent = ({
         />
       </span>
       <span>
-        <Link href={product.link}>{product.name}</Link>
+        <Link href={product.link}>
+          {product.full ? (
+            <Zap className="w-4 h-4 mr-2 icon inline text-emerald-700	" />
+          ) : (
+            ""
+          )}
+          {product.catalog ? (
+            <Gavel className="w-4 h-4 mr-2 icon inline text-blue-800	" />
+          ) : (
+            ""
+          )}
+          {product.name}
+        </Link>
         <i>
           Vendido por: <b>{product.seller}</b>
         </i>
