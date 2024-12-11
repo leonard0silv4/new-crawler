@@ -89,9 +89,7 @@ export default function Dashboard() {
   const [loadingTags, setLoadingTags] = useState(true);
 
   const [products, setProducts] = useState<Product[]>([]);
-  const [copyOriginalProducts, setCopyOriginalProducts] = useState<Product[]>(
-    []
-  );
+  const [filtredProducts, setFiltredProducts] = useState<Product[]>([]);
 
   useEffect(() => {
     if (isMounted.current) return;
@@ -111,7 +109,7 @@ export default function Dashboard() {
       })
       .then(({ data: response }: any) => {
         setProducts(response);
-        setCopyOriginalProducts(response);
+        setFiltredProducts(response);
       })
       .catch((err) => console.log(err))
       .finally(() => {
@@ -418,13 +416,43 @@ export default function Dashboard() {
     setCatalogFilter(!catalogFilter);
   };
 
+  const applyFilters = (
+    products: Product[],
+    filters: Array<(product: Product) => boolean>
+  ) => {
+    return products.filter((product) =>
+      filters.every((filter) => filter(product))
+    );
+  };
+
   useEffect(() => {
-    if (catalogFilter) {
-      setProducts(copyOriginalProducts.filter((prd) => prd.catalog === true));
-    } else {
-      setProducts(copyOriginalProducts);
+    // Sempre inicie com todos os produtos
+    let filtred = [...products];
+
+    // Aplicar o filtro por texto (se ativo)
+    if (filterName?.length > 2) {
+      filtred = filtred.filter((product) =>
+        product.name.toLowerCase().includes(filterName.toLowerCase())
+      );
     }
-  }, [catalogFilter, copyOriginalProducts]);
+
+    // Aplicar o filtro por tag (se ativo)
+    if (selectedTag) {
+      filtred = filtred.filter((product) =>
+        product.tags?.includes(selectedTag)
+      );
+    }
+
+    // Aplicar o filtro por catálogo (se ativo)
+    if (catalogFilter) {
+      filtred = filtred.filter((prod) => prod.catalog);
+    }
+
+    // Atualizar os produtos filtrados
+    setFiltredProducts(filtred);
+
+    // Adicionar dependências para reexecutar o filtro quando algo mudar
+  }, [filterName, selectedTag, catalogFilter, products]);
 
   return (
     <>
@@ -580,7 +608,7 @@ export default function Dashboard() {
           <DeleteAll />
         </div>
 
-        <FiltredProducts
+        {/* <FiltredProducts
           products={products}
           filterByText={filterName}
           filterByTag={selectedTag}
@@ -589,7 +617,7 @@ export default function Dashboard() {
           load={load}
           onDeleteItem={deleteItem}
           onSetProducts={setProducts}
-        />
+        /> */}
 
         <div className="border rounded-lg p-2 ">
           <S.ContainerLine className="scrollAdjust">
@@ -610,9 +638,9 @@ export default function Dashboard() {
             <Loader className="w-10 h-10 animate-spin m-auto my-10" />
           ) : (
             <List
-              itemData={products}
+              itemData={filtredProducts ?? products}
               height={740}
-              itemCount={products.length}
+              itemCount={filtredProducts.length ?? products.length}
               itemSize={170}
               width={1200}
             >
@@ -624,9 +652,9 @@ export default function Dashboard() {
                   setNewPrice={setNewPrice}
                   updateTags={updateTags}
                   deleteTag={deleteTag}
-                  product={products[index]}
+                  product={filtredProducts[index] ?? products[index]}
                   onDeleteItem={deleteItem}
-                  keyUsage={products[index].sku}
+                  keyUsage={filtredProducts[index].sku ?? products[index].sku}
                   updated={
                     skusUpdated.includes(products[index].sku) ? true : false
                   }
