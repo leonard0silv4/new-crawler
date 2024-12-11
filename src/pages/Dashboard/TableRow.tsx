@@ -7,7 +7,6 @@ import {
   ArrowDownToDot,
   Tag,
   X,
-  Zap,
   Gavel,
 } from "lucide-react";
 import { Product } from ".";
@@ -27,6 +26,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Input } from "@/components/ui/input";
 import React from "react";
+import full from "./full.png";
 
 interface TableRowProps {
   onDeleteItem?: (sku: string | number) => void;
@@ -142,7 +142,12 @@ const TableRowComponent = ({
       <span>
         <Link href={product.link}>
           {product.full ? (
-            <Zap className="w-4 h-4 mr-2 icon inline text-emerald-700	" />
+            <img
+              style={{ display: "inline-block" }}
+              width={43}
+              src={full}
+              alt="img"
+            />
           ) : (
             ""
           )}

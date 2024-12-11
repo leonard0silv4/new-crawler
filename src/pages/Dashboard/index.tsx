@@ -49,6 +49,8 @@ import { EventSourcePolyfill } from "event-source-polyfill";
 import { FixedSizeList as List } from "react-window";
 
 import * as S from "./DashboardStyles";
+import { Checkbox } from "@/components/ui/checkbox";
+
 // import FiltredProducts from "../FiltredProducts";
 
 export interface Product {
@@ -80,6 +82,7 @@ export default function Dashboard() {
   const [tagNew, setNewTag] = useState("");
   const [myPrice, setMyPrice] = useState("");
   const [catalogFilter, setCatalogFilter] = useState(false);
+  const [showFiltreds, setShowFiltreds] = useState(false);
 
   const [load, setLoad] = useState("");
   const [filterName, setFilterName] = useState("");
@@ -87,6 +90,7 @@ export default function Dashboard() {
   const [uniqueTags, setUniqueTags] = useState<any>([]);
   const [selectedTag, setSelectedTag] = useState<any>("");
   const [loadingTags, setLoadingTags] = useState(true);
+  const [auto, setAuto] = useState(true);
 
   const [products, setProducts] = useState<Product[]>([]);
   const [filtredProducts, setFiltredProducts] = useState<Product[]>([]);
@@ -244,17 +248,44 @@ export default function Dashboard() {
   };
 
   const setNewPrice = (newPrice: number, _id: string) => {
-    const refreshedProducts = products.map((product) => {
-      if (product._id === _id) {
-        return {
-          ...product,
+    let refreshedProducts: Product[];
+    if (auto) {
+      refreshedProducts = filtredProducts.map((product) => {
+        if (product._id) {
+          return {
+            ...product,
+            myPrice: newPrice,
+          };
+        }
+        return product;
+      });
+      refreshedProducts.forEach((internalProduct: Product) => {
+        instance.put("/links", {
+          id: internalProduct._id,
           myPrice: newPrice,
-        };
-      }
-      return product;
-    });
+        });
+      });
+    } else {
+      refreshedProducts = filtredProducts.map((product) => {
+        if (product._id === _id) {
+          return {
+            ...product,
+            myPrice: newPrice,
+          };
+        }
+        return product;
+      });
+    }
+    setFiltredProducts(refreshedProducts);
 
-    setProducts(refreshedProducts);
+    setProducts((prevProducts: Product[]) => {
+      return prevProducts.map((product: Product) => {
+        const updatedProduct = refreshedProducts.find(
+          (p) => p._id === product._id
+        );
+        return updatedProduct || product;
+      });
+    });
   };
 
   const sortProducts = () => {
@@ -410,6 +441,7 @@ export default function Dashboard() {
   const handleClearFilters = () => {
     setSelectedTag(null);
     setFilterName("");
+    setCatalogFilter(false);
   };
 
   const handleFilterCatalog = () => {
@@ -437,6 +469,13 @@ export default function Dashboard() {
     // Aplicar o filtro por catálogo (se ativo)
     if (catalogFilter) {
       filtred = filtred.filter((prod) => prod.catalog);
+    }
+
+    if (catalogFilter || selectedTag || filterName?.length > 2) {
+      setShowFiltreds(true);
+    } else {
+      setShowFiltreds(false);
+      setAuto(false);
     }
 
     // Atualizar os produtos filtrados
@@ -598,7 +637,6 @@ export default function Dashboard() {
           <ClearVariations />
           <DeleteAll />
         </div>
-
         {/* <FiltredProducts
           products={products}
           filterByText={filterName}
@@ -609,8 +647,30 @@ export default function Dashboard() {
           onDeleteItem={deleteItem}
           onSetProducts={setProducts}
         /> */}
-
         <div className="border rounded-lg p-2 ">
+          {showFiltreds ? (
+            <div className="flex m-4">
+              <h2 className="text-2xl font-bold p-3 left">
+                Filtrados ({filtredProducts?.length})
+              </h2>
+              <div className="flex items-center space-x-2 p-5 ml-auto">
+                <Checkbox
+                  checked={auto}
+                  onCheckedChange={() => setAuto(!auto)}
+                  id="auto"
+                />
+                <label
+                  htmlFor="auto"
+                  className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                >
+                  Habilitar atualização multipla
+                </label>
+              </div>
+            </div>
+          ) : (
+            ""
+          )}
+
           <S.ContainerLine className="scrollAdjust">
             <span>Imagem</span>
             <span>Nome</span>

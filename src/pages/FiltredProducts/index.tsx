@@ -28,49 +28,49 @@ const FiltredProducts = ({
   updateTags,
   deleteTag,
 }: propsFiltred) => {
-  const [filtredProducts, setFiltredProducts] = useState<Product[]>([]);
+  const [filtredProducts, setFiltredProducts] = useState<Product[]>(products);
   const [order, setOrder] = useState("");
   const [auto, setAuto] = useState(true);
 
-  useEffect(() => {
-    let filtred = products;
+  // useEffect(() => {
+  //   let filtred = products;
 
-    console.log(filterByText?.length);
-    console.log(filterByTag);
-    if (filterByText?.length > 2 && filterByTag) {
-      filtred = products
-        .filter((prd) =>
-          prd.name
-            .toLocaleLowerCase()
-            .includes(filterByText.toLocaleLowerCase())
-        )
-        .filter(
-          (product) => product.tags && product.tags.includes(filterByTag)
-        );
-      console.log("f1 name and tag");
-      setFiltredProducts(filtred);
-    }
-    // Se houver apenas o texto, aplica o filtro de texto
-    else if (filterByText?.length > 2) {
-      filtred = products.filter((prd) =>
-        prd.name.toLocaleLowerCase().includes(filterByText.toLocaleLowerCase())
-      );
-      console.log("f2 name");
-      setFiltredProducts(filtred);
-    }
-    // Se houver apenas a tag, aplica o filtro de tag
-    else if (filterByTag) {
-      console.log(filterByTag);
-      filtred = products.filter(
-        (product) => product.tags && product.tags.includes(filterByTag)
-      );
-      console.log("f3 tag");
-      setFiltredProducts(filtred);
-    } else {
-      // Se não houver filtros aplicados, mostra todos os produtos
-      setFiltredProducts([]);
-    }
-  }, [filterByText, filterByTag, products]);
+  //   console.log(filterByText?.length);
+  //   console.log(filterByTag);
+  //   if (filterByText?.length > 2 && filterByTag) {
+  //     filtred = products
+  //       .filter((prd) =>
+  //         prd.name
+  //           .toLocaleLowerCase()
+  //           .includes(filterByText.toLocaleLowerCase())
+  //       )
+  //       .filter(
+  //         (product) => product.tags && product.tags.includes(filterByTag)
+  //       );
+  //     console.log("f1 name and tag");
+  //     setFiltredProducts(filtred);
+  //   }
+  //   // Se houver apenas o texto, aplica o filtro de texto
+  //   else if (filterByText?.length > 2) {
+  //     filtred = products.filter((prd) =>
+  //       prd.name.toLocaleLowerCase().includes(filterByText.toLocaleLowerCase())
+  //     );
+  //     console.log("f2 name");
+  //     setFiltredProducts(filtred);
+  //   }
+  //   // Se houver apenas a tag, aplica o filtro de tag
+  //   else if (filterByTag) {
+  //     console.log(filterByTag);
+  //     filtred = products.filter(
+  //       (product) => product.tags && product.tags.includes(filterByTag)
+  //     );
+  //     console.log("f3 tag");
+  //     setFiltredProducts(filtred);
+  //   } else {
+  //     // Se não houver filtros aplicados, mostra todos os produtos
+  //     setFiltredProducts([]);
+  //   }
+  // }, [filterByText, filterByTag, products]);
 
   const sort = () => {
     setOrder(order == "asc" ? "desc" : "asc");
