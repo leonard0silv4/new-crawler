@@ -1,4 +1,5 @@
-import { useEffect, useState } from "react";
+// import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Product } from "../Dashboard";
 import TableRowComponent from "../Dashboard/TableRow";
 import { ContainerLine } from "../Dashboard/DashboardStyles";
@@ -21,7 +22,7 @@ interface propsFiltred {
 const FiltredProducts = ({
   products,
   filterByText,
-  filterByTag,
+  // filterByTag,
   load,
   onDeleteItem,
   onSetProducts,
