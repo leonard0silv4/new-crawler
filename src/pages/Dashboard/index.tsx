@@ -49,7 +49,7 @@ import { EventSourcePolyfill } from "event-source-polyfill";
 import { FixedSizeList as List } from "react-window";
 
 import * as S from "./DashboardStyles";
-import FiltredProducts from "../FiltredProducts";
+// import FiltredProducts from "../FiltredProducts";
 
 export interface Product {
   sku: string;
@@ -414,15 +414,6 @@ export default function Dashboard() {
 
   const handleFilterCatalog = () => {
     setCatalogFilter(!catalogFilter);
-  };
-
-  const applyFilters = (
-    products: Product[],
-    filters: Array<(product: Product) => boolean>
-  ) => {
-    return products.filter((product) =>
-      filters.every((filter) => filter(product))
-    );
   };
 
   useEffect(() => {
