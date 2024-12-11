@@ -1,6 +1,13 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { PlusCircle, RefreshCcw, Loader, Variable, Eraser } from "lucide-react";
+import {
+  PlusCircle,
+  RefreshCcw,
+  Loader,
+  Variable,
+  Eraser,
+  Gavel,
+} from "lucide-react";
 import {
   Dialog,
   DialogClose,
@@ -72,6 +79,7 @@ export default function Dashboard() {
   const [link, setLink] = useState("");
   const [tagNew, setNewTag] = useState("");
   const [myPrice, setMyPrice] = useState("");
+  const [catalogFilter, setCatalogFilter] = useState(false);
 
   const [load, setLoad] = useState("");
   const [filterName, setFilterName] = useState("");
@@ -81,6 +89,9 @@ export default function Dashboard() {
   const [loadingTags, setLoadingTags] = useState(true);
 
   const [products, setProducts] = useState<Product[]>([]);
+  const [copyOriginalProducts, setCopyOriginalProducts] = useState<Product[]>(
+    []
+  );
 
   useEffect(() => {
     if (isMounted.current) return;
@@ -100,6 +111,7 @@ export default function Dashboard() {
       })
       .then(({ data: response }: any) => {
         setProducts(response);
+        setCopyOriginalProducts(response);
       })
       .catch((err) => console.log(err))
       .finally(() => {
@@ -402,6 +414,18 @@ export default function Dashboard() {
     setFilterName("");
   };
 
+  const handleFilterCatalog = () => {
+    setCatalogFilter(!catalogFilter);
+  };
+
+  useEffect(() => {
+    if (catalogFilter) {
+      setProducts(copyOriginalProducts.filter((prd) => prd.catalog === true));
+    } else {
+      setProducts(copyOriginalProducts);
+    }
+  }, [catalogFilter, copyOriginalProducts]);
+
   return (
     <>
       <S.Main className="p-6 max-w-7xl mx-auto space-y-4">
@@ -450,6 +474,14 @@ export default function Dashboard() {
               ""
             )}
           </form>
+
+          <Button
+            variant={catalogFilter ? "default" : "ghost"}
+            onClick={() => handleFilterCatalog()}
+            className="ml-5"
+          >
+            <Gavel className="w-4 h-4" />
+          </Button>
           <Button onClick={() => handleClearFilters()} className="ml-5">
             <Eraser className="w-4 h-4" />
           </Button>

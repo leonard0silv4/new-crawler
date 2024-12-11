@@ -34,6 +34,7 @@ const FiltredProducts = ({
 
   useEffect(() => {
     let filtred = products;
+
     console.log(filterByText?.length);
     console.log(filterByTag);
     if (filterByText?.length > 2 && filterByTag) {
