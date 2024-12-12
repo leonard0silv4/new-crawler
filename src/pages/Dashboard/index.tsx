@@ -7,6 +7,8 @@ import {
   Variable,
   Eraser,
   Gavel,
+  Zap,
+  SearchSlash,
 } from "lucide-react";
 import {
   Dialog,
@@ -38,6 +40,13 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 import { Progress } from "@/components/ui/progress";
 import { useEffect, useRef, useState } from "react";
@@ -82,6 +91,7 @@ export default function Dashboard() {
   const [tagNew, setNewTag] = useState("");
   const [myPrice, setMyPrice] = useState("");
   const [catalogFilter, setCatalogFilter] = useState(false);
+  const [fullFilter, setFullFilter] = useState(false);
   const [showFiltreds, setShowFiltreds] = useState(false);
 
   const [load, setLoad] = useState("");
@@ -442,10 +452,7 @@ export default function Dashboard() {
     setSelectedTag(null);
     setFilterName("");
     setCatalogFilter(false);
-  };
-
-  const handleFilterCatalog = () => {
-    setCatalogFilter(!catalogFilter);
+    setFullFilter(false);
   };
 
   useEffect(() => {
@@ -471,7 +478,11 @@ export default function Dashboard() {
       filtred = filtred.filter((prod) => prod.catalog);
     }
 
-    if (catalogFilter || selectedTag || filterName?.length > 2) {
+    if (fullFilter) {
+      filtred = filtred.filter((prod) => prod.full);
+    }
+
+    if (catalogFilter || selectedTag || filterName?.length > 2 || fullFilter) {
       setShowFiltreds(true);
     } else {
       setShowFiltreds(false);
@@ -482,7 +493,7 @@ export default function Dashboard() {
     setFiltredProducts(filtred);
 
     // Adicionar dependências para reexecutar o filtro quando algo mudar
-  }, [filterName, selectedTag, catalogFilter, products]);
+  }, [filterName, selectedTag, catalogFilter, fullFilter, products]);
 
   return (
     <>
@@ -492,6 +503,19 @@ export default function Dashboard() {
           Produtos {products?.length > 0 ? `(${products.length})` : ""}
         </h1>
         <div className="md:flex md:items-center md:justify-between">
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button onClick={() => handleClearFilters()} className="mr-5">
+                  <SearchSlash className="w-4 h-4" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>Limpar filtros</p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+
           <form className="md:flex md:items-center md:gap-2">
             <Input
               value={filterName}
@@ -535,13 +559,17 @@ export default function Dashboard() {
 
           <Button
             variant={catalogFilter ? "default" : "ghost"}
-            onClick={() => handleFilterCatalog()}
+            onClick={() => setCatalogFilter(!catalogFilter)}
             className="ml-5"
           >
             <Gavel className="w-4 h-4" />
           </Button>
-          <Button onClick={() => handleClearFilters()} className="ml-5">
-            <Eraser className="w-4 h-4" />
+          <Button
+            variant={fullFilter ? "default" : "ghost"}
+            onClick={() => setFullFilter(!fullFilter)}
+            className="ml-5"
+          >
+            <Zap className="w-4 h-4" />
           </Button>
 
           <br className="block lg:hidden" />
