@@ -81,6 +81,7 @@ export interface Product {
   tags?: string[];
   full?: Boolean;
   catalog?: Boolean;
+  history?: any;
 }
 
 export default function Dashboard() {
@@ -220,12 +221,18 @@ export default function Dashboard() {
       if (progress.indexOf("}") != -1) {
         const productAtt = JSON.parse(event.data);
         console.log("atualiza produto", productAtt);
-        setSkusUpdated((skusUpdated: any) => [...skusUpdated, productAtt.sku]);
         updateAnExist(productAtt);
-        toast.success(productAtt.name, {
-          description: "Atualizado",
-          position: "top-right",
-        });
+        if (productAtt.nowPrice != productAtt.lastPrice) {
+          setSkusUpdated((skusUpdated: any) => [
+            ...skusUpdated,
+            productAtt.sku,
+          ]);
+
+          toast.success(productAtt.name, {
+            description: "Atualizado",
+            position: "top-right",
+          });
+        }
       } else {
         setPercent(progress);
       }

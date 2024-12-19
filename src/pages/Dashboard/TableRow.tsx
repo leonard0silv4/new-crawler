@@ -25,8 +25,9 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { Input } from "@/components/ui/input";
-import React from "react";
+import React, { useState } from "react";
 import full from "./full.png";
+import { ProductDrawer } from "./ProductDrawer";
 
 interface TableRowProps {
   onDeleteItem?: (sku: string | number) => void;
@@ -55,6 +56,8 @@ const TableRowComponent = ({
   updateTags,
   deleteTag,
 }: TableRowProps) => {
+  const [activeProduct, setActiveProduct] = useState<number | null>(null);
+
   const diffPercent = (oldValue: number, newValue: number) => {
     if (oldValue == 0 || newValue == 0) return;
 
@@ -80,6 +83,14 @@ const TableRowComponent = ({
 
   const deleteTagInternal = (id: string, tag: string) => {
     deleteTag && deleteTag(id, tag);
+  };
+
+  const handleOpenDrawer = (id: number) => {
+    setActiveProduct(id);
+  };
+
+  const handleCloseDrawer = () => {
+    setActiveProduct(null);
   };
 
   const AddTag: React.FC<AddTagProps> = React.memo(({ product }) => {
@@ -136,6 +147,7 @@ const TableRowComponent = ({
             height: "50px",
             objectFit: "scale-down",
           }}
+          onClick={() => handleOpenDrawer(product._id)}
           src={product?.image}
         />
       </span>
@@ -158,6 +170,11 @@ const TableRowComponent = ({
           )}
           {product.name}
         </Link>
+        <ProductDrawer
+          isOpen={activeProduct === product._id}
+          onClose={handleCloseDrawer}
+          product={product}
+        />
         <i>
           Vendido por: <b>{product.seller}</b>
         </i>

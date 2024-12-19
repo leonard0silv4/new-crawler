@@ -1,11 +1,22 @@
 import { Outlet, Navigate } from "react-router-dom";
 
-const PrivateRoutes = () => {
-  let auth = {
-    token:
-      window.localStorage !== undefined && localStorage.getItem("userToken"),
+const PrivateRoutes = ({ allowedRoles }: any) => {
+  const auth = {
+    role: window.localStorage?.getItem("role"),
+    token: window.localStorage?.getItem("userToken"),
   };
-  return auth.token ? <Outlet /> : <Navigate to="/login" />;
+
+  if (!auth.token) {
+    return <Navigate to="/login" />;
+  }
+
+  if (allowedRoles && !allowedRoles.includes(auth.role)) {
+    return (
+      <Navigate to={auth.role == "faccionista" ? "/list-faccionist" : "/"} />
+    );
+  }
+
+  return <Outlet />;
 };
 
 export default PrivateRoutes;

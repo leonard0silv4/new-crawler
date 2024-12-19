@@ -27,7 +27,12 @@ const Login = ({ handleAuthentication }: LoginProps) => {
       })
       .then((response: any) => {
         localStorage.setItem("userToken", response?.token);
-        navigate("/");
+        localStorage.setItem("role", response?.role);
+        if (response.role != "owner") {
+          navigate("/list-faccionist");
+        } else {
+          navigate("/");
+        }
         handleAuthentication(true);
       })
       .catch((err) => {

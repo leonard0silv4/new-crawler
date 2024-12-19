@@ -1,7 +1,13 @@
-import { Bolt } from "lucide-react";
-import { useState } from "react";
+import { Bolt, LogOut, Users } from "lucide-react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { NavLink } from "react-router-dom";
+import { NavLink, useLocation } from "react-router-dom";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 interface HeaderProps {
   handleAuthentication?: (boolean: boolean) => void;
@@ -11,10 +17,16 @@ const Header = ({ handleAuthentication }: HeaderProps) => {
   const [menuOpen, setMenuOpen] = useState(false);
 
   const navigate = useNavigate();
+  const location = useLocation();
+
+  useEffect(() => {
+    setMenuOpen(false);
+  }, [location]);
 
   const logout = () => {
     handleAuthentication && handleAuthentication(false);
     localStorage.removeItem("userToken");
+    localStorage.removeItem("role");
     navigate("/login");
   };
 
@@ -69,17 +81,44 @@ const Header = ({ handleAuthentication }: HeaderProps) => {
             Shopee
           </NavLink>
         </div>
-        <div className="hidden lg:flex lg:flex-1 lg:justify-end">
-          <a
-            href="#"
-            className="text-sm flex font-semibold leading-6 text-zinc-200"
-            onClick={logout}
-          >
-            Sair
-          </a>
-          <NavLink className="text-zinc-200 ml-3" to="/config">
-            <Bolt />
-          </NavLink>
+        <div className="hidden lg:flex lg:flex-3 lg:justify-end items-center gap-6">
+          <TooltipProvider>
+            {/* Faccionistas */}
+            {/* <Tooltip>
+              <TooltipTrigger>
+                <NavLink className="text-zinc-200" to="/users">
+                  <Users className="h-6 w-6" />
+                </NavLink>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>Faccionistas</p>
+              </TooltipContent>
+            </Tooltip> */}
+
+            {/* Configurações */}
+            <Tooltip>
+              <TooltipTrigger>
+                <NavLink className="text-zinc-200" to="/config">
+                  <Bolt className="h-6 w-6" />
+                </NavLink>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>Configurações</p>
+              </TooltipContent>
+            </Tooltip>
+
+            {/* Sair */}
+            <Tooltip>
+              <TooltipTrigger>
+                <a href="#" className="text-zinc-200 " onClick={logout}>
+                  <LogOut className="h-6 w-6" />
+                </a>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>Sair</p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
         </div>
       </nav>
       {menuOpen && (
@@ -134,6 +173,19 @@ const Header = ({ handleAuthentication }: HeaderProps) => {
                   </NavLink>
                 </div>
                 <div className="py-6">
+                  {/* <NavLink
+                    className="-mx-3 block rounded-lg px-3 py-2.5 text-base font-semibold leading-7 text-gray-900 hover:bg-gray-50"
+                    to="/users"
+                  >
+                    Faccionistas
+                  </NavLink> */}
+
+                  <NavLink
+                    className="-mx-3 block rounded-lg px-3 py-2.5 text-base font-semibold leading-7 text-gray-900 hover:bg-gray-50"
+                    to="/config"
+                  >
+                    Configurações
+                  </NavLink>
                   <a
                     href="#"
                     className="-mx-3 block rounded-lg px-3 py-2.5 text-base font-semibold leading-7 text-gray-900 hover:bg-gray-50"
