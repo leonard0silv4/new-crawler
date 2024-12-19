@@ -30,6 +30,7 @@ import CalculateJobs from "./calculateJobs";
 
 // Conectar ao socket
 const socket = io(import.meta.env.VITE_APP_BASE_URL, {
+  path: "/api",
   transports: ["websocket", "polling"],
 });
 

@@ -83,10 +83,6 @@ const Job = () => {
       });
     });
 
-    // socket.on("jobsUpdated", (updatedJob) => {
-    //   console.log("Jobs updated:", updatedJob.job);
-    // });
-
     return () => {
       socket.off("jobUpdated");
       // socket.off("jobsUpdated");
