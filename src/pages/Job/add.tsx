@@ -140,7 +140,7 @@ export const AddJob = ({ addJob }: any) => {
           setFormData(initial);
           document.getElementById("closeDialog")?.click();
           toast.success("Novo trabalho adicionado!", {
-            position: "top-right",
+            position: "bottom-right",
           });
         })
         .catch((err) => {

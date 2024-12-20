@@ -33,6 +33,7 @@ import {
 
 import { format, isWithinInterval, startOfDay, endOfDay } from "date-fns";
 import { ptBR } from "date-fns/locale";
+import { Checkbox } from "@/components/ui/checkbox";
 
 const Job = () => {
   let { user } = useParams();
@@ -43,6 +44,7 @@ const Job = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [faccionist, setFaccionist] = useState<any>(null);
   const [load, setLoad] = useState(true);
+  const [paymentBySelection, setPaymentBySelection] = useState(false);
 
   const [showUnPaid, setShowUnPaid] = useState(false); // Estado para controlar a filtragem dos lotes não pagos
   const [showRecebidoConferido, setShowRecebidoConferido] = useState(false);
@@ -180,13 +182,15 @@ const Job = () => {
 
   // Função para somar os valores não pagos
   const sumNotPayd = (jobs: any) => {
-    const totalOrcamento = jobs
-      .filter((item: any) => !item.pago && item.recebido) // Filtrar os objetos com `pago` igual a false
+    return jobs
+      .filter((item: any) => !item.pago && item.recebido) // Filtrar os objetos com `pago` igual a false e `recebido` igual a true
       .reduce((sum: number, item: any) => sum + item.orcamento, 0);
-    return totalOrcamento;
   };
 
-  const totalNotPaid = useMemo(() => sumNotPayd(registers), [registers]);
+  const totalNotPaid = useMemo(() => {
+    const relevantJobs = paymentBySelection ? displayedRegisters : registers;
+    return sumNotPayd(relevantJobs);
+  }, [displayedRegisters, registers, paymentBySelection]);
 
   const handleOpenPixModal = (
     key: string,
@@ -252,16 +256,17 @@ const Job = () => {
         </div>
 
         <div className="flex justify-between items-center">
-          <Card className="block w-full p-6 bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700 ">
+          <Card className="relative block w-full p-6 bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700 ">
             <CardHeader>
-              <CardTitle>
+              <CardTitle className="capitalize">
                 {faccionist?.username} {faccionist?.lastName}
               </CardTitle>
             </CardHeader>
 
             <CardContent>
               <div className="flex items-center text-md font-normal text-gray-900 dark:text-white mb-3">
-                Endereço: <b className="ml-2">{faccionist?.address}</b>
+                Endereço:{" "}
+                <b className="ml-2 capitalize">{faccionist?.address}</b>
               </div>
 
               <div className="flex items-center text-md font-normal text-gray-900 dark:text-white mb-3">
@@ -276,22 +281,46 @@ const Job = () => {
                 .filter((item: any) => !item.pago)
                 .map((item: any) => item._id).length != 0 && (
                 <Button
-                  onClick={() =>
+                  onClick={() => {
+                    const relevantRegisters = paymentBySelection
+                      ? displayedRegisters.filter((item: any) => !item.pago)
+                      : registers.filter((item: any) => !item.pago);
+
                     handleOpenPixModal(
                       faccionist?.pixKey,
-                      sumNotPayd(registers),
+                      sumNotPayd(relevantRegisters),
                       `${faccionist?.username} ${faccionist?.lastName}`,
-                      registers
-                        .filter((item: any) => !item.pago)
-                        .map((item: any) => item._id)
-                    )
-                  }
+                      relevantRegisters.map((item: any) => item._id)
+                    );
+                  }}
                   className="mt-2 bg-green-800"
+                  disabled={
+                    paymentBySelection
+                      ? displayedRegisters.filter((item: any) => !item.pago)
+                          .length === 0
+                      : registers.filter((item: any) => !item.pago).length === 0
+                  }
                 >
                   <HandCoins className="w-4 h-4 mr-2" />
                   Pagar valor total
                 </Button>
               )}
+
+              <div className="flex items-center text-md space-x-2 mt-4 font-normal text-gray-900 dark:text-white mb-3 absolute top-4 right-4">
+                <Checkbox
+                  checked={paymentBySelection}
+                  onCheckedChange={() =>
+                    setPaymentBySelection(!paymentBySelection)
+                  }
+                  id="paymentBySelection"
+                />
+                <label
+                  htmlFor="paymentBySelection"
+                  className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                >
+                  Habilitar pagamento por seleção
+                </label>
+              </div>
             </CardContent>
           </Card>
         </div>
@@ -361,6 +390,25 @@ const Job = () => {
           <div className="flex items-center text-sm font-medium text-gray-900 p-3">
             <Button
               variant="outline"
+              onClick={toggleRecebidoFilter}
+              className="ml-3 gap-3"
+            >
+              <motion.div
+                key={showRecebido ? "show" : "hide"} // Usado para diferenciar os estados
+                initial="hidden"
+                animate="visible"
+                exit="exit"
+                variants={iconVariants}
+                transition={{ duration: 0.2 }}
+              >
+                {showRecebido ? <CircleCheckBig /> : <Circle />}
+              </motion.div>
+              Trabalhos recebidos
+            </Button>
+          </div>
+          <div className="flex items-center text-sm font-medium text-gray-900 p-3">
+            <Button
+              variant="outline"
               onClick={toggleAprovadoFilter}
               className="ml-3 gap-3"
             >
@@ -378,25 +426,6 @@ const Job = () => {
             </Button>
           </div>
 
-          <div className="flex items-center text-sm font-medium text-gray-900 p-3">
-            <Button
-              variant="outline"
-              onClick={toggleRecebidoFilter}
-              className="ml-3 gap-3"
-            >
-              <motion.div
-                key={showRecebido ? "show" : "hide"} // Usado para diferenciar os estados
-                initial="hidden"
-                animate="visible"
-                exit="exit"
-                variants={iconVariants}
-                transition={{ duration: 0.2 }}
-              >
-                {showRecebido ? <CircleCheckBig /> : <Circle />}
-              </motion.div>
-              Trabalhos recebidos
-            </Button>
-          </div>
           <div className="flex items-center text-sm font-medium text-gray-900 p-3">
             {/*  */}
 
@@ -442,7 +471,7 @@ const Job = () => {
         </div>
 
         {/* Cards Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
           <AnimatePresence>
             {displayedRegisters?.map((register: any) => (
               <motion.div
@@ -500,8 +529,10 @@ const Job = () => {
                               : "bg-red-500 "
                           } flex w-2.5 h-2.5  rounded-full me-1.5 flex-shrink-0`}
                         ></span>
-                        Recebido/Conferido:{" "}
-                        {register.dataRecebidoConferido
+                        Recebido/Conferido:
+                        {register.recebidoConferido ? "" : "Não"}{" "}
+                        {register.dataRecebidoConferido &&
+                        register.recebidoConferido
                           ? format(
                               register.dataRecebidoConferido,
                               "dd/MM/yyyy HH:mm"
@@ -516,8 +547,8 @@ const Job = () => {
                             register.lotePronto ? "bg-teal-500" : "bg-red-500 "
                           } flex w-2.5 h-2.5  rounded-full me-1.5 flex-shrink-0`}
                         ></span>
-                        Lote Pronto:{" "}
-                        {register.dataLotePronto
+                        Lote Pronto:{register.lotePronto ? "" : "Não"}{" "}
+                        {register.dataLotePronto && register.lotePronto
                           ? format(register.dataLotePronto, "dd/MM/yyyy HH:mm")
                           : ""}
                       </span>
@@ -578,11 +609,11 @@ const Job = () => {
                     </Button> */}
 
                     <motion.div
-                      key={register.pago ? "paid" : "unpaid"} // Define uma key dinâmica para animar a troca
-                      initial={{ opacity: 0, scale: 0.8 }} // Valores iniciais
-                      animate={{ opacity: 1, scale: 1 }} // Animação de entrada
-                      exit={{ opacity: 0, scale: 0.9 }} // Animação de saída
-                      transition={{ duration: 0.3 }} // Define a duração da animação
+                      key={register.pago ? "paid" : "unpaid"}
+                      initial={{ opacity: 0, scale: 0.8 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      exit={{ opacity: 0, scale: 0.9 }}
+                      transition={{ duration: 0.3 }}
                       className="flex justify-center items-center mt-40 mb-0"
                     >
                       {register.pago ? (

@@ -50,11 +50,11 @@ export default function Pix({
     <>
       <DialogHeader>
         <DialogTitle className="leading-6">
-          Pagamento para <span className="capitalize">{username}</span> <br />{" "}
+          Pagamento para <span className="capitalize block">{username}</span>
           Valor de R$ {price?.toFixed(2)}
         </DialogTitle>
-        <DialogDescription className="text-purple-600		">
-          Confira com cautela os dados do destinatário antes de efetuar
+        <DialogDescription>
+          Confira com cautela os dados do destinatário e valor antes de efetuar
           transferencia.
         </DialogDescription>
       </DialogHeader>
