@@ -21,13 +21,13 @@ import instance from "@/config/axios";
 import { AddJob } from "./add";
 import Pix from "../Pix";
 import { Button } from "@/components/ui/button";
-import { io } from "socket.io-client";
+// import { io } from "socket.io-client";
 import moment from "moment";
 
 // Conectar ao socket
-const socket = io(import.meta.env.VITE_APP_BASE_URL, {
-  transports: ["websocket", "polling"],
-});
+// const socket = io(import.meta.env.VITE_APP_BASE_URL, {
+//   transports: ["websocket", "polling"],
+// });
 
 const Job = () => {
   let { user } = useParams();
@@ -48,6 +48,7 @@ const Job = () => {
   useEffect(() => {
     setLoad(true);
 
+    // Obtenha os registros iniciais
     instance
       .get(`factionist/${user}`)
       .then((response: any) => {
@@ -58,7 +59,13 @@ const Job = () => {
         setLoad(false);
       });
 
-    socket.on("jobUpdated", (updatedJob) => {
+    // Conecte-se ao SSE
+    const eventSource = new EventSource(
+      `${import.meta.env.VITE_APP_BASE_URL}events`
+    );
+
+    eventSource.addEventListener("jobUpdated", (event) => {
+      const updatedJob = JSON.parse(event.data);
       console.log("Job updated:", updatedJob.job);
 
       setRegisters((prevRegisters) => {
@@ -83,9 +90,9 @@ const Job = () => {
       });
     });
 
+    // Limpeza ao desmontar o componente
     return () => {
-      socket.off("jobUpdated");
-      // socket.off("jobsUpdated");
+      eventSource.close();
     };
   }, []);
 

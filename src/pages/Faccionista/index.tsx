@@ -143,9 +143,9 @@ const ListFaccionista = () => {
                     <Switch
                       checked={register.recebidoConferido}
                       onCheckedChange={() => {
-                        if (register.recebidoConferido) return;
-                        handleOpenModal(register._id, "recebidoConferido");
-                        // handleStatusChange(register._id, "recebidoConferido");
+                        // if (register.recebidoConferido) return;
+                        // handleOpenModal(register._id, "recebidoConferido");
+                        handleStatusChange(register._id, "recebidoConferido");
                       }}
                     />
                   </div>
@@ -156,9 +156,9 @@ const ListFaccionista = () => {
                     <Switch
                       checked={register.lotePronto}
                       onCheckedChange={() => {
-                        if (register.lotePronto) return;
-                        handleOpenModal(register._id, "lotePronto");
-                        // handleStatusChange(register._id, "lotePronto");
+                        // if (register.lotePronto) return;
+                        // handleOpenModal(register._id, "lotePronto");
+                        handleStatusChange(register._id, "lotePronto");
                       }}
                     />
                   </div>

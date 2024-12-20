@@ -24,15 +24,14 @@ import { Loader, Search, Trash } from "lucide-react";
 import { useEffect, useState } from "react";
 import instance from "@/config/axios";
 import { useNavigate } from "react-router-dom";
-import { io } from "socket.io-client";
+// import { io } from "socket.io-client";
 
 import CalculateJobs from "./calculateJobs";
 
 // Conectar ao socket
-const socket = io(import.meta.env.VITE_APP_BASE_URL, {
-  path: "/api",
-  transports: ["websocket", "polling"],
-});
+// const socket = io(import.meta.env.VITE_APP_BASE_URL, {
+//   transports: ["websocket", "polling"],
+// });
 
 const Users = () => {
   const [registers, setRegisters] = useState<any[]>([]);
@@ -80,15 +79,24 @@ const Users = () => {
       .catch((err) => console.log(err))
       .finally(() => setLoad(false));
 
-    socket.on("jobUpdated", (data) => {
+    // Conecte-se ao SSE
+    const eventSource = new EventSource(
+      `${import.meta.env.VITE_APP_BASE_URL}events`
+    );
+
+    eventSource.addEventListener("jobUpdated", (event) => {
+      const data = JSON.parse(event.data);
       console.log(data);
+
       setRegisters((prevRegisters) =>
         prevRegisters.map((register) => {
+          // Verifica se o job atualizado pertence a este register
           const jobIndex = register.jobs.findIndex(
             (job: any) => job._id === data.job._id
           );
 
           if (jobIndex !== -1) {
+            // Atualiza o job correspondente
             return {
               ...register,
               jobs: register.jobs.map((job: any, index: number) =>
@@ -97,6 +105,7 @@ const Users = () => {
             };
           }
 
+          // Caso o register não tenha jobs e o ID coincida com o faccionista
           if (!register.jobs.length && register._id == data.job.faccionistaId) {
             return {
               ...register,
@@ -109,8 +118,9 @@ const Users = () => {
       );
     });
 
+    // Limpeza ao desmontar o componente
     return () => {
-      socket.off("jobUpdated");
+      eventSource.close();
     };
   }, []);
 
