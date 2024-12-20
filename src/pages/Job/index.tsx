@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, lazy, Suspense } from "react";
 import { useModal } from "../../context/ModalContext";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -19,8 +19,9 @@ import { useNavigate } from "react-router-dom";
 import { AnimatePresence, motion } from "motion/react";
 
 import instance from "@/config/axios";
-import { AddJob } from "./add";
-import Pix from "../Pix";
+const AddJob = lazy(() => import("./add"));
+const Pix = lazy(() => import("../Pix"));
+
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import { DateRange } from "react-day-picker";
@@ -46,7 +47,7 @@ const Job = () => {
   const [load, setLoad] = useState(true);
   const [paymentBySelection, setPaymentBySelection] = useState(false);
 
-  const [showUnPaid, setShowUnPaid] = useState(false); // Estado para controlar a filtragem dos lotes não pagos
+  const [showUnPaid, setShowUnPaid] = useState(false);
   const [showRecebidoConferido, setShowRecebidoConferido] = useState(false);
   const [showLotePronto, setShowLotePronto] = useState(false);
   const [showAprovado, setShowAprovado] = useState(false);
@@ -56,7 +57,6 @@ const Job = () => {
   useEffect(() => {
     setLoad(true);
 
-    // Obtenha os registros iniciais
     instance
       .get(`factionist/${user}`)
       .then((response: any) => {
@@ -67,7 +67,6 @@ const Job = () => {
         setLoad(false);
       });
 
-    // Conecte-se ao SSE
     const eventSource = new EventSource(
       `${import.meta.env.VITE_APP_BASE_URL}events`
     );
@@ -82,7 +81,6 @@ const Job = () => {
         );
 
         if (updatedIndex !== -1) {
-          // Verifique se há realmente alterações antes de atualizar o estado
           const isDifferent =
             JSON.stringify(prevRegisters[updatedIndex]) !==
             JSON.stringify(updatedJob.job);
@@ -98,7 +96,6 @@ const Job = () => {
       });
     });
 
-    // Limpeza ao desmontar o componente
     return () => {
       eventSource.close();
     };
@@ -124,39 +121,30 @@ const Job = () => {
     setShowUnPaid((prev) => !prev);
   };
 
-  // Função para filtrar os registros
   const filteredRegisters = registers?.filter((register) =>
     Object.values(register).some((value) =>
       value?.toString().toLowerCase().includes(searchTerm.toLowerCase())
     )
   );
 
-  // Função para aplicar todos os filtros específicos
   const applyFilters = (registers: any) => {
     return registers?.filter((register: any) => {
-      // Filtro por texto livre
       const matchesSearchTerm = Object.values(register).some((value) =>
         value?.toString().toLowerCase().includes(searchTerm.toLowerCase())
       );
 
-      // Filtro de showUnpaid
       const matchesUnPaid = showUnPaid ? !register.pago : true;
 
-      // Filtro de showRecebidoConferido
       const matchesRecebidoConferido = showRecebidoConferido
         ? register.recebidoConferido
         : true;
 
-      // Filtro de showLotePronto
       const matchesLotePronto = showLotePronto ? register.lotePronto : true;
 
-      // Filtro de showAprovado
       const matchesAprovado = showAprovado ? register.aprovado : true;
 
-      // Filtro de showRecebido
       const matchesRecebido = showRecebido ? register.recebido : true;
 
-      // Filtro de data
       const matchesDateRange =
         range && range.from && range.to
           ? isWithinInterval(new Date(register.data), {
@@ -165,7 +153,6 @@ const Job = () => {
             })
           : true;
 
-      // Retorna true se todos os filtros forem satisfeitos
       return (
         matchesSearchTerm &&
         matchesUnPaid &&
@@ -180,10 +167,9 @@ const Job = () => {
 
   const displayedRegisters = applyFilters(filteredRegisters);
 
-  // Função para somar os valores não pagos
   const sumNotPayd = (jobs: any) => {
     return jobs
-      .filter((item: any) => !item.pago && item.recebido) // Filtrar os objetos com `pago` igual a false e `recebido` igual a true
+      .filter((item: any) => !item.pago && item.recebido)
       .reduce((sum: number, item: any) => sum + item.orcamento, 0);
   };
 
@@ -199,12 +185,14 @@ const Job = () => {
     jobIds: string[]
   ) => {
     openModal(
-      <Pix
-        pixKey={key}
-        price={price}
-        username={username}
-        onMarkAsPaid={() => handleStatusChange(jobIds, "pago")}
-      />
+      <Suspense fallback={<>Loading...</>}>
+        <Pix
+          pixKey={key}
+          price={price}
+          username={username}
+          onMarkAsPaid={() => handleStatusChange(jobIds, "pago")}
+        />
+      </Suspense>
     );
   };
 
@@ -334,7 +322,7 @@ const Job = () => {
             >
               {" "}
               <motion.div
-                key={showUnPaid ? "show" : "hide"} // Usado para diferenciar os estados
+                key={showUnPaid ? "show" : "hide"}
                 initial="hidden"
                 animate="visible"
                 exit="exit"
@@ -354,7 +342,7 @@ const Job = () => {
               className="ml-3 gap-3"
             >
               <motion.div
-                key={showRecebidoConferido ? "show" : "hide"} // Usado para diferenciar os estados
+                key={showRecebidoConferido ? "show" : "hide"}
                 initial="hidden"
                 animate="visible"
                 exit="exit"
@@ -374,7 +362,7 @@ const Job = () => {
               className="ml-3 gap-3"
             >
               <motion.div
-                key={showLotePronto ? "show" : "hide"} // Usado para diferenciar os estados
+                key={showLotePronto ? "show" : "hide"}
                 initial="hidden"
                 animate="visible"
                 exit="exit"
@@ -394,7 +382,7 @@ const Job = () => {
               className="ml-3 gap-3"
             >
               <motion.div
-                key={showRecebido ? "show" : "hide"} // Usado para diferenciar os estados
+                key={showRecebido ? "show" : "hide"}
                 initial="hidden"
                 animate="visible"
                 exit="exit"
@@ -413,7 +401,7 @@ const Job = () => {
               className="ml-3 gap-3"
             >
               <motion.div
-                key={showAprovado ? "show" : "hide"} // Usado para diferenciar os estados
+                key={showAprovado ? "show" : "hide"}
                 initial="hidden"
                 animate="visible"
                 exit="exit"
@@ -593,12 +581,6 @@ const Job = () => {
                         </a>
                       )}
                     </div>
-                    <div className="flex items-center text-sm font-medium text-gray-900 dark:text-white me-3">
-                      Data Pagamento:
-                      {register.dataPgto
-                        ? format(register.dataPgto, "dd/MM/yy")
-                        : "-"}
-                    </div>
 
                     {/* <Button
                       onClick={() => handleStatusChange([register._id], "pago")}
@@ -614,7 +596,7 @@ const Job = () => {
                       animate={{ opacity: 1, scale: 1 }}
                       exit={{ opacity: 0, scale: 0.9 }}
                       transition={{ duration: 0.3 }}
-                      className="flex justify-center items-center mt-40 mb-0"
+                      className="flex justify-center items-center mt-40 mb-0 min-h-20 flex-col gap-2"
                     >
                       {register.pago ? (
                         <CircleCheck className="w-9 h-9 text-green-500" />
@@ -633,6 +615,16 @@ const Job = () => {
                           <HandCoins className="w-4 h-4 mr-2" />
                           Pagar este lote
                         </Button>
+                      )}
+                      {register.dataPgto && register.pago ? (
+                        <div className="items-center text-sm font-medium text-gray-900 dark:text-white me-3 justify-center">
+                          Data Pagamento:
+                          {register.dataPgto
+                            ? format(register.dataPgto, "dd/MM/yy")
+                            : "-"}
+                        </div>
+                      ) : (
+                        ""
                       )}
                     </motion.div>
                   </CardContent>

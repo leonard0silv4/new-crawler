@@ -25,24 +25,21 @@ export default function Pix({
 }: PixProps) {
   const [fullPIX, setFullPIX] = useState("");
   console.log(fullPIX);
-  const { closeModal } = useModal(); // Acessando o contexto para fechar a modal
+  const { closeModal } = useModal();
 
   const handleMarkAsPaid = () => {
-    onMarkAsPaid(); // Marque como pago
-    closeModal(); // Feche a modal após a ação
+    onMarkAsPaid();
+    closeModal();
   };
 
   const addPrefixIfPhone = (pixKey: string) => {
-    // Expressões regulares fornecidas para validação de CPF, CNPJ, Telefone, Email e Random
     const cpfRegex = /^[0-9]{11}$/;
-    const phoneRegex = /^[0-9]{10,11}$/; // Ajustado para aceitar apenas números
+    const phoneRegex = /^[0-9]{10,11}$/;
 
-    // Se for telefone sem o prefixo +55, adiciona
     if (phoneRegex.test(pixKey) && !cpfRegex.test(pixKey)) {
-      return "+55" + pixKey; // Adiciona o prefixo +55
+      return "+55" + pixKey;
     }
 
-    // Se não for telefone, retorna a chave original sem modificações
     return pixKey;
   };
 
@@ -50,7 +47,7 @@ export default function Pix({
     <>
       <DialogHeader>
         <DialogTitle className="leading-6">
-          Pagamento para <span className="capitalize block">{username}</span>
+          Pagamento para <span className="capitalize">{username}</span>
           Valor de R$ {price?.toFixed(2)}
         </DialogTitle>
         <DialogDescription>
@@ -82,7 +79,6 @@ export default function Pix({
         )}
       </div>
 
-      {/* <DialogFooter> */}
       <div className=" flex flex-col justify-center">
         <Button onClick={handleMarkAsPaid} type="button">
           Marcar como pago
@@ -92,7 +88,6 @@ export default function Pix({
           Ação marcar como pago não poderá ser desfeita
         </small>
       </div>
-      {/* </DialogFooter> */}
     </>
   );
 }

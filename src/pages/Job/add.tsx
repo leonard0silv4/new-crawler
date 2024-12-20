@@ -16,7 +16,7 @@ import instance from "@/config/axios";
 import { useParams } from "react-router-dom";
 import { toast } from "sonner";
 
-export const AddJob = ({ addJob }: any) => {
+const AddJob = ({ addJob }: any) => {
   const { user } = useParams();
 
   const initial: Record<string, any> = {
@@ -66,14 +66,13 @@ export const AddJob = ({ addJob }: any) => {
       [name]: updatedValue,
     };
 
-    // Recalcular metros totais e orçamento
     const { qtd, larg, compr, emenda } = updatedFormData;
     if (qtd && larg && compr) {
-      const fator = 0.65; // Fator baseado no cálculo do cliente
+      const fator = 0.65;
       const metrosBase = qtd * larg * compr * fator;
       const totMetros = emenda ? metrosBase * 1.3 : metrosBase;
 
-      const custoPorMetro = 234 / 390; // Ajuste o custo por metro, se necessário
+      const custoPorMetro = 234 / 390;
       const orcamento = totMetros * custoPorMetro;
 
       updatedFormData.totMetros = parseFloat(totMetros.toFixed(2));
@@ -89,14 +88,13 @@ export const AddJob = ({ addJob }: any) => {
       [name]: !formData[name as keyof typeof formData],
     };
 
-    // Recalcular metros totais e orçamento
     const { qtd, larg, compr, emenda } = updatedFormData;
     if (qtd && larg && compr) {
-      const fator = 0.65; // Fator baseado no cálculo do cliente
+      const fator = 0.65;
       const metrosBase = qtd * larg * compr * fator;
       const totMetros = emenda ? metrosBase * 1.3 : metrosBase;
 
-      const custoPorMetro = 234 / 390; // Baseado nos valores fornecidos
+      const custoPorMetro = 234 / 390;
       const orcamento = totMetros * custoPorMetro;
 
       updatedFormData.totMetros = parseFloat(totMetros.toFixed(2));
@@ -116,7 +114,6 @@ export const AddJob = ({ addJob }: any) => {
       "orcamento",
     ];
 
-    // Verificar quais campos obrigatórios estão vazios
     const emptyFields = requiredFields.filter((field) => !formData[field]);
 
     if (emptyFields.length > 0) {
@@ -173,7 +170,6 @@ export const AddJob = ({ addJob }: any) => {
         </DialogHeader>
 
         <form className="grid grid-cols-2 gap-4">
-          {/* Coluna 1 */}
           <div className="space-y-4">
             <div>
               <label
@@ -244,7 +240,6 @@ export const AddJob = ({ addJob }: any) => {
             </div>
           </div>
 
-          {/* Coluna 2 */}
           <div className="space-y-4 mt-5">
             <div className="flex items-center space-x-2 mt-2 mb-8">
               <label className="flex items-center space-x-2">
@@ -307,3 +302,5 @@ export const AddJob = ({ addJob }: any) => {
     </Dialog>
   );
 };
+
+export default AddJob;

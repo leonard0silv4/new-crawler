@@ -1,11 +1,4 @@
-import {
-  Dialog,
-  DialogContent,
-  DialogTitle,
-  DialogDescription,
-  DialogFooter,
-  DialogClose,
-} from "@/components/ui/dialog";
+import { lazy, useEffect, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -16,16 +9,24 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-
-import AddFaccionista from "./add";
-import EditFaccionista from "./edit";
 import { Input } from "@/components/ui/input";
+import {
+  Dialog,
+  DialogContent,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+  DialogClose,
+} from "@/components/ui/dialog";
+
 import { Loader, Search, Trash } from "lucide-react";
-import { useEffect, useState } from "react";
-import instance from "@/config/axios";
 import { useNavigate } from "react-router-dom";
 
+import instance from "@/config/axios";
 import CalculateJobs from "./calculateJobs";
+
+const AddFaccionista = lazy(() => import("./add"));
+const EditFaccionista = lazy(() => import("./edit"));
 
 const Users = () => {
   const [registers, setRegisters] = useState<any[]>([]);
@@ -73,7 +74,6 @@ const Users = () => {
       .catch((err) => console.log(err))
       .finally(() => setLoad(false));
 
-    // Conecte-se ao SSE
     const eventSource = new EventSource(
       `${import.meta.env.VITE_APP_BASE_URL}events`
     );
@@ -84,13 +84,11 @@ const Users = () => {
 
       setRegisters((prevRegisters) =>
         prevRegisters.map((register) => {
-          // Verifica se o job atualizado pertence a este register
           const jobIndex = register.jobs.findIndex(
             (job: any) => job._id === data.job._id
           );
 
           if (jobIndex !== -1) {
-            // Atualiza o job correspondente
             return {
               ...register,
               jobs: register.jobs.map((job: any, index: number) =>
@@ -99,7 +97,6 @@ const Users = () => {
             };
           }
 
-          // Caso o register não tenha jobs e o ID coincida com o faccionista
           if (!register.jobs.length && register._id == data.job.faccionistaId) {
             return {
               ...register,
@@ -112,7 +109,6 @@ const Users = () => {
       );
     });
 
-    // Limpeza ao desmontar o componente
     return () => {
       eventSource.close();
     };
@@ -135,7 +131,7 @@ const Users = () => {
         );
       });
     }
-    setIsDialogOpen(false); // Fecha o diálogo após a exclusão
+    setIsDialogOpen(false);
   };
 
   const filteredRegisters = registers.filter((register) =>
@@ -170,8 +166,7 @@ const Users = () => {
                   <Trash className="w-4 h-4 float-right text-red-500" />
                 </a>
               </CardTitle>
-              <CardDescription>
-                {/* {register._id} */}
+              <CardDescription data-id={register._id}>
                 {register?.lastName?.toUpperCase()}
               </CardDescription>
             </CardHeader>
@@ -198,7 +193,6 @@ const Users = () => {
         ))}
       </div>
 
-      {/* Modal de edição de usuário */}
       {selectedUserUpdate && (
         <EditFaccionista
           user={selectedUserUpdate}
@@ -207,7 +201,6 @@ const Users = () => {
         />
       )}
 
-      {/* Dialog de confirmação */}
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
         <DialogContent>
           <DialogTitle>Confirmar Exclusão</DialogTitle>
