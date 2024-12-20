@@ -3,7 +3,7 @@
 import * as React from "react";
 import { Button } from "@/components/ui/button";
 
-import moment from "moment";
+import { format } from "date-fns";
 
 import {
   Drawer,
@@ -45,10 +45,10 @@ export const ProductDrawer: React.FC<ProductDrawerProps> = ({
   const chartData =
     product?.history?.map((prd: any) => {
       return {
-        date: moment(prd.updatedAt).format("DD/MM"),
+        date: format(prd.updatedAt, "dd/MM"),
         price: prd.price,
         seller: prd.seller,
-        fullDate: moment(prd.updatedAt).format("DD/MM HH:mm"),
+        fullDate: format(prd.updatedAt, "dd/MM HH:mm"),
       };
     }) || {};
 

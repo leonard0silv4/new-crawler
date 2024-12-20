@@ -24,14 +24,8 @@ import { Loader, Search, Trash } from "lucide-react";
 import { useEffect, useState } from "react";
 import instance from "@/config/axios";
 import { useNavigate } from "react-router-dom";
-// import { io } from "socket.io-client";
 
 import CalculateJobs from "./calculateJobs";
-
-// Conectar ao socket
-// const socket = io(import.meta.env.VITE_APP_BASE_URL, {
-//   transports: ["websocket", "polling"],
-// });
 
 const Users = () => {
   const [registers, setRegisters] = useState<any[]>([]);

@@ -11,7 +11,9 @@ import {
 } from "lucide-react";
 import { Product } from ".";
 import { Link, ContainerLine } from "./DashboardStyles";
-import moment from "moment";
+import { formatDistance } from "date-fns";
+import { ptBR } from "date-fns/locale";
+
 import instance from "@/config/axios";
 import {
   AlertDialog,
@@ -181,7 +183,7 @@ const TableRowComponent = ({
         <p>
           Data anúncio:{"  "}
           {product.dateMl
-            ? `${moment().diff(moment(product.dateMl), "days")} dias`
+            ? `${formatDistance(new Date(), product.dateMl, { locale: ptBR })}`
             : "Novo"}
         </p>
         {product?.tags?.map((tag) => {

@@ -110,7 +110,7 @@ const ListFaccionista = () => {
                     Largura: {register.larg}
                   </div>
                   <div className="flex items-center text-md font-medium text-gray-900 dark:text-white me-3">
-                    Comprimento: {register.compra}
+                    Comprimento: {register.compr}
                   </div>
                   <div className="flex items-center text-md font-medium text-gray-900 dark:text-white me-3">
                     Emenda: {register.emenda ? "Sim" : "Não"}

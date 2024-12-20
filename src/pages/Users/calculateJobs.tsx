@@ -5,7 +5,10 @@ const CalculateJobs = ({ jobs }: any) => {
     (job: any) => job.recebidoConferido === true
   );
   const loteReady = jobs?.every((job: any) => job.lotePronto === true);
-  const PayReady = jobs?.every((job: any) => job.pago === true);
+
+  const hasUnpaidJobsWithConferido = jobs?.some(
+    (job: any) => job.recebido === true && job.pago === false
+  );
 
   const qtdAwaitConferido = jobs?.filter(
     (job: any) => job.recebidoConferido === false
@@ -58,12 +61,14 @@ const CalculateJobs = ({ jobs }: any) => {
         <span className="flex items-center text-sm font-medium text-gray-900 dark:text-white me-3">
           <motion.span
             className={`flex w-2.5 h-2.5 rounded-full me-1.5 flex-shrink-0 ${
-              PayReady ? "bg-teal-500" : "bg-red-500"
+              hasUnpaidJobsWithConferido ? "bg-red-500" : "bg-teal-500"
             }`}
-            animate={{ scale: PayReady ? 1.2 : 1 }}
+            animate={{ scale: hasUnpaidJobsWithConferido ? 1 : 1.2 }}
             transition={{ type: "spring", stiffness: 300 }}
           ></motion.span>
-          {PayReady ? `Todos os pedidos pagos` : `Aguardando pagamento`}
+          {hasUnpaidJobsWithConferido
+            ? `Aguardando pagamento`
+            : `Todos os pedidos pagos`}
         </span>
       </p>
     </AnimatePresence>

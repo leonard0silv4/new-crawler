@@ -3,6 +3,7 @@ import { useModal } from "../../context/ModalContext";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
+  CalendarIcon,
   Circle,
   CircleArrowLeft,
   CircleCheck,
@@ -21,13 +22,17 @@ import instance from "@/config/axios";
 import { AddJob } from "./add";
 import Pix from "../Pix";
 import { Button } from "@/components/ui/button";
-// import { io } from "socket.io-client";
-import moment from "moment";
+import { Calendar } from "@/components/ui/calendar";
+import { DateRange } from "react-day-picker";
 
-// Conectar ao socket
-// const socket = io(import.meta.env.VITE_APP_BASE_URL, {
-//   transports: ["websocket", "polling"],
-// });
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+
+import { format, isWithinInterval, startOfDay, endOfDay } from "date-fns";
+import { ptBR } from "date-fns/locale";
 
 const Job = () => {
   let { user } = useParams();
@@ -35,15 +40,17 @@ const Job = () => {
   const { openModal } = useModal();
 
   const [registers, setRegisters] = useState<any[]>([]);
+  const [selectedJobs, setSelectedJob] = useState<any[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [faccionist, setFaccionist] = useState<any>(null);
   const [load, setLoad] = useState(true);
 
-  const [showPaid, setShowPaid] = useState(false); // Estado para controlar a filtragem dos lotes não pagos
+  const [showUnPaid, setShowUnPaid] = useState(false); // Estado para controlar a filtragem dos lotes não pagos
   const [showRecebidoConferido, setShowRecebidoConferido] = useState(false);
   const [showLotePronto, setShowLotePronto] = useState(false);
   const [showAprovado, setShowAprovado] = useState(false);
   const [showRecebido, setShowRecebido] = useState(false);
+  const [range, setRange] = useState<DateRange | undefined>(undefined);
 
   useEffect(() => {
     setLoad(true);
@@ -113,7 +120,7 @@ const Job = () => {
   };
 
   const togglePaid = () => {
-    setShowPaid((prev) => !prev);
+    setShowUnPaid((prev) => !prev);
   };
 
   // Função para filtrar os registros
@@ -132,7 +139,7 @@ const Job = () => {
       );
 
       // Filtro de showUnpaid
-      const matchesPaid = showPaid ? register.pago : true;
+      const matchesUnPaid = showUnPaid ? !register.pago : true;
 
       // Filtro de showRecebidoConferido
       const matchesRecebidoConferido = showRecebidoConferido
@@ -148,14 +155,24 @@ const Job = () => {
       // Filtro de showRecebido
       const matchesRecebido = showRecebido ? register.recebido : true;
 
+      // Filtro de data
+      const matchesDateRange =
+        range && range.from && range.to
+          ? isWithinInterval(new Date(register.data), {
+              start: startOfDay(range.from),
+              end: endOfDay(range.to),
+            })
+          : true;
+
       // Retorna true se todos os filtros forem satisfeitos
       return (
         matchesSearchTerm &&
-        matchesPaid &&
+        matchesUnPaid &&
         matchesRecebidoConferido &&
         matchesLotePronto &&
         matchesAprovado &&
-        matchesRecebido
+        matchesRecebido &&
+        matchesDateRange
       );
     });
   };
@@ -289,16 +306,16 @@ const Job = () => {
             >
               {" "}
               <motion.div
-                key={showPaid ? "show" : "hide"} // Usado para diferenciar os estados
+                key={showUnPaid ? "show" : "hide"} // Usado para diferenciar os estados
                 initial="hidden"
                 animate="visible"
                 exit="exit"
                 variants={iconVariants}
                 transition={{ duration: 0.2 }}
               >
-                {showPaid ? <CircleCheckBig /> : <Circle />}
+                {showUnPaid ? <CircleCheckBig /> : <Circle />}
               </motion.div>
-              Mostrar trabalhos pagos
+              Mostrar trabalhos não pagos
             </Button>
           </div>
 
@@ -381,6 +398,48 @@ const Job = () => {
               Trabalhos recebidos
             </Button>
           </div>
+          <div className="flex items-center text-sm font-medium text-gray-900 p-3">
+            {/*  */}
+
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button
+                  variant="outline"
+                  className={`w-[240px] pl-3 text-left font-medium text-gray-900 ${
+                    !range ? "text-muted-foreground" : ""
+                  }`}
+                >
+                  {range ? (
+                    range.from && range.to ? (
+                      `${format(range.from, "PP", {
+                        locale: ptBR,
+                      })} - ${format(range.to, "PP", { locale: ptBR })}`
+                    ) : range.from ? (
+                      `${format(range.from, "PP", { locale: ptBR })} - ...`
+                    ) : (
+                      <span className="font-medium text-gray-900">
+                        Selecione intervalo
+                      </span>
+                    )
+                  ) : (
+                    <span className="font-medium text-gray-900">
+                      Selecione intervalo
+                    </span>
+                  )}
+                  <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-0" align="start">
+                <Calendar
+                  mode="range"
+                  selected={range}
+                  onSelect={(newRange) => setRange(newRange)}
+                  locale={ptBR}
+                  className="rounded-md border"
+                />
+              </PopoverContent>
+            </Popover>
+          </div>
         </div>
 
         {/* Cards Grid */}
@@ -388,14 +447,17 @@ const Job = () => {
           <AnimatePresence>
             {displayedRegisters?.map((register: any) => (
               <motion.div
-                key={register._id + "m"} // Use uma chave única para cada item
-                variants={itemVariants} // Variantes definidas acima
-                initial="hidden" // Estado inicial
-                animate="visible" // Estado animado
-                exit="exit" // Estado ao remover
-                transition={{ duration: 0.3 }} // Tempo da animação
+                key={register._id + "m"}
+                variants={itemVariants}
+                initial="hidden"
+                animate="visible"
+                exit="exit"
+                transition={{ duration: 0.3 }}
               >
                 <Card
+                  onClick={() => {
+                    setSelectedJob(register._id);
+                  }}
                   key={register._id}
                   className="w-full bg-white border border-gray-200 rounded-lg shadow hover:bg-gray-100 dark:bg-gray-800 dark:border-gray-700 dark:hover:bg-gray-700"
                 >
@@ -404,7 +466,7 @@ const Job = () => {
                   </CardHeader>
                   <CardContent className="space-y-2 text-sm">
                     <div className="flex items-center text-sm font-medium text-gray-900 dark:text-white me-3">
-                      Data: {moment(register.data).format("DD-MM-YYYY")}
+                      Data: {format(register.data, "dd/MM/yy")}
                     </div>
 
                     <div className="flex items-center text-sm font-medium text-gray-900 dark:text-white me-3">
@@ -443,7 +505,12 @@ const Job = () => {
                           } flex w-2.5 h-2.5  rounded-full me-1.5 flex-shrink-0`}
                         ></span>
                         Recebido/Conferido:{" "}
-                        {register.recebidoConferido ? "Sim" : "Não"}
+                        {register.dataRecebidoConferido
+                          ? format(
+                              register.dataRecebidoConferido,
+                              "dd/MM/yyyy HH:mm"
+                            )
+                          : ""}
                       </span>
                     </div>
                     <div>
@@ -453,7 +520,10 @@ const Job = () => {
                             register.lotePronto ? "bg-teal-500" : "bg-red-500 "
                           } flex w-2.5 h-2.5  rounded-full me-1.5 flex-shrink-0`}
                         ></span>
-                        Lote Pronto: {register.lotePronto ? "Sim" : "Não"}
+                        Lote Pronto:{" "}
+                        {register.dataLotePronto
+                          ? format(register.dataLotePronto, "dd/MM/yyyy HH:mm")
+                          : ""}
                       </span>
                     </div>
                     <div className="flex">
@@ -497,19 +567,19 @@ const Job = () => {
                       )}
                     </div>
                     <div className="flex items-center text-sm font-medium text-gray-900 dark:text-white me-3">
-                      Data Pagamento:{" "}
+                      Data Pagamento:
                       {register.dataPgto
-                        ? moment(register.dataPgto).format("DD-MM-YYYY")
+                        ? format(register.dataPgto, "dd/MM/yy")
                         : "-"}
                     </div>
 
-                    <Button
+                    {/* <Button
                       onClick={() => handleStatusChange([register._id], "pago")}
                       className="bg-red-500"
                     >
                       <HandCoins className="w-4 h-4 mr-2" />
                       Reverter pagamento
-                    </Button>
+                    </Button> */}
 
                     <motion.div
                       key={register.pago ? "paid" : "unpaid"} // Define uma key dinâmica para animar a troca
