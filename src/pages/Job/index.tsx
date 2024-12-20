@@ -245,8 +245,9 @@ const Job = () => {
             />
             <Search className="absolute left-3 top-2.5 h-5 w-5 text-gray-400" />
           </div>
-
-          <AddJob addJob={addJob} />
+          <Suspense fallback={<>Carregando...</>}>
+            <AddJob addJob={addJob} />
+          </Suspense>
         </div>
 
         <div className="flex justify-between items-center">

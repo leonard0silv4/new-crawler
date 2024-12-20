@@ -114,10 +114,10 @@ const ListFaccionista = () => {
               onChange={(e) => setSearchTerm(e.target.value)}
               className="pl-10"
             />
-            <Search className="absolute left-3 top-2.5 h-5 w-5 text-gray-400" />
+            <Search className="absolute left-3 top-2.5 h-5 w-5 text-gray-400 " />
           </div>
 
-          <div className="flex gap-2 align-middle justify-center">
+          <div className="flex gap-2 align-middle justify-center flex-col lg:flex-row">
             <Button
               onClick={() => setShowNotConf(!showNotConf)}
               variant={`${showNotConf ? "default" : "outline"}`}
@@ -133,7 +133,7 @@ const ListFaccionista = () => {
             </Button>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
             {filteredRegisters.map((register: any) => (
               <Card key={register.id} className="w-full">
                 <CardHeader>

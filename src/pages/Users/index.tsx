@@ -1,4 +1,4 @@
-import { lazy, useEffect, useState } from "react";
+import { lazy, useEffect, useState, Suspense } from "react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -153,7 +153,9 @@ const Users = () => {
           />
           <Search className="absolute left-3 top-2.5 h-5 w-5 text-gray-400" />
         </div>
-        <AddFaccionista addUserState={addUserState} />
+        <Suspense fallback={<>Carregando...</>}>
+          <AddFaccionista addUserState={addUserState} />
+        </Suspense>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mt-10">
@@ -194,11 +196,13 @@ const Users = () => {
       </div>
 
       {selectedUserUpdate && (
-        <EditFaccionista
-          user={selectedUserUpdate}
-          onClose={closeEditDialog}
-          updateUserState={updateUserState}
-        />
+        <Suspense fallback={<>Carregando...</>}>
+          <EditFaccionista
+            user={selectedUserUpdate}
+            onClose={closeEditDialog}
+            updateUserState={updateUserState}
+          />
+        </Suspense>
       )}
 
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
