@@ -22,6 +22,8 @@ import {
 } from "@/components/ui/dialog";
 import { DialogClose, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
+import { format } from "date-fns";
+import { ptBR } from "date-fns/locale";
 
 const ListFaccionista = () => {
   const [registers, setRegisters] = useState<any[]>([]);
@@ -31,10 +33,12 @@ const ListFaccionista = () => {
   const [confirmationModal, setConfirmationModal] = useState<{
     open: boolean;
     _id: string | null;
+    lote: string | null;
     field: "recebidoConferido" | "lotePronto" | null;
   }>({
     open: false,
     _id: null,
+    lote: null,
     field: null,
   });
 
@@ -63,20 +67,21 @@ const ListFaccionista = () => {
 
   const handleOpenModal = (
     _id: string,
+    lote: string,
     field: "recebidoConferido" | "lotePronto"
   ) => {
-    setConfirmationModal({ open: true, _id, field });
+    setConfirmationModal({ open: true, lote, _id, field });
   };
 
   const handleConfirm = () => {
     if (confirmationModal._id && confirmationModal.field) {
       handleStatusChange(confirmationModal._id, confirmationModal.field);
     }
-    setConfirmationModal({ open: false, _id: null, field: null });
+    setConfirmationModal({ open: false, lote: null, _id: null, field: null });
   };
 
   const handleCancel = () => {
-    setConfirmationModal({ open: false, _id: null, field: null });
+    setConfirmationModal({ open: false, lote: null, _id: null, field: null });
   };
 
   const applyFilters = (registers: any) => {
@@ -135,28 +140,59 @@ const ListFaccionista = () => {
                   <CardTitle>LOTE: {register.lote}</CardTitle>
                   <CardDescription></CardDescription>
                 </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="flex items-center text-md font-medium text-gray-900 dark:text-white me-3">
+                <CardContent className="space-y-2">
+                  <div className=" flex items-center text-md font-medium text-gray-900 dark:text-white me-3">
                     Quantidade: {register.qtd}
                   </div>
-                  <div className="flex items-center text-md font-medium text-gray-900 dark:text-white me-3">
+                  <div className=" flex items-center text-md font-medium text-gray-900 dark:text-white me-3">
                     Largura: {register.larg}
                   </div>
-                  <div className="flex items-center text-md font-medium text-gray-900 dark:text-white me-3">
+                  <div className=" flex items-center text-md font-medium text-gray-900 dark:text-white me-3">
                     Comprimento: {register.compr}
                   </div>
-                  <div className="flex items-center text-md font-medium text-gray-900 dark:text-white me-3">
+                  <div className=" flex items-center text-md font-medium text-gray-900 dark:text-white me-3">
                     Emenda: {register.emenda ? "Sim" : "Não"}
                   </div>
-                  <div>
-                    <span className="flex items-center text-md font-medium text-gray-900 dark:text-white me-3">
-                      <span
-                        className={`${
-                          register.aprovado ? "bg-teal-500" : "bg-red-500 "
-                        } flex w-2.5 h-2.5  rounded-full me-1.5 flex-shrink-0`}
-                      ></span>
-                      Aprovado: {register.aprovado ? "Sim" : "Não"}
+                  <div className=" flex items-center text-md font-medium text-gray-900 dark:text-white me-3">
+                    Total Metros: {register.totMetros} M²
+                  </div>
+                  <div className="flex items-center text-md font-medium text-gray-900 dark:text-white me-3">
+                    Valor: R$ {register.orcamento.toFixed(2)}
+                  </div>
+
+                  <div className="flex items-center justify-between space-y-4">
+                    <span className="text-md font-medium text-gray-900 dark:text-white me-3">
+                      RECEBIDO/CONFERIDO
                     </span>
+                    <Switch
+                      checked={register.recebidoConferido}
+                      onCheckedChange={() => {
+                        if (register.recebidoConferido) return;
+                        handleOpenModal(
+                          register._id,
+                          register.lote,
+                          "recebidoConferido"
+                        );
+                        // handleStatusChange(register._id, "recebidoConferido");
+                      }}
+                    />
+                  </div>
+                  <div className="flex items-center justify-between space-y-4">
+                    <span className="text-md font-medium text-gray-900 dark:text-white me-3">
+                      LOTE PRONTO
+                    </span>
+                    <Switch
+                      checked={register.lotePronto}
+                      onCheckedChange={() => {
+                        if (register.lotePronto) return;
+                        handleOpenModal(
+                          register._id,
+                          register.lote,
+                          "lotePronto"
+                        );
+                        // handleStatusChange(register._id, "lotePronto");
+                      }}
+                    />
                   </div>
 
                   <div>
@@ -169,34 +205,32 @@ const ListFaccionista = () => {
                       Recebido: {register.recebido ? "Sim" : "Não"}
                     </span>
                   </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-md font-medium text-gray-900 dark:text-white me-3">
-                      RECEBIDO/CONFERIDO
+
+                  <div>
+                    <span className="flex items-center text-md font-medium text-gray-900 dark:text-white me-3">
+                      <span
+                        className={`${
+                          register.emAnalise
+                            ? "bg-blue-500" // Cor azul para "em análise"
+                            : register.aprovado
+                            ? "bg-teal-500" // Cor verde para "aprovado"
+                            : "bg-red-500" // Cor vermelha para "não aprovado"
+                        } flex w-2.5 h-2.5 rounded-full me-1.5 flex-shrink-0`}
+                      ></span>
+                      {register.emAnalise
+                        ? "Em análise"
+                        : register.aprovado
+                        ? "Aprovado"
+                        : "Aprovado: Não"}
                     </span>
-                    <Switch
-                      checked={register.recebidoConferido}
-                      onCheckedChange={() => {
-                        if (register.recebidoConferido) return;
-                        handleOpenModal(register._id, "recebidoConferido");
-                        // handleStatusChange(register._id, "recebidoConferido");
-                      }}
-                    />
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-md font-medium text-gray-900 dark:text-white me-3">
-                      LOTE PRONTO
-                    </span>
-                    <Switch
-                      checked={register.lotePronto}
-                      onCheckedChange={() => {
-                        if (register.lotePronto) return;
-                        handleOpenModal(register._id, "lotePronto");
-                        // handleStatusChange(register._id, "lotePronto");
-                      }}
-                    />
                   </div>
                 </CardContent>
-                <CardFooter></CardFooter>
+                {register.dataPgto && (
+                  <CardFooter>
+                    Lote pago em{" "}
+                    {format(register.data, "PP HH:mm", { locale: ptBR })}
+                  </CardFooter>
+                )}
               </Card>
             ))}
           </div>
@@ -206,8 +240,15 @@ const ListFaccionista = () => {
       <Dialog open={confirmationModal.open} onOpenChange={handleCancel}>
         <DialogContent>
           <DialogTitle>Confirmar alteração</DialogTitle>
-          <DialogDescription className="mb-5">
-            Tem certeza de que deseja alterar este status?
+          <DialogDescription className="mb-5 text-md">
+            Tem certeza de que deseja alterar
+            <b className="uppercase text-black block">
+              Lote {confirmationModal.lote} para
+              {confirmationModal.field == "recebidoConferido"
+                ? " Recebido e conferido "
+                : " Pronto para coleta"}
+              ?
+            </b>
             <b className="text-red-600 block">
               Após a confirmação esta ação não poderá ser desfeita.
             </b>

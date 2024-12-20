@@ -202,7 +202,13 @@ const Job = () => {
 
   const handleStatusChange = async (
     ids: string[],
-    field: "pago" | "lotePronto" | "aprovado" | "recebido" | "emenda"
+    field:
+      | "pago"
+      | "lotePronto"
+      | "aprovado"
+      | "recebido"
+      | "emenda"
+      | "emAnalise"
   ) => {
     instance.put(`jobs`, { ids, field });
   };
@@ -503,7 +509,7 @@ const Job = () => {
                       </a>
                     </div>
                     <div className="flex items-center text-sm font-medium text-gray-900 dark:text-white me-3">
-                      Total Metros: {register.totalMetros}
+                      Total Metros: {register.totMetros}
                     </div>
                     <div className="flex items-center text-sm font-medium text-gray-900 dark:text-white me-3">
                       Orçamento: R${register.orcamento.toFixed(2)}
@@ -561,6 +567,28 @@ const Job = () => {
                         </a>
                       )}
                     </div>
+
+                    <div className="flex">
+                      <span className="flex items-center text-sm font-medium text-gray-900 dark:text-white me-3">
+                        <span
+                          className={`${
+                            register.emAnalise ? "bg-blue-500" : "bg-teal-500 "
+                          } flex w-2.5 h-2.5  rounded-full me-1.5 flex-shrink-0`}
+                        ></span>
+                        Em análise: {register.emAnalise ? "Sim" : "Não"}
+                      </span>
+                      {/* {!register.emAnalise && ( */}
+                      <a
+                        className="cursor-pointer"
+                        onClick={() =>
+                          handleStatusChange([register._id], "emAnalise")
+                        }
+                      >
+                        <SquareCheck className="w-5 h-5" />
+                      </a>
+                      {/* )} */}
+                    </div>
+
                     <div className="flex">
                       <span className="flex items-center text-sm font-medium text-gray-900 dark:text-white me-3">
                         <span
@@ -570,16 +598,16 @@ const Job = () => {
                         ></span>
                         Aprovado: {register.aprovado ? "Sim" : "Não"}
                       </span>
-                      {!register.aprovado && (
-                        <a
-                          className="cursor-pointer"
-                          onClick={() =>
-                            handleStatusChange([register._id], "aprovado")
-                          }
-                        >
-                          <SquareCheck className="w-5 h-5" />
-                        </a>
-                      )}
+                      {/* {!register.aprovado && ( */}
+                      <a
+                        className="cursor-pointer"
+                        onClick={() =>
+                          handleStatusChange([register._id], "aprovado")
+                        }
+                      >
+                        <SquareCheck className="w-5 h-5" />
+                      </a>
+                      {/* )} */}
                     </div>
 
                     {/* <Button
