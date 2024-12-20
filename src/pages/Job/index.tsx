@@ -40,7 +40,6 @@ const Job = () => {
   const { openModal } = useModal();
 
   const [registers, setRegisters] = useState<any[]>([]);
-  const [selectedJobs, setSelectedJob] = useState<any[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [faccionist, setFaccionist] = useState<any>(null);
   const [load, setLoad] = useState(true);
@@ -455,9 +454,6 @@ const Job = () => {
                 transition={{ duration: 0.3 }}
               >
                 <Card
-                  onClick={() => {
-                    setSelectedJob(register._id);
-                  }}
                   key={register._id}
                   className="w-full bg-white border border-gray-200 rounded-lg shadow hover:bg-gray-100 dark:bg-gray-800 dark:border-gray-700 dark:hover:bg-gray-700"
                 >
