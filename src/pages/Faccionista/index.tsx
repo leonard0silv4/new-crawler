@@ -26,6 +26,8 @@ import { Button } from "@/components/ui/button";
 const ListFaccionista = () => {
   const [registers, setRegisters] = useState<any[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
+  const [showNotConf, setShowNotConf] = useState(false);
+  const [showNotReady, setShowNotReady] = useState(false);
   const [confirmationModal, setConfirmationModal] = useState<{
     open: boolean;
     _id: string | null;
@@ -77,9 +79,23 @@ const ListFaccionista = () => {
     setConfirmationModal({ open: false, _id: null, field: null });
   };
 
-  const filteredRegisters = registers.filter((register) =>
-    register.lote.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const applyFilters = (registers: any) => {
+    return registers?.filter((register: any) => {
+      const matchesSearchTerm = Object.values(register).some((value) =>
+        value?.toString().toLowerCase().includes(searchTerm.toLowerCase())
+      );
+
+      const matchesRecebidoConferido = showNotConf
+        ? !register.recebidoConferido
+        : true;
+
+      const matchesLotePronto = showNotReady ? !register.lotePronto : true;
+
+      return matchesSearchTerm && matchesRecebidoConferido && matchesLotePronto;
+    });
+  };
+
+  const filteredRegisters = applyFilters(registers);
 
   return (
     <>
@@ -95,8 +111,25 @@ const ListFaccionista = () => {
             />
             <Search className="absolute left-3 top-2.5 h-5 w-5 text-gray-400" />
           </div>
+
+          <div className="flex gap-2 align-middle justify-center">
+            <Button
+              onClick={() => setShowNotConf(!showNotConf)}
+              variant={`${showNotConf ? "default" : "outline"}`}
+            >
+              Mostrar lotes não conferidos
+            </Button>
+
+            <Button
+              onClick={() => setShowNotReady(!showNotReady)}
+              variant={`${showNotReady ? "default" : "outline"}`}
+            >
+              Mostrar lotes não prontos
+            </Button>
+          </div>
+
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {filteredRegisters.map((register) => (
+            {filteredRegisters.map((register: any) => (
               <Card key={register.id} className="w-full">
                 <CardHeader>
                   <CardTitle>LOTE: {register.lote}</CardTitle>

@@ -185,7 +185,7 @@ const Job = () => {
     jobIds: string[]
   ) => {
     openModal(
-      <Suspense fallback={<>Loading...</>}>
+      <Suspense fallback={<>Carregando...</>}>
         <Pix
           pixKey={key}
           price={price}
