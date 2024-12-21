@@ -10,9 +10,9 @@ import {
 } from "@/components/ui/card";
 import {
   ArchiveRestore,
+  ArrowLeft,
   CalendarIcon,
   Circle,
-  CircleArrowLeft,
   CircleCheck,
   CircleCheckBig,
   FileOutput,
@@ -22,8 +22,7 @@ import {
   Search,
   SquareCheck,
 } from "lucide-react";
-import { useParams } from "react-router-dom";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useParams, NavLink } from "react-router-dom";
 import { AnimatePresence, motion } from "motion/react";
 
 import instance from "@/config/axios";
@@ -55,8 +54,8 @@ import { toast } from "sonner";
 
 const Job = () => {
   let { user } = useParams();
-  const navigate = useNavigate();
   const { openModal } = useModal();
+  const location = useLocation();
 
   const [registers, setRegisters] = useState<any[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
@@ -91,7 +90,9 @@ const Job = () => {
       .finally(() => {
         setLoad(false);
       });
+  }, [location]);
 
+  useEffect(() => {
     const eventSource = new EventSource(
       `${import.meta.env.VITE_APP_BASE_URL}events`
     );
@@ -295,12 +296,12 @@ const Job = () => {
   if (load) return <Loader className="w-10 h-10 animate-spin m-auto my-10" />;
 
   return (
-    <div className="flex min-h-full flex-1 flex-col justify-center px-6 py-12 lg:px-8">
+    <div className="flex min-h-full flex-1 flex-col justify-center px-6 py-12 lg:px-8 pb-24">
       <div className="space-y-4">
         <div className="flex justify-between items-center">
-          <a onClick={() => navigate("/users")} href="">
-            <CircleArrowLeft />
-          </a>
+          <NavLink className="hover:text-gray-600" to="/users">
+            <ArrowLeft />
+          </NavLink>
 
           <div className="relative w-64">
             <Input

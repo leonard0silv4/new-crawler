@@ -17,6 +17,7 @@ import Header from "./components/Header";
 import MinimalHeader from "./components/Header/MinimalHeader";
 import Job from "./pages/Job";
 import { ModalProvider } from "./context/ModalContext";
+import NavUser from "./pages/Job/navUser";
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(
@@ -44,7 +45,15 @@ function App() {
             <Route element={<Sales />} path="/orders" />
             <Route element={<Config />} path="/config" />
             <Route element={<Users />} path="/users" />
-            <Route path="/job/:user" element={<Job />} />
+            <Route
+              path="/job/:user"
+              element={
+                <>
+                  <Job />
+                  <NavUser />
+                </>
+              }
+            />
           </Route>
 
           {/* Acesso ao ListFaccionista é restrito a faccionistas */}
