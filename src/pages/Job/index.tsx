@@ -1,7 +1,13 @@
 import { useEffect, useMemo, useState, lazy, Suspense } from "react";
 import { useModal } from "../../context/ModalContext";
 import { Input } from "@/components/ui/input";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import {
   ArchiveRestore,
   CalendarIcon,
@@ -526,7 +532,7 @@ const Job = () => {
         </div>
 
         {/* Cards Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
+        <div className="grid items-stretch grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-5 lg:grid-cols-4 gap-4">
           <AnimatePresence>
             {displayedRegisters?.map((register: any) => (
               <motion.div
@@ -539,7 +545,7 @@ const Job = () => {
               >
                 <Card
                   key={register._id}
-                  className="w-full bg-white border border-gray-200 rounded-lg shadow hover:bg-gray-100 dark:bg-gray-800 dark:border-gray-700 dark:hover:bg-gray-700 relative"
+                  className="w-full bg-white border border-gray-200 rounded-lg shadow hover:bg-gray-100 dark:bg-gray-800 dark:border-gray-700 dark:hover:bg-gray-700 relative h-full flex flex-col"
                 >
                   <CardHeader>
                     <CardTitle>
@@ -683,14 +689,15 @@ const Job = () => {
                       <HandCoins className="w-4 h-4 mr-2" />
                       Reverter pagamento
                     </Button> */}
-
+                  </CardContent>
+                  <CardFooter className="flex justify-center items-center mt-auto">
                     <motion.div
                       key={register.pago ? "paid" : "unpaid"}
                       initial={{ opacity: 0, scale: 0.8 }}
                       animate={{ opacity: 1, scale: 1 }}
                       exit={{ opacity: 0, scale: 0.9 }}
                       transition={{ duration: 0.3 }}
-                      className="flex justify-center items-center mt-40 mb-0 min-h-20 flex-col gap-2"
+                      className="flex flex-col gap-2 items-center"
                     >
                       {register.pago ? (
                         <CircleCheck className="w-9 h-9 text-green-500" />
@@ -711,17 +718,15 @@ const Job = () => {
                         </Button>
                       )}
                       {register.dataPgto && register.pago ? (
-                        <div className="items-center text-sm font-medium text-gray-900 dark:text-white me-3 justify-center">
-                          Data Pagamento:
+                        <div className="text-sm font-medium text-gray-900 dark:text-white text-center">
+                          Data Pagamento:{" "}
                           {register.dataPgto
                             ? format(register.dataPgto, "dd/MM/yy")
                             : "-"}
                         </div>
-                      ) : (
-                        ""
-                      )}
+                      ) : null}
                     </motion.div>
-                  </CardContent>
+                  </CardFooter>
                 </Card>
               </motion.div>
             ))}
