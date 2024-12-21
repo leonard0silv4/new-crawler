@@ -158,14 +158,14 @@ const AddJob = ({ addJob }: any) => {
       <DialogTrigger asChild>
         <Button>
           <PlusCircle className="w-4 h-4 mr-2" />
-          Novo trabalho
+          Novo lote
         </Button>
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Adicionar Trabalho</DialogTitle>
+          <DialogTitle>Adicionar lote</DialogTitle>
           <DialogDescription>
-            Preencha os dados para adicionar um novo registro.
+            Preencha os dados para adicionar um novo lote.
           </DialogDescription>
         </DialogHeader>
 

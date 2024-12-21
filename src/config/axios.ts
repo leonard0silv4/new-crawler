@@ -38,13 +38,18 @@ instance.interceptors.request.use(
     }
 );
 
-instance.interceptors.response.use(function (response) {
-    return response.data;
-}, function (error) {
-
-    errorFn(error)
-
-    return Promise.reject(error);
-});
+instance.interceptors.response.use(
+    (response) => {
+        // Retorna o conteúdo completo caso a resposta seja um blob ou arraybuffer
+        if (response.config.responseType === 'blob' || response.config.responseType === 'arraybuffer') {
+            return response;
+        }
+        return response.data; // Retorna somente os dados para respostas JSON normais
+    },
+    (error) => {
+        errorFn(error);
+        return Promise.reject(error);
+    }
+);
 
 export default instance;

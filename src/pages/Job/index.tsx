@@ -3,11 +3,13 @@ import { useModal } from "../../context/ModalContext";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
+  ArchiveRestore,
   CalendarIcon,
   Circle,
   CircleArrowLeft,
   CircleCheck,
   CircleCheckBig,
+  FileOutput,
   HandCoins,
   Loader,
   RefreshCcw,
@@ -35,6 +37,15 @@ import {
 import { format, isWithinInterval, startOfDay, endOfDay } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { Checkbox } from "@/components/ui/checkbox";
+import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { toast } from "sonner";
 
 const Job = () => {
   let { user } = useParams();
@@ -53,6 +64,14 @@ const Job = () => {
   const [showAprovado, setShowAprovado] = useState(false);
   const [showRecebido, setShowRecebido] = useState(false);
   const [range, setRange] = useState<DateRange | undefined>(undefined);
+
+  const [selectedJob, setSelectedJob] = useState<string | null>(null);
+  const [isDialogJobOpen, setIsDialogJobOpen] = useState(false);
+
+  const openDialog = (id: string) => {
+    setSelectedJob(id);
+    setIsDialogJobOpen(true);
+  };
 
   useEffect(() => {
     setLoad(true);
@@ -200,6 +219,36 @@ const Job = () => {
     setRegisters((prev) => (prev.length ? [...prev, newJob] : [newJob]));
   };
 
+  const downloadPdf = async () => {
+    const ids = displayedRegisters.map((r: any) => r._id);
+    console.log(ids);
+
+    if (ids.length == 0) {
+      toast.error("Seleção para relatório vazia");
+      return;
+    }
+
+    try {
+      const response = await instance.post(
+        "report/pdf",
+        { ids, user: faccionist.username, pixKey: faccionist.pixKey },
+        {
+          responseType: "blob",
+        }
+      );
+
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement("a");
+      link.href = url;
+      link.setAttribute("download", "relatorio.pdf");
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    } catch (error) {
+      console.error("Erro ao baixar PDF:", error);
+    }
+  };
+
   const handleStatusChange = async (
     ids: string[],
     field:
@@ -209,8 +258,15 @@ const Job = () => {
       | "recebido"
       | "emenda"
       | "emAnalise"
+      | "isArchived"
   ) => {
-    instance.put(`jobs`, { ids, field });
+    instance.put(`jobs`, { ids, field }).then(() => {
+      if (field === "isArchived") {
+        setRegisters((prevRegisters) =>
+          prevRegisters.filter((register) => !ids.includes(register._id))
+        );
+      }
+    });
   };
 
   const iconVariants = {
@@ -301,7 +357,7 @@ const Job = () => {
                 </Button>
               )}
 
-              <div className="flex items-center text-md space-x-2 mt-4 font-normal text-gray-900 dark:text-white mb-3 absolute top-4 right-4">
+              <div className="flex items-center text-md space-x-2 mt-4 font-normal text-gray-900 dark:text-white mb-3 sm:absolute top-4 right-4">
                 <Checkbox
                   checked={paymentBySelection}
                   onCheckedChange={() =>
@@ -320,13 +376,9 @@ const Job = () => {
           </Card>
         </div>
 
-        <div className="flex gap-3">
+        <div className="flex flex-col justify-center flex-wrap md:justify-start md:flex-row">
           <div className="flex items-center text-sm font-medium text-gray-900 p-3">
-            <Button
-              variant="outline"
-              onClick={togglePaid}
-              className="ml-3 gap-3"
-            >
+            <Button variant="outline" onClick={togglePaid} className="">
               {" "}
               <motion.div
                 key={showUnPaid ? "show" : "hide"}
@@ -346,7 +398,7 @@ const Job = () => {
             <Button
               variant="outline"
               onClick={toggleRecebidoConferidoFilter}
-              className="ml-3 gap-3"
+              className=""
             >
               <motion.div
                 key={showRecebidoConferido ? "show" : "hide"}
@@ -366,7 +418,7 @@ const Job = () => {
             <Button
               variant="outline"
               onClick={toggleLoteProntoFilter}
-              className="ml-3 gap-3"
+              className=""
             >
               <motion.div
                 key={showLotePronto ? "show" : "hide"}
@@ -386,7 +438,7 @@ const Job = () => {
             <Button
               variant="outline"
               onClick={toggleRecebidoFilter}
-              className="ml-3 gap-3"
+              className=""
             >
               <motion.div
                 key={showRecebido ? "show" : "hide"}
@@ -405,7 +457,7 @@ const Job = () => {
             <Button
               variant="outline"
               onClick={toggleAprovadoFilter}
-              className="ml-3 gap-3"
+              className=""
             >
               <motion.div
                 key={showAprovado ? "show" : "hide"}
@@ -422,8 +474,6 @@ const Job = () => {
           </div>
 
           <div className="flex items-center text-sm font-medium text-gray-900 p-3">
-            {/*  */}
-
             <Popover>
               <PopoverTrigger asChild>
                 <Button
@@ -463,6 +513,11 @@ const Job = () => {
               </PopoverContent>
             </Popover>
           </div>
+          <div className="flex items-center text-sm font-medium text-gray-900 p-3">
+            <a className="cursor-pointer" onClick={downloadPdf}>
+              <FileOutput />
+            </a>
+          </div>
         </div>
 
         {/* Cards Grid */}
@@ -479,10 +534,15 @@ const Job = () => {
               >
                 <Card
                   key={register._id}
-                  className="w-full bg-white border border-gray-200 rounded-lg shadow hover:bg-gray-100 dark:bg-gray-800 dark:border-gray-700 dark:hover:bg-gray-700"
+                  className="w-full bg-white border border-gray-200 rounded-lg shadow hover:bg-gray-100 dark:bg-gray-800 dark:border-gray-700 dark:hover:bg-gray-700 relative"
                 >
                   <CardHeader>
-                    <CardTitle>LOTE: {register.lote}</CardTitle>
+                    <CardTitle>
+                      LOTE: {register.lote}
+                      <a onClick={() => openDialog(register._id)} href="#">
+                        <ArchiveRestore className="w-4 h-4 float-right text-blue-400" />
+                      </a>
+                    </CardTitle>
                   </CardHeader>
                   <CardContent className="space-y-2 text-sm">
                     <div className="flex items-center text-sm font-medium text-gray-900 dark:text-white me-3">
@@ -663,6 +723,30 @@ const Job = () => {
           </AnimatePresence>
         </div>
       </div>
+      <Dialog open={isDialogJobOpen} onOpenChange={setIsDialogJobOpen}>
+        <DialogContent>
+          <DialogTitle>Confirmar arquivamento de lote</DialogTitle>
+          <DialogDescription>
+            Tem certeza de que deseja arquivar este lote?
+            <b className="text-blue-600 block">
+              O lote será arquivado e não será mais exibido nas solicitações.
+            </b>
+          </DialogDescription>
+          <DialogFooter>
+            <DialogClose>
+              <Button variant="outline">Cancelar</Button>
+            </DialogClose>
+            <Button
+              onClick={() => {
+                handleStatusChange([selectedJob ?? ""], "isArchived");
+                setIsDialogJobOpen(false);
+              }}
+            >
+              Confirmar
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
