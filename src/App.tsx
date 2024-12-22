@@ -17,6 +17,7 @@ import Header from "./components/Header";
 import MinimalHeader from "./components/Header/MinimalHeader";
 import Job from "./pages/Job";
 import { ModalProvider } from "./context/ModalContext";
+import { NotifyProvider } from "./context/NotifyContext";
 import NavUser from "./pages/Job/navUser";
 
 function App() {
@@ -28,7 +29,7 @@ function App() {
     isAuthenticated && localStorage.getItem("role") == "owner";
 
   return (
-    <>
+    <NotifyProvider>
       <ModalProvider>
         <Toaster />
         {isAuthenticated && enableLinks && (
@@ -68,7 +69,7 @@ function App() {
           <Route element={<AccountCreate />} path="/account-create" />
         </Routes>
       </ModalProvider>
-    </>
+    </NotifyProvider>
   );
 }
 

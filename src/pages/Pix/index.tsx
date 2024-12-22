@@ -43,6 +43,10 @@ export default function Pix({
     return pixKey;
   };
 
+  const handleCopy = () => {
+    navigator.clipboard.writeText(fullPIX);
+  };
+
   return (
     <>
       <DialogHeader>
@@ -56,7 +60,7 @@ export default function Pix({
         </DialogDescription>
       </DialogHeader>
 
-      <div className="sm:justify-center flex">
+      <div className="justify-center flex">
         {!pixKey || !price ? (
           "Usuário sem chave Pix cadastrada ou sem valores a pagar"
         ) : (
@@ -79,12 +83,16 @@ export default function Pix({
         )}
       </div>
 
-      <div className=" flex flex-col justify-center">
+      <div className=" flex flex-col gap-3 justify-center">
+        <Button onClick={handleCopy} type="button">
+          Copiar código
+        </Button>
+
         <Button onClick={handleMarkAsPaid} type="button">
           Marcar como pago
         </Button>
 
-        <small className="mt-3 text-center text-red-700">
+        <small className="text-center text-red-700">
           Ação marcar como pago não poderá ser desfeita
         </small>
       </div>

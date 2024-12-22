@@ -173,7 +173,7 @@ const ListFaccionista = () => {
                           register.lote,
                           "recebidoConferido"
                         );
-                        // handleStatusChange(register._id, "recebidoConferido");
+                        //handleStatusChange(register._id, "recebidoConferido");
                       }}
                     />
                   </div>
@@ -190,7 +190,7 @@ const ListFaccionista = () => {
                           register.lote,
                           "lotePronto"
                         );
-                        // handleStatusChange(register._id, "lotePronto");
+                        //handleStatusChange(register._id, "lotePronto");
                       }}
                     />
                   </div>

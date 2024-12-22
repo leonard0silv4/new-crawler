@@ -28,6 +28,8 @@ import CalculateJobs from "./calculateJobs";
 const AddFaccionista = lazy(() => import("./add"));
 const EditFaccionista = lazy(() => import("./edit"));
 
+import { useSse } from "@/hooks/useSse";
+
 const Users = () => {
   const [registers, setRegisters] = useState<any[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
@@ -73,46 +75,43 @@ const Users = () => {
       })
       .catch((err) => console.log(err))
       .finally(() => setLoad(false));
+  }, []);
 
-    const eventSource = new EventSource(
-      `${import.meta.env.VITE_APP_BASE_URL}events`
-    );
-
-    eventSource.addEventListener("jobUpdated", (event) => {
-      const data = JSON.parse(event.data);
-      console.log(data);
+  useSse({
+    eventName: "jobUpdated",
+    onEvent: (updatedJob: any) => {
+      console.log("Job updated:", updatedJob.job);
 
       setRegisters((prevRegisters) =>
         prevRegisters.map((register) => {
           const jobIndex = register.jobs.findIndex(
-            (job: any) => job._id === data.job._id
+            (job: any) => job._id === updatedJob.job._id
           );
 
           if (jobIndex !== -1) {
             return {
               ...register,
               jobs: register.jobs.map((job: any, index: number) =>
-                index === jobIndex ? { ...job, ...data.job } : job
+                index === jobIndex ? { ...job, ...updatedJob.job } : job
               ),
             };
           }
 
-          if (!register.jobs.length && register._id == data.job.faccionistaId) {
+          if (
+            !register.jobs.length &&
+            register._id == updatedJob.job.faccionistaId
+          ) {
             return {
               ...register,
-              jobs: [data.job],
+              jobs: [updatedJob.job],
             };
           }
 
           return register;
         })
       );
-    });
-
-    return () => {
-      eventSource.close();
-    };
-  }, []);
+    },
+  });
 
   const addUserState = (novoItem: any) => {
     setRegisters((prevRegister) => [...prevRegister, novoItem]);
@@ -173,7 +172,7 @@ const Users = () => {
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-2">
-              <CalculateJobs jobs={register.jobs} />
+              <CalculateJobs key={register._id} jobs={register.jobs} />
             </CardContent>
             <CardFooter>
               <Button

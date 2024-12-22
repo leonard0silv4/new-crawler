@@ -31,43 +31,62 @@ const CalculateJobs = ({ jobs }: any) => {
 
   return (
     <AnimatePresence>
-      <p className="flex">
+      <p key="conferido-status" className="flex">
         <span className="flex items-center text-sm font-medium text-gray-900 dark:text-white me-3">
-          <motion.span
-            className={`flex w-2.5 h-2.5 rounded-full me-1.5 flex-shrink-0 ${
-              conferidoReady ? "bg-teal-500" : "bg-red-500"
-            }`}
+          <motion.div
             animate={{ scale: conferidoReady ? 1.2 : 1 }}
             transition={{ type: "spring", stiffness: 300 }}
-          ></motion.span>
+            className={`flex-none rounded-full ${
+              conferidoReady ? "bg-emerald-500/20" : "bg-red-500/20"
+            }  p-1 me-2`}
+          >
+            <div
+              className={`size-1.5 rounded-full ${
+                conferidoReady ? "bg-emerald-500" : "bg-red-500"
+              }`}
+            ></div>
+          </motion.div>
+
           {conferidoReady
             ? `Pedidos conferidos`
             : `Aguardando conferência (${qtdAwaitConferido})`}
         </span>
       </p>
-      <p className="flex">
+      <p key="lote-status" className="flex">
         <span className="flex items-center text-sm font-medium text-gray-900 dark:text-white me-3">
-          <motion.span
-            className={`flex w-2.5 h-2.5 rounded-full me-1.5 flex-shrink-0 ${
-              loteReady ? "bg-teal-500" : "bg-red-500"
-            }`}
+          <motion.div
             animate={{ scale: loteReady ? 1.2 : 1 }}
             transition={{ type: "spring", stiffness: 300 }}
-          ></motion.span>
+            className={`flex-none rounded-full ${
+              loteReady ? "bg-emerald-500/20" : "bg-red-500/20"
+            }  p-1 me-2`}
+          >
+            <div
+              className={`size-1.5 rounded-full ${
+                loteReady ? "bg-emerald-500" : "bg-red-500"
+              }`}
+            ></div>
+          </motion.div>
           {loteReady
             ? `Pedidos prontos`
             : `Pedidos em andamento (${qtdAwaitReady})`}
         </span>
       </p>
-      <p className="flex">
+      <p key="payment-status" className="flex">
         <span className="flex items-center text-sm font-medium text-gray-900 dark:text-white me-3">
-          <motion.span
-            className={`flex w-2.5 h-2.5 rounded-full me-1.5 flex-shrink-0 ${
-              hasUnpaidJobsWithConferido ? "bg-red-500" : "bg-teal-500"
-            }`}
-            animate={{ scale: hasUnpaidJobsWithConferido ? 1 : 1.2 }}
+          <motion.div
+            animate={{ scale: hasUnpaidJobsWithConferido ? 1.2 : 1 }}
             transition={{ type: "spring", stiffness: 300 }}
-          ></motion.span>
+            className={`flex-none rounded-full ${
+              hasUnpaidJobsWithConferido ? "bg-emerald-500/20" : "bg-red-500/20"
+            }  p-1 me-2`}
+          >
+            <div
+              className={`size-1.5 rounded-full ${
+                hasUnpaidJobsWithConferido ? "bg-emerald-500" : "bg-red-500"
+              }`}
+            ></div>
+          </motion.div>
           {hasUnpaidJobsWithConferido
             ? `Aguardando pagamento`
             : `Todos os pedidos pagos`}

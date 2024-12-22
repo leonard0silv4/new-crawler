@@ -31,6 +31,7 @@ const Pix = lazy(() => import("../Pix"));
 
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
+import { useSse } from "@/hooks/useSse";
 import { DateRange } from "react-day-picker";
 
 import {
@@ -51,11 +52,13 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { toast } from "sonner";
+import { useNotifyContext } from "@/context/NotifyContext";
 
 const Job = () => {
   let { user } = useParams();
   const { openModal } = useModal();
   const location = useLocation();
+  const { addOrUpdateNotify } = useNotifyContext();
 
   const [registers, setRegisters] = useState<any[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
@@ -92,14 +95,12 @@ const Job = () => {
       });
   }, [location]);
 
-  useEffect(() => {
-    const eventSource = new EventSource(
-      `${import.meta.env.VITE_APP_BASE_URL}events`
-    );
-
-    eventSource.addEventListener("jobUpdated", (event) => {
-      const updatedJob = JSON.parse(event.data);
+  useSse({
+    eventName: "jobUpdated",
+    onEvent: (updatedJob: any) => {
       console.log("Job updated:", updatedJob.job);
+
+      addOrUpdateNotify(updatedJob.job.faccionistaId);
 
       setRegisters((prevRegisters) => {
         const updatedIndex = prevRegisters.findIndex(
@@ -120,12 +121,8 @@ const Job = () => {
 
         return prevRegisters;
       });
-    });
-
-    return () => {
-      eventSource.close();
-    };
-  }, []);
+    },
+  });
 
   const toggleRecebidoConferidoFilter = () => {
     setShowRecebidoConferido((prev) => !prev);
