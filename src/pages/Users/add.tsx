@@ -12,7 +12,7 @@ import {
 
 import { Input } from "@/components/ui/input";
 import { PlusCircle } from "lucide-react";
-import instance from "@/config/axios";
+import instance, { errorFn } from "@/config/axios";
 import { useState } from "react";
 import { toast } from "sonner";
 
@@ -60,6 +60,9 @@ const AddFaccionista = ({ addUserState }: AddFaccionist) => {
         setAddress("");
         setPixKey("");
         document.getElementById("closeDialog")?.click();
+      })
+      .catch((err) => {
+        console.log(err);
       });
   };
 

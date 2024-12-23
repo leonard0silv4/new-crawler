@@ -18,6 +18,13 @@ export const errorFn = (error: any) => {
             window.location.href = '/login'
         }, 3000)
     }
+
+    if (error?.response?.status == 409) {
+        toast.error("Ocorreu um erro ", {
+            description: error?.response?.data?.error,
+            position: "top-right",
+        });
+    }
 }
 
 const instance = axios.create({
