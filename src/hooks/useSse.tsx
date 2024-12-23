@@ -25,5 +25,5 @@ export function useSse<T>({ eventName, onEvent }: UseSseOptions<T>) {
     return () => {
       eventSource.close();
     };
-  }, [eventName, onEvent]);
+  }, []);
 }

@@ -682,6 +682,13 @@ const Job = () => {
                       {/* )} */}
                     </div>
                   </CardContent>
+                  {/* <Button
+                    onClick={() => handleStatusChange([register._id], "pago")}
+                    className="bg-green-800 flex items-center"
+                  >
+                    <HandCoins className="w-4 h-4 mr-2" />
+                    revert pay
+                  </Button> */}
                   <CardFooter className="flex justify-center items-center mt-auto">
                     <motion.div
                       key={register.pago ? "paid" : "unpaid"}
