@@ -26,8 +26,7 @@ const NavUser = memo(({}: NavUserProps) => {
         }));
         setRegisters(updatedRegisters);
       })
-      .catch((err) => console.log(err))
-      .finally(() => console.log(false));
+      .catch((err) => console.log(err));
   }, []);
 
   return (
@@ -49,8 +48,7 @@ const NavUser = memo(({}: NavUserProps) => {
               {usr.username}
 
               {notify && notify.qty > 0 && (
-                <span className="absolute top-0.5 right-0.5 grid min-h-[12px] min-w-[12px] translate-x-2/4 -translate-y-2/4 place-items-center rounded-full bg-red-600 py-1 px-1 text-xs text-white"></span>
-
+                <span className="absolute top-0.5 right-0.5 grid min-h-[12px] min-w-[12px] translate-x-2/4 -translate-y-2/4 place-items-center rounded-full bg-blue-500 py-1 px-1 text-xs text-white"></span>
                 // <div className="absolute inline-flex items-center justify-center w-6 h-6 text-xs font-bold text-white bg-rose-500 border-2 border-white rounded-full -top-2 -end-2 dark:border-gray-900">
                 //   {notify.qty}
                 // </div>

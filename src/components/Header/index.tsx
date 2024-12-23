@@ -111,7 +111,7 @@ const Header = ({ handleAuthentication }: HeaderProps) => {
             {/* Sair */}
             <Tooltip>
               <TooltipTrigger>
-                <a href="#" className="text-zinc-200 " onClick={logout}>
+                <a className="text-zinc-200 cursor-pointer" onClick={logout}>
                   <LogOut className="h-6 w-6" />
                 </a>
               </TooltipTrigger>
@@ -188,8 +188,7 @@ const Header = ({ handleAuthentication }: HeaderProps) => {
                     Configurações
                   </NavLink>
                   <a
-                    href="#"
-                    className="-mx-3 block rounded-lg px-3 py-2.5 text-base font-semibold leading-7 text-gray-900 hover:bg-gray-50"
+                    className="-mx-3 block rounded-lg px-3 py-2.5 text-base font-semibold leading-7 text-gray-900 hover:bg-gray-50 cursor-pointer"
                     onClick={logout}
                   >
                     Sair

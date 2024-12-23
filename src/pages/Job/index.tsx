@@ -98,9 +98,8 @@ const Job = () => {
   useSse({
     eventName: "jobUpdated",
     onEvent: (updatedJob: any) => {
-      console.log("Job updated:", updatedJob.job);
-
-      addOrUpdateNotify(updatedJob.job.faccionistaId);
+      if (updatedJob.job.faccionistaId != user)
+        addOrUpdateNotify(updatedJob.job.faccionistaId);
 
       setRegisters((prevRegisters) => {
         const updatedIndex = prevRegisters.findIndex(
@@ -548,7 +547,10 @@ const Job = () => {
                   <CardHeader>
                     <CardTitle>
                       LOTE: {register.lote}
-                      <a onClick={() => openDialog(register._id)} href="#">
+                      <a
+                        className="cursor-pointer"
+                        onClick={() => openDialog(register._id)}
+                      >
                         <ArchiveRestore className="w-4 h-4 float-right text-blue-400" />
                       </a>
                     </CardTitle>
@@ -679,14 +681,6 @@ const Job = () => {
                       </a>
                       {/* )} */}
                     </div>
-
-                    {/* <Button
-                      onClick={() => handleStatusChange([register._id], "pago")}
-                      className="bg-red-500"
-                    >
-                      <HandCoins className="w-4 h-4 mr-2" />
-                      Reverter pagamento
-                    </Button> */}
                   </CardContent>
                   <CardFooter className="flex justify-center items-center mt-auto">
                     <motion.div

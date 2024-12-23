@@ -37,7 +37,7 @@ const chartConfig = {
   },
 } satisfies ChartConfig;
 
-export const ProductDrawer: React.FC<ProductDrawerProps> = ({
+const ProductDrawer: React.FC<ProductDrawerProps> = ({
   product,
   isOpen,
   onClose,
@@ -116,3 +116,5 @@ export const ProductDrawer: React.FC<ProductDrawerProps> = ({
     </Drawer>
   );
 };
+
+export default ProductDrawer;

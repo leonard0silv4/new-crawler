@@ -211,10 +211,10 @@ const ListFaccionista = () => {
                       <span
                         className={`${
                           register.emAnalise
-                            ? "bg-blue-500" // Cor azul para "em análise"
+                            ? "bg-blue-500"
                             : register.aprovado
-                            ? "bg-teal-500" // Cor verde para "aprovado"
-                            : "bg-red-500" // Cor vermelha para "não aprovado"
+                            ? "bg-teal-500"
+                            : "bg-red-500"
                         } flex w-2.5 h-2.5 rounded-full me-1.5 flex-shrink-0`}
                       ></span>
                       {register.emAnalise

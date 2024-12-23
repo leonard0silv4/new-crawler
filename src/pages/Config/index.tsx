@@ -13,8 +13,7 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select"; // import { useNavigate } from "react-router-dom";
-// import { toast } from "sonner";
+} from "@/components/ui/select";
 
 const Config = () => {
   const [emailNotify, setEmailNotify] = useState("");
@@ -22,7 +21,7 @@ const Config = () => {
   const [sendEmail, setSendEmail] = useState(false);
   const [load, setLoad] = useState(false);
 
-  const [hour, setHour] = useState<number>(3); // Default: 3 AM
+  const [hour, setHour] = useState<number>(3);
 
   useEffect(() => {
     instance

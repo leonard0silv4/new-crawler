@@ -139,6 +139,18 @@ const Users = () => {
 
   if (load) return <Loader className="w-10 h-10 animate-spin m-auto my-10" />;
 
+  if (!load && !filteredRegisters.length)
+    return (
+      <div className="my-10 flex center justify-center flex-col m-auto max-w-96 text-center">
+        <p className="my-6 text-md font-bold">
+          Ainda sem faccionistas cadastrados
+        </p>
+        <Suspense fallback={<>Carregando...</>}>
+          <AddFaccionista addUserState={addUserState} />
+        </Suspense>
+      </div>
+    );
+
   return (
     <div className="p-6 max-w-7xl mx-auto space-y-4">
       <div className="flex justify-between items-center">
@@ -157,13 +169,27 @@ const Users = () => {
         </Suspense>
       </div>
 
+      {!load && !filteredRegisters.length && (
+        <div className="my-10 flex center justify-center flex-col m-auto max-w-96 text-center">
+          <p className="my-6 text-md font-bold">
+            Ainda sem faccionistas cadastrados
+          </p>
+          <Suspense fallback={<>Carregando...</>}>
+            <AddFaccionista addUserState={addUserState} />
+          </Suspense>
+        </div>
+      )}
+
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mt-10">
         {filteredRegisters?.map((register: any) => (
           <Card key={register._id} className="w-full relative">
             <CardHeader>
               <CardTitle>
                 {register.username.toUpperCase()}{" "}
-                <a onClick={() => openDialog(register._id)} href="#">
+                <a
+                  className="cursor-pointer"
+                  onClick={() => openDialog(register._id)}
+                >
                   <Trash className="w-4 h-4 float-right text-red-500" />
                 </a>
               </CardTitle>

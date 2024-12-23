@@ -1,3 +1,5 @@
+import React, { lazy, useState, Suspense } from "react";
+
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -27,9 +29,9 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { Input } from "@/components/ui/input";
-import React, { useState } from "react";
 import full from "./full.png";
-import { ProductDrawer } from "./ProductDrawer";
+
+const ProductDrawer = lazy(() => import("./ProductDrawer"));
 
 interface TableRowProps {
   onDeleteItem?: (sku: string | number) => void;
@@ -172,11 +174,13 @@ const TableRowComponent = ({
           )}
           {product.name}
         </Link>
-        <ProductDrawer
-          isOpen={activeProduct === product._id}
-          onClose={handleCloseDrawer}
-          product={product}
-        />
+        <Suspense fallback={<>Carregando...</>}>
+          <ProductDrawer
+            isOpen={activeProduct === product._id}
+            onClose={handleCloseDrawer}
+            product={product}
+          />
+        </Suspense>
         <i>
           Vendido por: <b>{product.seller}</b>
         </i>

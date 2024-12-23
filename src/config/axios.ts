@@ -40,11 +40,10 @@ instance.interceptors.request.use(
 
 instance.interceptors.response.use(
     (response) => {
-        // Retorna o conteúdo completo caso a resposta seja um blob ou arraybuffer
         if (response.config.responseType === 'blob' || response.config.responseType === 'arraybuffer') {
             return response;
         }
-        return response.data; // Retorna somente os dados para respostas JSON normais
+        return response.data;
     },
     (error) => {
         errorFn(error);

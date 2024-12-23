@@ -60,8 +60,6 @@ import { FixedSizeList as List } from "react-window";
 import * as S from "./DashboardStyles";
 import { Checkbox } from "@/components/ui/checkbox";
 
-// import FiltredProducts from "../FiltredProducts";
-
 export interface Product {
   sku: string;
   link: string;
@@ -220,7 +218,7 @@ export default function Dashboard() {
       const progress = event.data;
       if (progress.indexOf("}") != -1) {
         const productAtt = JSON.parse(event.data);
-        console.log("atualiza produto", productAtt);
+
         updateAnExist(productAtt);
         if (productAtt.nowPrice != productAtt.lastPrice) {
           setSkusUpdated((skusUpdated: any) => [
@@ -255,7 +253,7 @@ export default function Dashboard() {
             nowPrice: newProduct.nowPrice,
             seller: newProduct.seller,
             lastPrice: newProduct.lastPrice,
-            ...(newProduct.myPrice != null && { myPrice: newProduct.myPrice }), // Só inclui myPrice se autoPrice não for null ou undefined
+            ...(newProduct.myPrice != null && { myPrice: newProduct.myPrice }),
             updatedAt: new Date(),
           };
         }
@@ -360,39 +358,37 @@ export default function Dashboard() {
       if (product._id === id && product.tags) {
         return {
           ...product,
-          tags: product.tags.filter((tagI) => tagI !== tag), // Remove a tag
+          tags: product.tags.filter((tagI) => tagI !== tag),
         };
       }
       return product;
     });
 
-    setProducts(refreshedProducts); // Atualiza o estado dos produtos
+    setProducts(refreshedProducts);
     getTags();
   };
 
   const updateTags = async (productUpdate: Product, newTag: string) => {
     const updatedTags = productUpdate.tags
-      ? [...productUpdate.tags, newTag] // Adiciona a nova tag ao array existente
-      : [newTag]; // Cria um novo array se não houver tags
+      ? [...productUpdate.tags, newTag]
+      : [newTag];
 
-    // Fazendo a requisição para atualizar o backend
     await instance.put("/links", {
       id: productUpdate._id,
-      tags: updatedTags, // Enviando o array atualizado
+      tags: updatedTags,
     });
 
-    // Atualizando os produtos localmente com as novas tags
     const refreshedProducts = products.map((product) => {
       if (product._id === productUpdate._id) {
         return {
           ...product,
-          tags: updatedTags, // Atualizando as tags do produto correspondente
+          tags: updatedTags,
         };
       }
       return product;
     });
 
-    setProducts(refreshedProducts); // Atualiza o estado dos produtos com o novo array
+    setProducts(refreshedProducts);
     getTags();
   };
 
@@ -463,28 +459,28 @@ export default function Dashboard() {
   };
 
   useEffect(() => {
-    // Sempre inicie com todos os produtos
     let filtred = [...products];
 
-    // Aplicar o filtro por texto (se ativo)
+    // filtro por texto
     if (filterName?.length > 2) {
       filtred = filtred.filter((product) =>
         product.name.toLowerCase().includes(filterName.toLowerCase())
       );
     }
 
-    // Aplicar o filtro por tag (se ativo)
+    //  filtro por tag
     if (selectedTag) {
       filtred = filtred.filter((product) =>
         product.tags?.includes(selectedTag)
       );
     }
 
-    // Aplicar o filtro por catálogo (se ativo)
+    //  filtro catalogo
     if (catalogFilter) {
       filtred = filtred.filter((prod) => prod.catalog);
     }
 
+    //  filtro por full
     if (fullFilter) {
       filtred = filtred.filter((prod) => prod.full);
     }
@@ -496,10 +492,10 @@ export default function Dashboard() {
       setAuto(false);
     }
 
-    // Atualizar os produtos filtrados
+    // atualizar os produtos filtrados
     setFiltredProducts(filtred);
 
-    // Adicionar dependências para reexecutar o filtro quando algo mudar
+    // add dependencias para reexecutar o filtro quando algo mudar
   }, [filterName, selectedTag, catalogFilter, fullFilter, products]);
 
   return (
@@ -672,16 +668,7 @@ export default function Dashboard() {
           <ClearVariations />
           <DeleteAll />
         </div>
-        {/* <FiltredProducts
-          products={products}
-          filterByText={filterName}
-          filterByTag={selectedTag}
-          updateTags={updateTags}
-          deleteTag={deleteTag}
-          load={load}
-          onDeleteItem={deleteItem}
-          onSetProducts={setProducts}
-        /> */}
+
         <div className="border rounded-lg p-2 ">
           {showFiltreds ? (
             <div className="flex m-4">
