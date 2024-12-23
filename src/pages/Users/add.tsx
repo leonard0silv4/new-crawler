@@ -12,7 +12,7 @@ import {
 
 import { Input } from "@/components/ui/input";
 import { PlusCircle } from "lucide-react";
-import instance, { errorFn } from "@/config/axios";
+import instance from "@/config/axios";
 import { useState } from "react";
 import { toast } from "sonner";
 
