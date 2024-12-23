@@ -95,33 +95,35 @@ const Job = () => {
       });
   }, [location]);
 
-  useSse({
-    eventName: "jobUpdated",
-    onEvent: (updatedJob: any) => {
-      if (updatedJob.job.faccionistaId != user)
-        addOrUpdateNotify(updatedJob.job.faccionistaId);
+  useEffect(() => {
+    useSse({
+      eventName: "jobUpdated",
+      onEvent: (updatedJob: any) => {
+        if (updatedJob.job.faccionistaId != user)
+          addOrUpdateNotify(updatedJob.job.faccionistaId);
 
-      setRegisters((prevRegisters) => {
-        const updatedIndex = prevRegisters.findIndex(
-          (register) => register._id === updatedJob.job._id
-        );
+        setRegisters((prevRegisters) => {
+          const updatedIndex = prevRegisters.findIndex(
+            (register) => register._id === updatedJob.job._id
+          );
 
-        if (updatedIndex !== -1) {
-          const isDifferent =
-            JSON.stringify(prevRegisters[updatedIndex]) !==
-            JSON.stringify(updatedJob.job);
+          if (updatedIndex !== -1) {
+            const isDifferent =
+              JSON.stringify(prevRegisters[updatedIndex]) !==
+              JSON.stringify(updatedJob.job);
 
-          if (isDifferent) {
-            const updatedRegisters = [...prevRegisters];
-            updatedRegisters[updatedIndex] = updatedJob.job;
-            return updatedRegisters;
+            if (isDifferent) {
+              const updatedRegisters = [...prevRegisters];
+              updatedRegisters[updatedIndex] = updatedJob.job;
+              return updatedRegisters;
+            }
           }
-        }
 
-        return prevRegisters;
-      });
-    },
-  });
+          return prevRegisters;
+        });
+      },
+    });
+  }, []);
 
   const toggleRecebidoConferidoFilter = () => {
     setShowRecebidoConferido((prev) => !prev);

@@ -77,41 +77,43 @@ const Users = () => {
       .finally(() => setLoad(false));
   }, []);
 
-  useSse({
-    eventName: "jobUpdated",
-    onEvent: (updatedJob: any) => {
-      console.log("Job updated:", updatedJob.job);
+  useEffect(() => {
+    useSse({
+      eventName: "jobUpdated",
+      onEvent: (updatedJob: any) => {
+        console.log("Job updated:", updatedJob.job);
 
-      setRegisters((prevRegisters) =>
-        prevRegisters.map((register) => {
-          const jobIndex = register.jobs.findIndex(
-            (job: any) => job._id === updatedJob.job._id
-          );
+        setRegisters((prevRegisters) =>
+          prevRegisters.map((register) => {
+            const jobIndex = register.jobs.findIndex(
+              (job: any) => job._id === updatedJob.job._id
+            );
 
-          if (jobIndex !== -1) {
-            return {
-              ...register,
-              jobs: register.jobs.map((job: any, index: number) =>
-                index === jobIndex ? { ...job, ...updatedJob.job } : job
-              ),
-            };
-          }
+            if (jobIndex !== -1) {
+              return {
+                ...register,
+                jobs: register.jobs.map((job: any, index: number) =>
+                  index === jobIndex ? { ...job, ...updatedJob.job } : job
+                ),
+              };
+            }
 
-          if (
-            !register.jobs.length &&
-            register._id == updatedJob.job.faccionistaId
-          ) {
-            return {
-              ...register,
-              jobs: [updatedJob.job],
-            };
-          }
+            if (
+              !register.jobs.length &&
+              register._id == updatedJob.job.faccionistaId
+            ) {
+              return {
+                ...register,
+                jobs: [updatedJob.job],
+              };
+            }
 
-          return register;
-        })
-      );
-    },
-  });
+            return register;
+          })
+        );
+      },
+    });
+  }, []);
 
   const addUserState = (novoItem: any) => {
     setRegisters((prevRegister) => [...prevRegister, novoItem]);
