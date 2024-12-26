@@ -271,10 +271,10 @@ const AddJob = ({ addJob, lastLote }: any) => {
               </label>
             </div>
 
-            <div>
+            <div className="inline-block  ">
               <label
                 htmlFor="totMetros"
-                className="block text-sm font-medium text-gray-700"
+                className="block text-sm font-medium text-gray-700 mt-3"
               >
                 Total Metros
               </label>
