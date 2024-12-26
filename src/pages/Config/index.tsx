@@ -20,6 +20,12 @@ const Config = () => {
   const [storeName, setStoreName] = useState("");
   const [sendEmail, setSendEmail] = useState(false);
   const [load, setLoad] = useState(false);
+  const [production, setProduction] = useState(
+    !!(window.localStorage !== undefined &&
+    localStorage.getItem("productionBrowser") == "yes"
+      ? true
+      : false)
+  );
 
   const [hour, setHour] = useState<number>(3);
 
@@ -35,6 +41,18 @@ const Config = () => {
       .catch((err) => console.log(err))
       .finally(() => {});
   }, []);
+
+  const setProductionLocal = () => {
+    if (localStorage.getItem("productionBrowser") == "no") {
+      localStorage.setItem("productionBrowser", "yes");
+      setProduction(true);
+    } else {
+      localStorage.setItem("productionBrowser", "no");
+      setProduction(false);
+    }
+
+    window.location.reload();
+  };
 
   const handleSubmit = (e: any) => {
     setLoad(true);
@@ -149,6 +167,24 @@ const Config = () => {
                 className="block text-sm font-medium leading-6 text-gray-900"
               >
                 Habilitar envio de email produtos atualizados
+              </label>
+            </div>
+          </div>
+
+          <div>
+            <div className="flex items-center ">
+              <div className="mr-2 mt-1">
+                <Checkbox
+                  checked={production}
+                  onCheckedChange={() => setProductionLocal()}
+                  id="auto"
+                />
+              </div>
+              <label
+                htmlFor="password"
+                className="block text-sm font-medium leading-6 text-gray-900"
+              >
+                Computador de linha produção
               </label>
             </div>
           </div>

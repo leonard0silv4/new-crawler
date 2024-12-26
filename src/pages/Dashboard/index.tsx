@@ -1,3 +1,4 @@
+import { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -49,10 +50,11 @@ import {
 } from "@/components/ui/tooltip";
 
 import { Progress } from "@/components/ui/progress";
-import { useEffect, useRef, useState } from "react";
 import instance, { errorFn } from "@/config/axios";
 
 import { toast } from "sonner";
+import { useNavigate } from "react-router-dom";
+
 import TableRowComponent from "./TableRow";
 import { EventSourcePolyfill } from "event-source-polyfill";
 import { FixedSizeList as List } from "react-window";
@@ -103,11 +105,20 @@ export default function Dashboard() {
 
   const [products, setProducts] = useState<Product[]>([]);
   const [filtredProducts, setFiltredProducts] = useState<Product[]>([]);
+  const [production] = useState(
+    !!(window.localStorage !== undefined &&
+    localStorage.getItem("productionBrowser") == "yes"
+      ? true
+      : false)
+  );
+
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (isMounted.current) return;
     isMounted.current = true;
     fetchData();
+    if (production) navigate("/users");
   }, []);
 
   const fetchData = async () => {

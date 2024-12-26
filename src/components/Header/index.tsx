@@ -15,7 +15,12 @@ interface HeaderProps {
 
 const Header = ({ handleAuthentication }: HeaderProps) => {
   const [menuOpen, setMenuOpen] = useState(false);
-
+  const [production] = useState(
+    !!(window.localStorage !== undefined &&
+    localStorage.getItem("productionBrowser") == "yes"
+      ? true
+      : false)
+  );
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -60,26 +65,30 @@ const Header = ({ handleAuthentication }: HeaderProps) => {
           </button>
         </div>
         <div className="hidden lg:flex lg:gap-x-12">
-          <NavLink
-            className={({ isActive }: any) =>
-              `${
-                isActive ? "underline " : ""
-              } text-sm font-semibold leading-6 text-zinc-200 cursor-pointer`
-            }
-            to="/"
-          >
-            Mercado livre
-          </NavLink>
-          <NavLink
-            className={({ isActive }: any) =>
-              `${
-                isActive ? "underline " : ""
-              } text-sm font-semibold leading-6 text-zinc-200 cursor-pointer`
-            }
-            to="/shopee"
-          >
-            Shopee
-          </NavLink>
+          {!production && (
+            <NavLink
+              className={({ isActive }: any) =>
+                `${
+                  isActive ? "underline " : ""
+                } text-sm font-semibold leading-6 text-zinc-200 cursor-pointer`
+              }
+              to="/"
+            >
+              Mercado livre
+            </NavLink>
+          )}
+          {!production && (
+            <NavLink
+              className={({ isActive }: any) =>
+                `${
+                  isActive ? "underline " : ""
+                } text-sm font-semibold leading-6 text-zinc-200 cursor-pointer`
+              }
+              to="/shopee"
+            >
+              Shopee
+            </NavLink>
+          )}
         </div>
         <div className="hidden lg:flex lg:flex-3 lg:justify-end items-center gap-6">
           <TooltipProvider>
@@ -96,16 +105,18 @@ const Header = ({ handleAuthentication }: HeaderProps) => {
             </Tooltip>
 
             {/* Configurações */}
-            <Tooltip>
-              <TooltipTrigger>
-                <NavLink className="text-zinc-200" to="/config">
-                  <Bolt className="h-6 w-6" />
-                </NavLink>
-              </TooltipTrigger>
-              <TooltipContent>
-                <p>Configurações</p>
-              </TooltipContent>
-            </Tooltip>
+            {!production && (
+              <Tooltip>
+                <TooltipTrigger>
+                  <NavLink className="text-zinc-200" to="/config">
+                    <Bolt className="h-6 w-6" />
+                  </NavLink>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>Configurações</p>
+                </TooltipContent>
+              </Tooltip>
+            )}
 
             {/* Sair */}
             <Tooltip>
