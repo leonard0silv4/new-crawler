@@ -68,13 +68,18 @@ const AddJob = ({ addJob }: any) => {
 
     const { qtd, larg, compr, emenda } = updatedFormData;
     if (qtd && larg && compr) {
-      const fator = 0.65;
-      const metrosBase = qtd * larg * compr * fator;
-      const totMetros = emenda ? metrosBase * 1.3 : metrosBase;
+      // Calcula total de metros com base na quantidade
+      let totMetros = (larg * 2 + compr * 2) * qtd;
 
-      const custoPorMetro = 234 / 390;
-      const orcamento = totMetros * custoPorMetro;
+      const custoPorMetro = 0.6;
+      let orcamento = totMetros * custoPorMetro;
 
+      // Adiciona custo da emenda, se aplicável
+      if (emenda) {
+        orcamento += compr * qtd * custoPorMetro;
+      }
+
+      // Atualiza os valores
       updatedFormData.totMetros = parseFloat(totMetros.toFixed(2));
       updatedFormData.orcamento = parseFloat(orcamento.toFixed(2));
     }
@@ -90,13 +95,18 @@ const AddJob = ({ addJob }: any) => {
 
     const { qtd, larg, compr, emenda } = updatedFormData;
     if (qtd && larg && compr) {
-      const fator = 0.65;
-      const metrosBase = qtd * larg * compr * fator;
-      const totMetros = emenda ? metrosBase * 1.3 : metrosBase;
+      // Calcula total de metros com base na quantidade
+      let totMetros = (larg * 2 + compr * 2) * qtd;
 
-      const custoPorMetro = 234 / 390;
-      const orcamento = totMetros * custoPorMetro;
+      const custoPorMetro = 0.6;
+      let orcamento = totMetros * custoPorMetro;
 
+      // Adiciona custo da emenda, se aplicável
+      if (emenda) {
+        orcamento += compr * qtd * custoPorMetro;
+      }
+
+      // Atualiza os valores
       updatedFormData.totMetros = parseFloat(totMetros.toFixed(2));
       updatedFormData.orcamento = parseFloat(orcamento.toFixed(2));
     }

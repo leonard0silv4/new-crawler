@@ -121,7 +121,7 @@ const AddFaccionista = ({ addUserState }: AddFaccionist) => {
             />
           </div>
 
-          <div className="grid grid-cols-4 items-center text-left">
+          <div className="grid grid-cols-1 items-center text-left">
             <Input
               onChange={(e) => setPixKey(e.target.value)}
               value={pixKey}
@@ -130,6 +130,10 @@ const AddFaccionista = ({ addUserState }: AddFaccionist) => {
               className="block w-full rounded-md pr-60 col-span-4"
               placeholder="Chave Pix"
             />
+            <p className="w-full mt-2 text-sm	text-gray-500">
+              Sem pontuação no caso de CPF/CNPJ ex: 12345678900 <br />
+              Email sem caixa alta por ex: abc@gmail.com
+            </p>
           </div>
 
           <div className="grid grid-cols-1 items-center text-left">
