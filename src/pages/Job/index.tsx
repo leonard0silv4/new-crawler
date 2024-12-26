@@ -583,7 +583,10 @@ const Job = () => {
                   </CardHeader>
                   <CardContent className="space-y-2 text-sm">
                     <div className="flex items-center text-sm font-medium text-gray-900 dark:text-white me-3">
-                      Data: {format(register.data, "dd/MM/yy")}
+                      Data:{" "}
+                      <span className="px-1 inline-block ml-1">
+                        {format(register.data, "dd/MM/yy")}
+                      </span>
                     </div>
 
                     <div className="flex items-center text-sm font-medium text-gray-900 dark:text-white me-3">
@@ -627,7 +630,10 @@ const Job = () => {
                       </span>
                     </div>
                     <div className="flex items-center text-sm font-medium text-gray-900 dark:text-white me-3">
-                      Emenda &nbsp; &nbsp;{register.emenda ? "Sim" : "Não"}
+                      Emenda{" "}
+                      <span className="px-1 inline-block ml-1">
+                        {register.emenda ? "Sim" : "Não"}
+                      </span>
                       <a
                         className="cursor-pointer ml-3"
                         onClick={() =>
@@ -638,10 +644,16 @@ const Job = () => {
                       </a>
                     </div>
                     <div className="flex items-center text-sm font-medium text-gray-900 dark:text-white me-3">
-                      Total Metros: {register.totMetros}
+                      Total Metros:{" "}
+                      <span className="px-1 inline-block ml-1">
+                        {register.totMetros}
+                      </span>
                     </div>
                     <div className="flex items-center text-sm font-medium text-gray-900 dark:text-white me-3">
-                      Orçamento: R${register.orcamento.toFixed(2)}
+                      Orçamento:{" "}
+                      <span className="px-1 inline-block ml-1">
+                        R${register.orcamento.toFixed(2)}
+                      </span>
                     </div>
                     <div>
                       <span className="flex items-center text-sm font-medium text-gray-900 dark:text-white me-3">
@@ -653,14 +665,16 @@ const Job = () => {
                           } flex w-2.5 h-2.5  rounded-full me-1.5 flex-shrink-0`}
                         ></span>
                         Recebido/Conferido:
-                        {register.recebidoConferido ? "" : "Não"}{" "}
-                        {register.dataRecebidoConferido &&
-                        register.recebidoConferido
-                          ? format(
-                              register.dataRecebidoConferido,
-                              "dd/MM/yyyy HH:mm"
-                            )
-                          : ""}
+                        <span className="px-1 inline-block ml-1">
+                          {register.recebidoConferido ? "" : "Não"}{" "}
+                          {register.dataRecebidoConferido &&
+                          register.recebidoConferido
+                            ? format(
+                                register.dataRecebidoConferido,
+                                "dd/MM/yyyy HH:mm"
+                              )
+                            : ""}
+                        </span>
                         {register.recebidoConferido && (
                           <a
                             className="cursor-pointer ml-2"
@@ -683,10 +697,16 @@ const Job = () => {
                             register.lotePronto ? "bg-teal-500" : "bg-red-500 "
                           } flex w-2.5 h-2.5  rounded-full me-1.5 flex-shrink-0`}
                         ></span>
-                        Lote Pronto:{register.lotePronto ? "" : "Não"}{" "}
-                        {register.dataLotePronto && register.lotePronto
-                          ? format(register.dataLotePronto, "dd/MM/yyyy HH:mm")
-                          : ""}
+                        Lote Pronto:{" "}
+                        <span className="px-1 inline-block ml-1">
+                          {register.lotePronto ? "" : "Não"}{" "}
+                          {register.dataLotePronto && register.lotePronto
+                            ? format(
+                                register.dataLotePronto,
+                                "dd/MM/yyyy HH:mm"
+                              )
+                            : ""}
+                        </span>
                         {register.lotePronto && (
                           <a
                             className="cursor-pointer ml-2"
@@ -706,7 +726,10 @@ const Job = () => {
                             register.recebido ? "bg-teal-500" : "bg-red-500 "
                           } flex w-2.5 h-2.5  rounded-full me-1.5 flex-shrink-0`}
                         ></span>
-                        Recebido: {register.recebido ? "Sim" : "Não"}
+                        Recebido:{" "}
+                        <span className="px-1 inline-block ml-1">
+                          {register.recebido ? "Sim" : "Não"}
+                        </span>
                       </span>
                       {!register.recebido && (
                         <a
@@ -727,7 +750,10 @@ const Job = () => {
                             register.emAnalise ? "bg-blue-500" : "bg-teal-500 "
                           } flex w-2.5 h-2.5  rounded-full me-1.5 flex-shrink-0`}
                         ></span>
-                        Em análise: {register.emAnalise ? "Sim" : "Não"}
+                        Em análise:{" "}
+                        <span className="px-1 inline-block ml-1">
+                          {register.emAnalise ? "Sim" : "Não"}
+                        </span>
                       </span>
                       {/* {!register.emAnalise && ( */}
                       <a
@@ -748,7 +774,10 @@ const Job = () => {
                             register.aprovado ? "bg-teal-500" : "bg-red-500 "
                           } flex w-2.5 h-2.5  rounded-full me-1.5 flex-shrink-0`}
                         ></span>
-                        Aprovado: {register.aprovado ? "Sim" : "Não"}
+                        Aprovado:{" "}
+                        <span className="px-1 inline-block ml-1">
+                          {register.aprovado ? "Sim" : "Não"}
+                        </span>
                       </span>
                       {/* {!register.aprovado && ( */}
                       <a
