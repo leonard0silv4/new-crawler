@@ -56,6 +56,13 @@ const AddJob = ({ addJob, lastLote }: any) => {
   };
 
   const [formData, setFormData] = useState(initial);
+  const [isOpen, setIsOpen] = useState(false);
+
+  const handleOpenChange = (open: boolean) => {
+    console.log(lastLote);
+    setFormData({ ...formData, lote: Number(lastLote) + 1 });
+    setIsOpen(open);
+  };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value, type } = e.target;
@@ -160,7 +167,7 @@ const AddJob = ({ addJob, lastLote }: any) => {
   };
 
   return (
-    <Dialog>
+    <Dialog open={isOpen} onOpenChange={handleOpenChange}>
       <DialogTrigger asChild>
         <Button>
           <PlusCircle className="w-4 h-4 mr-2" />
@@ -197,13 +204,10 @@ const AddJob = ({ addJob, lastLote }: any) => {
                 id="lote"
                 name="lote"
                 placeholder="Lote"
-                required
+                readOnly
+                disabled
                 value={formData.lote}
-                onChange={handleChange}
               />
-              <p className="w-full mt-2 text-sm	text-gray-500">
-                Último lote {lastLote}
-              </p>
             </div>
 
             <div>
