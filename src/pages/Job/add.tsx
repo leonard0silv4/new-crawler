@@ -77,6 +77,7 @@ const AddJob = ({ addJob }: any) => {
       // Adiciona custo da emenda, se aplicável
       if (emenda) {
         orcamento += compr * qtd * custoPorMetro;
+        totMetros = (larg * 2 + compr * 3) * qtd;
       }
 
       // Atualiza os valores
@@ -104,6 +105,7 @@ const AddJob = ({ addJob }: any) => {
       // Adiciona custo da emenda, se aplicável
       if (emenda) {
         orcamento += compr * qtd * custoPorMetro;
+        totMetros = (larg * 2 + compr * 3) * qtd;
       }
 
       // Atualiza os valores
