@@ -59,8 +59,8 @@ const AddJob = ({ addJob, lastLote }: any) => {
   const [isOpen, setIsOpen] = useState(false);
 
   const handleOpenChange = (open: boolean) => {
-    console.log(lastLote);
-    setFormData({ ...formData, lote: Number(lastLote) + 1 });
+    setFormData({ ...formData, lote: Number(lastLote ?? 0) + 1 });
+
     setIsOpen(open);
   };
 
