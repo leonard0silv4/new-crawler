@@ -77,6 +77,8 @@ const Job = () => {
   const [selectedJob, setSelectedJob] = useState<string | null>(null);
   const [isDialogJobOpen, setIsDialogJobOpen] = useState(false);
 
+  const [lastLote, setLastLote] = useState("");
+
   const openDialog = (id: string) => {
     setSelectedJob(id);
     setIsDialogJobOpen(true);
@@ -95,6 +97,12 @@ const Job = () => {
         setLoad(false);
       });
   }, [location]);
+
+  useEffect(() => {
+    instance.get(`/factionistJob/${user}`).then((response: any) => {
+      setLastLote(response);
+    });
+  }, [registers]);
 
   useSse({
     eventName: "jobUpdated",
@@ -258,6 +266,18 @@ const Job = () => {
     }
   };
 
+  const singleUpdate = async (
+    ev: any,
+    field: "qtd" | "larg" | "compr",
+    id: string
+  ) => {
+    console.log(ev.currentTarget.textContent);
+
+    instance
+      .put(`/jobs/sizes`, { id, field, value: ev.currentTarget.textContent })
+      .then(() => {});
+  };
+
   const handleStatusChange = async (
     ids: string[],
     field:
@@ -312,7 +332,7 @@ const Job = () => {
             <Search className="absolute left-3 top-2.5 h-5 w-5 text-gray-400" />
           </div>
           <Suspense fallback={<>Carregando...</>}>
-            <AddJob addJob={addJob} />
+            <AddJob lastLote={lastLote} addJob={addJob} />
           </Suspense>
         </div>
 
@@ -344,8 +364,12 @@ const Job = () => {
                 <Button
                   onClick={() => {
                     const relevantRegisters = paymentBySelection
-                      ? displayedRegisters.filter((item: any) => !item.pago)
-                      : registers.filter((item: any) => !item.pago);
+                      ? displayedRegisters.filter(
+                          (item: any) => !item.pago && item.recebido
+                        )
+                      : registers.filter(
+                          (item: any) => !item.pago && item.recebido
+                        );
 
                     handleOpenPixModal(
                       faccionist?.pixKey,
@@ -563,13 +587,44 @@ const Job = () => {
                     </div>
 
                     <div className="flex items-center text-sm font-medium text-gray-900 dark:text-white me-3">
-                      Quantidade: {register.qtd}
+                      Quantidade:{" "}
+                      <span
+                        className="px-1 inline-block ml-1"
+                        onBlur={(e) => {
+                          singleUpdate(e, "qtd", register._id);
+                        }}
+                        contentEditable
+                        suppressContentEditableWarning={true}
+                      >
+                        {register.qtd}
+                      </span>
                     </div>
                     <div className="flex items-center text-sm font-medium text-gray-900 dark:text-white me-3">
-                      Largura: {register.larg}
+                      Largura:{" "}
+                      <span
+                        className="px-1 inline-block ml-1"
+                        onBlur={(e) => {
+                          singleUpdate(e, "larg", register._id);
+                        }}
+                        contentEditable
+                        suppressContentEditableWarning={true}
+                      >
+                        {register.larg}
+                      </span>
                     </div>
                     <div className="flex items-center text-sm font-medium text-gray-900 dark:text-white me-3">
-                      Comprimento: {register.compr}
+                      Comprimento:{" "}
+                      <span
+                        className="px-1 inline-block ml-1"
+                        onBlur={(e) => {
+                          singleUpdate(e, "compr", register._id);
+                        }}
+                        contentEditable
+                        suppressContentEditableWarning={true}
+                      >
+                        {" "}
+                        {register.compr}{" "}
+                      </span>
                     </div>
                     <div className="flex items-center text-sm font-medium text-gray-900 dark:text-white me-3">
                       Emenda: {register.emenda ? "Sim" : "Não"}

@@ -16,7 +16,7 @@ import instance from "@/config/axios";
 import { useParams } from "react-router-dom";
 import { toast } from "sonner";
 
-const AddJob = ({ addJob }: any) => {
+const AddJob = ({ addJob, lastLote }: any) => {
   const { user } = useParams();
 
   const initial: Record<string, any> = {
@@ -68,19 +68,16 @@ const AddJob = ({ addJob }: any) => {
 
     const { qtd, larg, compr, emenda } = updatedFormData;
     if (qtd && larg && compr) {
-      // Calcula total de metros com base na quantidade
       let totMetros = (larg * 2 + compr * 2) * qtd;
 
       const custoPorMetro = 0.6;
       let orcamento = totMetros * custoPorMetro;
 
-      // Adiciona custo da emenda, se aplicável
       if (emenda) {
         orcamento += compr * qtd * custoPorMetro;
         totMetros = (larg * 2 + compr * 3) * qtd;
       }
 
-      // Atualiza os valores
       updatedFormData.totMetros = parseFloat(totMetros.toFixed(2));
       updatedFormData.orcamento = parseFloat(orcamento.toFixed(2));
     }
@@ -96,19 +93,16 @@ const AddJob = ({ addJob }: any) => {
 
     const { qtd, larg, compr, emenda } = updatedFormData;
     if (qtd && larg && compr) {
-      // Calcula total de metros com base na quantidade
       let totMetros = (larg * 2 + compr * 2) * qtd;
 
       const custoPorMetro = 0.6;
       let orcamento = totMetros * custoPorMetro;
 
-      // Adiciona custo da emenda, se aplicável
       if (emenda) {
         orcamento += compr * qtd * custoPorMetro;
         totMetros = (larg * 2 + compr * 3) * qtd;
       }
 
-      // Atualiza os valores
       updatedFormData.totMetros = parseFloat(totMetros.toFixed(2));
       updatedFormData.orcamento = parseFloat(orcamento.toFixed(2));
     }
@@ -180,7 +174,16 @@ const AddJob = ({ addJob }: any) => {
             Preencha os dados para adicionar um novo lote.
           </DialogDescription>
         </DialogHeader>
-
+        {formData.emenda && (
+          <div
+            className="p-4 mb-4 text-sm text-blue-800 rounded-lg bg-blue-50 dark:bg-gray-800 dark:text-blue-400"
+            role="alert"
+          >
+            <span className="font-medium">
+              Emenda selecionada comprimento multiplicado por 3
+            </span>
+          </div>
+        )}
         <form className="grid grid-cols-2 gap-4">
           <div className="space-y-4">
             <div>
@@ -198,6 +201,9 @@ const AddJob = ({ addJob }: any) => {
                 value={formData.lote}
                 onChange={handleChange}
               />
+              <p className="w-full mt-2 text-sm	text-gray-500">
+                Último lote {lastLote}
+              </p>
             </div>
 
             <div>

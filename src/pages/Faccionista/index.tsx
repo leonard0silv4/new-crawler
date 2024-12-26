@@ -1,6 +1,6 @@
 // import { Loader2 } from "lucide-react";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   Card,
   CardContent,
@@ -28,6 +28,7 @@ import { ptBR } from "date-fns/locale";
 const ListFaccionista = () => {
   const [registers, setRegisters] = useState<any[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
+  const [factionistUser, setFactionistUser] = useState<any[]>([]);
   const [showNotConf, setShowNotConf] = useState(false);
   const [showNotReady, setShowNotReady] = useState(false);
   const [confirmationModal, setConfirmationModal] = useState<{
@@ -45,6 +46,10 @@ const ListFaccionista = () => {
   useEffect(() => {
     instance.get(`job/`).then((response: any) => {
       setRegisters(response);
+    });
+
+    instance.get(`factionistUser/`).then((response: any) => {
+      setFactionistUser(response);
     });
   }, []);
 
@@ -102,6 +107,26 @@ const ListFaccionista = () => {
 
   const filteredRegisters = applyFilters(registers);
 
+  const sumNotPayd = (jobs: any) => {
+    return jobs
+      .filter((item: any) => !item.pago && item.recebido)
+      .reduce((sum: number, item: any) => sum + item.orcamento, 0);
+  };
+
+  const totalNotPaid = useMemo(() => {
+    return sumNotPayd(registers);
+  }, [registers]);
+
+  const sumPayd = (jobs: any) => {
+    return jobs
+      .filter((item: any) => item.pago)
+      .reduce((sum: number, item: any) => sum + item.orcamento, 0);
+  };
+
+  const totalPaid = useMemo(() => {
+    return sumPayd(registers);
+  }, [registers]);
+
   return (
     <>
       <div className="flex min-h-full flex-1 flex-col justify-center px-6 py-12 lg:px-8">
@@ -132,6 +157,25 @@ const ListFaccionista = () => {
               Mostrar lotes não prontos
             </Button>
           </div>
+
+          <Card className="relative block w-full p-6 bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700 ">
+            <CardHeader>
+              <CardTitle className="capitalize">
+                {factionistUser[0]?.username}
+              </CardTitle>
+            </CardHeader>
+
+            <CardContent>
+              <div className="flex items-center text-md font-normal text-gray-900 dark:text-white mb-3">
+                Valores pagos
+                <b className="ml-2 capitalize">R${totalPaid}</b>
+              </div>
+
+              <div className="flex items-center text-md font-normal text-gray-900 dark:text-white mb-3">
+                Valroes a receber: <b className="ml-2">R${totalNotPaid}</b>
+              </div>
+            </CardContent>
+          </Card>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
             {filteredRegisters.map((register: any) => (
