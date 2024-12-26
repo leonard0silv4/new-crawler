@@ -21,6 +21,7 @@ import {
   RefreshCcw,
   Search,
   SquareCheck,
+  Undo2,
 } from "lucide-react";
 import { useLocation, useParams, NavLink } from "react-router-dom";
 import { AnimatePresence, motion } from "motion/react";
@@ -261,6 +262,7 @@ const Job = () => {
     ids: string[],
     field:
       | "pago"
+      | "recebidoConferido"
       | "lotePronto"
       | "aprovado"
       | "recebido"
@@ -604,6 +606,19 @@ const Job = () => {
                               "dd/MM/yyyy HH:mm"
                             )
                           : ""}
+                        {register.recebidoConferido && (
+                          <a
+                            className="cursor-pointer ml-2"
+                            onClick={() =>
+                              handleStatusChange(
+                                [register._id],
+                                "recebidoConferido"
+                              )
+                            }
+                          >
+                            <Undo2 className="w-4 h-4" />
+                          </a>
+                        )}
                       </span>
                     </div>
                     <div>
@@ -617,6 +632,16 @@ const Job = () => {
                         {register.dataLotePronto && register.lotePronto
                           ? format(register.dataLotePronto, "dd/MM/yyyy HH:mm")
                           : ""}
+                        {register.lotePronto && (
+                          <a
+                            className="cursor-pointer ml-2"
+                            onClick={() =>
+                              handleStatusChange([register._id], "lotePronto")
+                            }
+                          >
+                            <Undo2 className="w-4 h-4" />
+                          </a>
+                        )}
                       </span>
                     </div>
                     <div className="flex">
