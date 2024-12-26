@@ -1,5 +1,4 @@
-// import { Bolt, LogOut, Users } from "lucide-react";
-import { Bolt, LogOut } from "lucide-react";
+import { Bolt, LogOut, Users } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { NavLink, useLocation } from "react-router-dom";
@@ -85,7 +84,7 @@ const Header = ({ handleAuthentication }: HeaderProps) => {
         <div className="hidden lg:flex lg:flex-3 lg:justify-end items-center gap-6">
           <TooltipProvider>
             {/* Faccionistas */}
-            {/* <Tooltip>
+            <Tooltip>
               <TooltipTrigger>
                 <NavLink className="text-zinc-200" to="/users">
                   <Users className="h-6 w-6" />
@@ -94,7 +93,7 @@ const Header = ({ handleAuthentication }: HeaderProps) => {
               <TooltipContent>
                 <p>Faccionistas</p>
               </TooltipContent>
-            </Tooltip> */}
+            </Tooltip>
 
             {/* Configurações */}
             <Tooltip>
@@ -174,12 +173,12 @@ const Header = ({ handleAuthentication }: HeaderProps) => {
                   </NavLink>
                 </div>
                 <div className="py-6">
-                  {/* <NavLink
+                  <NavLink
                     className="-mx-3 block rounded-lg px-3 py-2.5 text-base font-semibold leading-7 text-gray-900 hover:bg-gray-50"
                     to="/users"
                   >
                     Faccionistas
-                  </NavLink> */}
+                  </NavLink>
 
                   <NavLink
                     className="-mx-3 block rounded-lg px-3 py-2.5 text-base font-semibold leading-7 text-gray-900 hover:bg-gray-50"

@@ -43,7 +43,7 @@ const NavUser = memo(({}: NavUserProps) => {
                 removeNotify(usr._id);
               }}
               className="capitalize mt-3 relative"
-              variant={user == usr._id ? "default" : "ghost"}
+              variant={user == usr._id ? "default" : "outline"}
             >
               {usr.username}
 

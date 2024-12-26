@@ -15,7 +15,7 @@ import {
   Circle,
   CircleCheck,
   CircleCheckBig,
-  FileOutput,
+  FileSpreadsheet,
   HandCoins,
   Loader,
   RefreshCcw,
@@ -523,7 +523,7 @@ const Job = () => {
           </div>
           <div className="flex items-center text-sm font-medium text-gray-900 p-3">
             <a className="cursor-pointer" onClick={downloadPdf}>
-              <FileOutput />
+              <FileSpreadsheet />
             </a>
           </div>
         </div>
