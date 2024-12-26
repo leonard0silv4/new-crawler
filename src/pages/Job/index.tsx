@@ -627,7 +627,7 @@ const Job = () => {
                       </span>
                     </div>
                     <div className="flex items-center text-sm font-medium text-gray-900 dark:text-white me-3">
-                      Emenda: {register.emenda ? "Sim" : "Não"}
+                      Emenda &nbsp; &nbsp;{register.emenda ? "Sim" : "Não"}
                       <a
                         className="cursor-pointer ml-3"
                         onClick={() =>
