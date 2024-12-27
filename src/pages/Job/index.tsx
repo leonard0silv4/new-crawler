@@ -337,7 +337,7 @@ const Job = () => {
         </div>
 
         <div className="flex justify-between items-center">
-          <Card className="relative block w-full p-6 bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700 ">
+          <Card className="relative block w-full  bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700 ">
             <CardHeader>
               <CardTitle className="capitalize">
                 {faccionist?.username} {faccionist?.lastName}
@@ -630,7 +630,7 @@ const Job = () => {
                       </span>
                     </div>
                     <div className="flex items-center text-sm font-medium text-gray-900 dark:text-white me-3">
-                      Emenda{" "}
+                      Emenda:{" "}
                       <span className="px-1 inline-block ml-1">
                         {register.emenda ? "Sim" : "Não"}
                       </span>
@@ -677,7 +677,7 @@ const Job = () => {
                         </span>
                         {register.recebidoConferido && (
                           <a
-                            className="cursor-pointer ml-2"
+                            className="cursor-pointer "
                             onClick={() =>
                               handleStatusChange(
                                 [register._id],
@@ -709,7 +709,7 @@ const Job = () => {
                         </span>
                         {register.lotePronto && (
                           <a
-                            className="cursor-pointer ml-2"
+                            className="cursor-pointer"
                             onClick={() =>
                               handleStatusChange([register._id], "lotePronto")
                             }
@@ -810,20 +810,26 @@ const Job = () => {
                       {register.pago ? (
                         <CircleCheck className="w-9 h-9 text-green-500" />
                       ) : (
-                        <Button
-                          onClick={() =>
-                            handleOpenPixModal(
-                              faccionist?.pixKey,
-                              register.orcamento,
-                              `${faccionist?.username} ${faccionist?.lastName}`,
-                              [register._id]
-                            )
-                          }
-                          className="bg-green-800 flex items-center"
-                        >
-                          <HandCoins className="w-4 h-4 mr-2" />
-                          Pagar este lote
-                        </Button>
+                        <>
+                          {!register.pago && register.recebido ? (
+                            <Button
+                              onClick={() =>
+                                handleOpenPixModal(
+                                  faccionist?.pixKey,
+                                  register.orcamento,
+                                  `${faccionist?.username} ${faccionist?.lastName}`,
+                                  [register._id]
+                                )
+                              }
+                              className="bg-green-800 flex items-center"
+                            >
+                              <HandCoins className="w-4 h-4 mr-2" />
+                              Pagar este lote
+                            </Button>
+                          ) : (
+                            <></>
+                          )}
+                        </>
                       )}
                       {register.dataPgto && register.pago ? (
                         <div className="text-sm font-medium text-gray-900 dark:text-white text-center">
