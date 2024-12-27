@@ -186,6 +186,9 @@ const ListFaccionista = () => {
                 </CardHeader>
                 <CardContent className="space-y-2">
                   <div className=" flex items-center text-md font-medium text-gray-900 dark:text-white me-3">
+                    Data: {format(register.data, "P HH:mm", { locale: ptBR })}
+                  </div>
+                  <div className=" flex items-center text-md font-medium text-gray-900 dark:text-white me-3">
                     Quantidade: {register.qtd}
                   </div>
                   <div className=" flex items-center text-md font-medium text-gray-900 dark:text-white me-3">

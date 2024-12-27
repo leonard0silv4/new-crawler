@@ -10,6 +10,10 @@ const CalculateJobs = ({ jobs }: any) => {
     (job: any) => job.recebido === true && job.pago === false
   );
 
+  const ReadyNotRecived = jobs?.some(
+    (job: any) => job.lotePronto === true && job.recebido === false
+  );
+
   const qtdAwaitConferido = jobs?.filter(
     (job: any) => job.recebidoConferido === false
   ).length;
@@ -78,12 +82,12 @@ const CalculateJobs = ({ jobs }: any) => {
             animate={{ scale: hasUnpaidJobsWithConferido ? 1.2 : 1 }}
             transition={{ type: "spring", stiffness: 300 }}
             className={`flex-none rounded-full ${
-              hasUnpaidJobsWithConferido ? "bg-emerald-500/20" : "bg-red-500/20"
+              hasUnpaidJobsWithConferido ? "bg-red-500/20" : "bg-emerald-500/20"
             }  p-1 me-2`}
           >
             <div
               className={`size-1.5 rounded-full ${
-                hasUnpaidJobsWithConferido ? "bg-emerald-500" : "bg-red-500"
+                hasUnpaidJobsWithConferido ? "bg-red-500" : "bg-emerald-500"
               }`}
             ></div>
           </motion.div>
@@ -92,6 +96,19 @@ const CalculateJobs = ({ jobs }: any) => {
             : `Todos os pedidos pagos`}
         </span>
       </p>
+      {ReadyNotRecived && (
+        <p key="payment-status" className="flex">
+          <span className="flex items-center text-sm font-medium text-gray-900 dark:text-white me-3">
+            <motion.div
+              transition={{ type: "spring", stiffness: 300 }}
+              className={`flex-none rounded-full bg-purple-500/20 p-1 me-2`}
+            >
+              <div className={`size-1.5 rounded-full bg-purple-500`}></div>
+            </motion.div>
+            Lotes prontos não recebidos
+          </span>
+        </p>
+      )}
     </AnimatePresence>
   );
 };

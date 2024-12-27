@@ -71,7 +71,7 @@ const Job = () => {
   const [showRecebidoConferido, setShowRecebidoConferido] = useState(false);
   const [showLotePronto, setShowLotePronto] = useState(false);
   const [showAprovado, setShowAprovado] = useState(false);
-  const [showRecebido, setShowRecebido] = useState(false);
+  const [showNotRecebido, setShowRecebido] = useState(false);
   const [range, setRange] = useState<DateRange | undefined>(undefined);
 
   const [selectedJob, setSelectedJob] = useState<string | null>(null);
@@ -174,7 +174,7 @@ const Job = () => {
 
       const matchesAprovado = showAprovado ? register.aprovado : true;
 
-      const matchesRecebido = showRecebido ? register.recebido : true;
+      const matchesNotRecebido = showNotRecebido ? !register.recebido : true;
 
       const matchesDateRange =
         range && range.from && range.to
@@ -190,7 +190,7 @@ const Job = () => {
         matchesRecebidoConferido &&
         matchesLotePronto &&
         matchesAprovado &&
-        matchesRecebido &&
+        matchesNotRecebido &&
         matchesDateRange
       );
     });
@@ -475,16 +475,16 @@ const Job = () => {
               className=""
             >
               <motion.div
-                key={showRecebido ? "show" : "hide"}
+                key={showNotRecebido ? "show" : "hide"}
                 initial="hidden"
                 animate="visible"
                 exit="exit"
                 variants={iconVariants}
                 transition={{ duration: 0.2 }}
               >
-                {showRecebido ? <CircleCheckBig /> : <Circle />}
+                {showNotRecebido ? <CircleCheckBig /> : <Circle />}
               </motion.div>
-              Trabalhos recebidos
+              Trabalhos não recebidos
             </Button>
           </div>
           <div className="flex items-center text-sm font-medium text-gray-900 p-3">
