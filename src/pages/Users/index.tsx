@@ -182,7 +182,10 @@ const Users = () => {
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mt-10">
         {filteredRegisters?.map((register: any) => (
-          <Card key={register._id} className="w-full relative">
+          <Card
+            key={register._id}
+            className="w-full relative flex flex-col h-full"
+          >
             <CardHeader>
               <CardTitle>
                 {register.username.toUpperCase()}{" "}
@@ -194,13 +197,13 @@ const Users = () => {
                 </a>
               </CardTitle>
               <CardDescription data-id={register._id}>
-                {register?.lastName?.toUpperCase()}
+                <p className="min-h-5">{register?.lastName?.toUpperCase()}</p>
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-2">
               <CalculateJobs key={register._id} jobs={register.jobs} />
             </CardContent>
-            <CardFooter>
+            <CardFooter className="mt-auto">
               <Button
                 onClick={() => navigate(`/job/${register._id}`)}
                 variant="outline"

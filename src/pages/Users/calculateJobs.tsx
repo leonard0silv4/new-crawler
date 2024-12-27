@@ -105,7 +105,7 @@ const CalculateJobs = ({ jobs }: any) => {
             >
               <div className={`size-1.5 rounded-full bg-purple-500`}></div>
             </motion.div>
-            Lotes prontos não recebidos
+            Lotes prontos e não recebidos
           </span>
         </p>
       )}
