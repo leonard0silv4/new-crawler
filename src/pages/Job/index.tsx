@@ -585,7 +585,7 @@ const Job = () => {
                     <div className="flex items-center text-sm font-medium text-gray-900 dark:text-white me-3">
                       Data:{" "}
                       <span className="px-1 inline-block ml-1">
-                        {format(register.data, "dd/MM/yy")}
+                        {format(register.data, "dd/MM/yy HH:mm")}
                       </span>
                     </div>
 
