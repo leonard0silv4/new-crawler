@@ -731,16 +731,19 @@ const Job = () => {
                           {register.recebido ? "Sim" : "Não"}
                         </span>
                       </span>
-                      {!register.recebido && (
-                        <a
-                          className="cursor-pointer"
-                          onClick={() =>
-                            handleStatusChange([register._id], "recebido")
-                          }
-                        >
+
+                      <a
+                        className="cursor-pointer"
+                        onClick={() =>
+                          handleStatusChange([register._id], "recebido")
+                        }
+                      >
+                        {register.recebido ? (
+                          <Undo2 className="w-4 h-4" />
+                        ) : (
                           <SquareCheck className="w-5 h-5" />
-                        </a>
-                      )}
+                        )}
+                      </a>
                     </div>
 
                     <div className="flex">
@@ -762,7 +765,11 @@ const Job = () => {
                           handleStatusChange([register._id], "emAnalise")
                         }
                       >
-                        <SquareCheck className="w-5 h-5" />
+                        {register.emAnalise ? (
+                          <Undo2 className="w-4 h-4" />
+                        ) : (
+                          <SquareCheck className="w-5 h-5" />
+                        )}
                       </a>
                       {/* )} */}
                     </div>
@@ -786,7 +793,11 @@ const Job = () => {
                           handleStatusChange([register._id], "aprovado")
                         }
                       >
-                        <SquareCheck className="w-5 h-5" />
+                        {register.aprovado ? (
+                          <Undo2 className="w-4 h-4" />
+                        ) : (
+                          <SquareCheck className="w-5 h-5" />
+                        )}
                       </a>
                       {/* )} */}
                     </div>
