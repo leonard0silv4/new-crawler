@@ -263,7 +263,7 @@ const AddJob = ({ addJob, lastLote }: any) => {
           </div>
 
           <div className="space-y-4 mt-5">
-            <div className="flex items-center space-x-2 mt-2 mb-8">
+            <div className="flex items-center space-x-2 mt-2 mb-1">
               <label className="flex items-center space-x-2">
                 <Checkbox
                   checked={formData.emenda}
