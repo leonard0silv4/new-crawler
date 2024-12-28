@@ -12,9 +12,7 @@ import {
   ArchiveRestore,
   ArrowLeft,
   CalendarIcon,
-  Circle,
   CircleCheck,
-  CircleCheckBig,
   FileSpreadsheet,
   HandCoins,
   Loader,
@@ -24,7 +22,7 @@ import {
   Undo2,
 } from "lucide-react";
 import { useLocation, useParams, NavLink } from "react-router-dom";
-import { AnimatePresence, motion } from "motion/react";
+import { motion } from "motion/react";
 
 import instance from "@/config/axios";
 const AddJob = lazy(() => import("./add"));
@@ -54,6 +52,15 @@ import {
 } from "@/components/ui/dialog";
 import { toast } from "sonner";
 import { useNotifyContext } from "@/context/NotifyContext";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+
+const StarRating = lazy(() => import("./StarRating"));
 
 const Job = () => {
   let { user } = useParams();
@@ -67,11 +74,14 @@ const Job = () => {
   const [load, setLoad] = useState(true);
   const [paymentBySelection, setPaymentBySelection] = useState(false);
 
-  const [showUnPaid, setShowUnPaid] = useState(false);
-  const [showRecebidoConferido, setShowRecebidoConferido] = useState(false);
-  const [showLotePronto, setShowLotePronto] = useState(false);
-  const [showAprovado, setShowAprovado] = useState(false);
-  const [showNotRecebido, setShowRecebido] = useState(false);
+  const [filters, setFilters] = useState({
+    showUnPaid: undefined as boolean | undefined,
+    showRecebidoConferido: undefined as boolean | undefined,
+    showLotePronto: undefined as boolean | undefined,
+    showAprovado: undefined as boolean | undefined,
+    showNotRecebido: undefined as boolean | undefined,
+    range: undefined as DateRange | undefined,
+  });
   const [range, setRange] = useState<DateRange | undefined>(undefined);
 
   const [selectedJob, setSelectedJob] = useState<string | null>(null);
@@ -132,55 +142,56 @@ const Job = () => {
     },
   });
 
-  const toggleRecebidoConferidoFilter = () => {
-    setShowRecebidoConferido((prev) => !prev);
-  };
-
-  const toggleLoteProntoFilter = () => {
-    setShowLotePronto((prev) => !prev);
-  };
-
-  const toggleAprovadoFilter = () => {
-    setShowAprovado((prev) => !prev);
-  };
-
-  const toggleRecebidoFilter = () => {
-    setShowRecebido((prev) => !prev);
-  };
-
-  const togglePaid = () => {
-    setShowUnPaid((prev) => !prev);
-  };
-
   const filteredRegisters = registers?.filter((register) =>
     Object.values(register).some((value) =>
       value?.toString().toLowerCase().includes(searchTerm.toLowerCase())
     )
   );
 
-  const applyFilters = (registers: any) => {
-    return registers?.filter((register: any) => {
+  const updateFilter = (filterName: keyof typeof filters, value: string) => {
+    setFilters((prev) => ({
+      ...prev,
+      [filterName]:
+        value === "undefined" ? undefined : value === "true" ? true : false,
+    }));
+  };
+
+  const applyFilters = (registers: any[]) => {
+    return registers.filter((register) => {
       const matchesSearchTerm = Object.values(register).some((value) =>
         value?.toString().toLowerCase().includes(searchTerm.toLowerCase())
       );
 
-      const matchesUnPaid = showUnPaid ? !register.pago : true;
+      const matchesUnPaid =
+        filters.showUnPaid !== undefined
+          ? register.pago === filters.showUnPaid
+          : true;
 
-      const matchesRecebidoConferido = showRecebidoConferido
-        ? register.recebidoConferido
-        : true;
+      const matchesRecebidoConferido =
+        filters.showRecebidoConferido !== undefined
+          ? register.recebidoConferido === filters.showRecebidoConferido
+          : true;
 
-      const matchesLotePronto = showLotePronto ? register.lotePronto : true;
+      const matchesLotePronto =
+        filters.showLotePronto !== undefined
+          ? register.lotePronto === filters.showLotePronto
+          : true;
 
-      const matchesAprovado = showAprovado ? register.aprovado : true;
+      const matchesAprovado =
+        filters.showAprovado !== undefined
+          ? register.aprovado === filters.showAprovado
+          : true;
 
-      const matchesNotRecebido = showNotRecebido ? !register.recebido : true;
+      const matchesNotRecebido =
+        filters.showNotRecebido !== undefined
+          ? register.recebido === filters.showNotRecebido
+          : true;
 
       const matchesDateRange =
-        range && range.from && range.to
+        filters.range && filters.range.from && filters.range.to
           ? isWithinInterval(new Date(register.data), {
-              start: startOfDay(range.from),
-              end: endOfDay(range.to),
+              start: startOfDay(filters.range.from),
+              end: endOfDay(filters.range.to),
             })
           : true;
 
@@ -288,7 +299,8 @@ const Job = () => {
       | "recebido"
       | "emenda"
       | "emAnalise"
-      | "isArchived"
+      | "isArchived",
+    acValue?: boolean
   ) => {
     instance.put(`jobs`, { ids, field }).then(() => {
       if (field === "isArchived") {
@@ -296,13 +308,15 @@ const Job = () => {
           prevRegisters.filter((register) => !ids.includes(register._id))
         );
       }
-    });
-  };
 
-  const iconVariants = {
-    hidden: { opacity: 0, scale: 0.8 },
-    visible: { opacity: 1, scale: 1 },
-    exit: { opacity: 0, scale: 0.8 },
+      if (field === "aprovado" && !acValue) {
+        openModal(
+          <Suspense fallback={<>Carregando...</>}>
+            <StarRating id={ids} />
+          </Suspense>
+        );
+      }
+    });
   };
 
   const itemVariants = {
@@ -411,103 +425,155 @@ const Job = () => {
         </div>
 
         <div className="flex flex-col justify-center flex-wrap md:justify-start md:flex-row">
-          <div className="flex items-center text-sm font-medium text-gray-900 p-3">
-            <Button variant="outline" onClick={togglePaid} className="">
-              {" "}
-              <motion.div
-                key={showUnPaid ? "show" : "hide"}
-                initial="hidden"
-                animate="visible"
-                exit="exit"
-                variants={iconVariants}
-                transition={{ duration: 0.2 }}
-              >
-                {showUnPaid ? <CircleCheckBig /> : <Circle />}
-              </motion.div>
-              Mostrar trabalhos não pagos
-            </Button>
+          <div className="flex gap-3 flex-col text-sm font-medium text-gray-900 p-3">
+            <label
+              htmlFor="filtroAprovado"
+              className="text-sm font-medium text-gray-700"
+            >
+              Trabalhos pagos
+            </label>
+            <Select
+              onValueChange={(value) => updateFilter("showUnPaid", value)}
+              value={
+                filters.showUnPaid === undefined
+                  ? "undefined"
+                  : filters.showUnPaid === true
+                  ? "true"
+                  : "false"
+              }
+            >
+              <SelectTrigger className="w-56">
+                <SelectValue placeholder="Selecione" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="undefined">Selecione</SelectItem>
+                <SelectItem value="true">Sim</SelectItem>
+                <SelectItem value="false">Não</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
 
-          <div className="flex items-center text-sm font-medium text-gray-900 p-3">
-            <Button
-              variant="outline"
-              onClick={toggleRecebidoConferidoFilter}
-              className=""
+          <div className="flex gap-3 flex-col text-sm font-medium text-gray-900 p-3">
+            <label
+              htmlFor="filtroAprovado"
+              className="text-sm font-medium text-gray-700"
             >
-              <motion.div
-                key={showRecebidoConferido ? "show" : "hide"}
-                initial="hidden"
-                animate="visible"
-                exit="exit"
-                variants={iconVariants}
-                transition={{ duration: 0.2 }}
-              >
-                {showRecebidoConferido ? <CircleCheckBig /> : <Circle />}
-              </motion.div>
               Recebidos/conferidos
-            </Button>
+            </label>
+
+            <Select
+              onValueChange={(value) =>
+                updateFilter("showRecebidoConferido", value)
+              }
+              value={
+                filters.showRecebidoConferido === undefined
+                  ? "undefined"
+                  : filters.showRecebidoConferido === true
+                  ? "true"
+                  : "false"
+              }
+            >
+              <SelectTrigger className="w-56">
+                <SelectValue placeholder="Selectione" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="undefined">Selecione</SelectItem>
+                <SelectItem value="true">Sim</SelectItem>
+                <SelectItem value="false">Não</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
 
-          <div className="flex items-center text-sm font-medium text-gray-900 p-3">
-            <Button
-              variant="outline"
-              onClick={toggleLoteProntoFilter}
-              className=""
+          <div className="flex gap-3 flex-col text-sm font-medium text-gray-900 p-3">
+            <label
+              htmlFor="filtroAprovado"
+              className="text-sm font-medium text-gray-700"
             >
-              <motion.div
-                key={showLotePronto ? "show" : "hide"}
-                initial="hidden"
-                animate="visible"
-                exit="exit"
-                variants={iconVariants}
-                transition={{ duration: 0.2 }}
-              >
-                {showLotePronto ? <CircleCheckBig /> : <Circle />}
-              </motion.div>
-              Lotes prontos
-            </Button>
+              Pronto
+            </label>
+            <Select
+              onValueChange={(value) => updateFilter("showLotePronto", value)}
+              value={
+                filters.showLotePronto === undefined
+                  ? "undefined"
+                  : filters.showLotePronto === true
+                  ? "true"
+                  : "false"
+              }
+            >
+              <SelectTrigger className="w-56">
+                <SelectValue placeholder="Selecione" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="undefined">Selecione</SelectItem>
+                <SelectItem value="true">Sim</SelectItem>
+                <SelectItem value="false">Não</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
 
-          <div className="flex items-center text-sm font-medium text-gray-900 p-3">
-            <Button
-              variant="outline"
-              onClick={toggleRecebidoFilter}
-              className=""
+          <div className="flex gap-3 flex-col text-sm font-medium text-gray-900 p-3">
+            <label
+              htmlFor="filtroAprovado"
+              className="text-sm font-medium text-gray-700"
             >
-              <motion.div
-                key={showNotRecebido ? "show" : "hide"}
-                initial="hidden"
-                animate="visible"
-                exit="exit"
-                variants={iconVariants}
-                transition={{ duration: 0.2 }}
-              >
-                {showNotRecebido ? <CircleCheckBig /> : <Circle />}
-              </motion.div>
-              Trabalhos não recebidos
-            </Button>
+              Trabalhos recebidos
+            </label>
+            <Select
+              onValueChange={(value) => updateFilter("showNotRecebido", value)}
+              value={
+                filters.showNotRecebido === undefined
+                  ? "undefined"
+                  : filters.showNotRecebido === true
+                  ? "true"
+                  : "false"
+              }
+            >
+              <SelectTrigger className="w-56">
+                <SelectValue placeholder="Selecione" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="undefined">Selecione</SelectItem>
+                <SelectItem value="true">Sim</SelectItem>
+                <SelectItem value="false">Não</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
-          <div className="flex items-center text-sm font-medium text-gray-900 p-3">
-            <Button
-              variant="outline"
-              onClick={toggleAprovadoFilter}
-              className=""
+          <div className="flex gap-3 flex-col text-sm font-medium text-gray-900 p-3">
+            <label
+              htmlFor="filtroAprovado"
+              className="text-sm font-medium text-gray-700"
             >
-              <motion.div
-                key={showAprovado ? "show" : "hide"}
-                initial="hidden"
-                animate="visible"
-                exit="exit"
-                variants={iconVariants}
-                transition={{ duration: 0.2 }}
-              >
-                {showAprovado ? <CircleCheckBig /> : <Circle />}
-              </motion.div>
               Trabalhos aprovados
-            </Button>
+            </label>
+            <Select
+              onValueChange={(value) => updateFilter("showAprovado", value)}
+              value={
+                filters.showAprovado === undefined
+                  ? "undefined"
+                  : filters.showAprovado === true
+                  ? "true"
+                  : "false"
+              }
+            >
+              <SelectTrigger className="w-56">
+                <SelectValue placeholder="Selecione" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="undefined">Selecione</SelectItem>
+                <SelectItem value="true">Sim</SelectItem>
+                <SelectItem value="false">Não</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
 
-          <div className="flex items-center text-sm font-medium text-gray-900 p-3">
+          <div className="flex flex-col gap-3 text-sm font-medium text-gray-900 p-3">
+            <label
+              htmlFor="filtroAprovado"
+              className="text-sm font-medium text-gray-700"
+            >
+              Data
+            </label>
             <Popover>
               <PopoverTrigger asChild>
                 <Button
@@ -547,7 +613,7 @@ const Job = () => {
               </PopoverContent>
             </Popover>
           </div>
-          <div className="flex items-center text-sm font-medium text-gray-900 p-3">
+          <div className="flex items-center text-sm font-medium text-gray-900 mt-5 p-3">
             <a className="cursor-pointer" onClick={downloadPdf}>
               <FileSpreadsheet />
             </a>
@@ -556,306 +622,296 @@ const Job = () => {
 
         {/* Cards Grid */}
         <div className="grid items-stretch grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-5 lg:grid-cols-4 gap-4">
-          <AnimatePresence>
-            {displayedRegisters?.map((register: any) => (
-              <motion.div
-                key={register._id + "m"}
-                variants={itemVariants}
-                initial="hidden"
-                animate="visible"
-                exit="exit"
-                transition={{ duration: 0.3 }}
+          {displayedRegisters?.map((register: any) => (
+            <motion.div
+              key={register._id + "m"}
+              variants={itemVariants}
+              initial="hidden"
+              animate="visible"
+              exit="exit"
+              transition={{ duration: 0.3 }}
+            >
+              <Card
+                key={register._id}
+                className="w-full bg-white border border-gray-200 rounded-lg shadow hover:bg-gray-100 dark:bg-gray-800 dark:border-gray-700 dark:hover:bg-gray-700 relative h-full flex flex-col"
               >
-                <Card
-                  key={register._id}
-                  className="w-full bg-white border border-gray-200 rounded-lg shadow hover:bg-gray-100 dark:bg-gray-800 dark:border-gray-700 dark:hover:bg-gray-700 relative h-full flex flex-col"
-                >
-                  <CardHeader>
-                    <CardTitle>
-                      LOTE: {register.lote}
-                      <a
-                        className="cursor-pointer"
-                        onClick={() => openDialog(register._id)}
-                      >
-                        <ArchiveRestore className="w-4 h-4 float-right text-blue-400" />
-                      </a>
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-2 text-sm">
-                    <div className="flex items-center text-sm font-medium text-gray-900 dark:text-white me-3">
-                      Data:{" "}
-                      <span className="px-1 inline-block ml-1">
-                        {format(register.data, "dd/MM/yy HH:mm")}
-                      </span>
-                    </div>
-
-                    <div className="flex items-center text-sm font-medium text-gray-900 dark:text-white me-3">
-                      Quantidade:{" "}
-                      <span
-                        className="px-1 inline-block ml-1"
-                        onBlur={(e) => {
-                          singleUpdate(e, "qtd", register._id);
-                        }}
-                        contentEditable
-                        suppressContentEditableWarning={true}
-                      >
-                        {register.qtd}
-                      </span>
-                    </div>
-                    <div className="flex items-center text-sm font-medium text-gray-900 dark:text-white me-3">
-                      Largura:{" "}
-                      <span
-                        className="px-1 inline-block ml-1"
-                        onBlur={(e) => {
-                          singleUpdate(e, "larg", register._id);
-                        }}
-                        contentEditable
-                        suppressContentEditableWarning={true}
-                      >
-                        {register.larg}
-                      </span>
-                    </div>
-                    <div className="flex items-center text-sm font-medium text-gray-900 dark:text-white me-3">
-                      Comprimento:{" "}
-                      <span
-                        className="px-1 inline-block ml-1"
-                        onBlur={(e) => {
-                          singleUpdate(e, "compr", register._id);
-                        }}
-                        contentEditable
-                        suppressContentEditableWarning={true}
-                      >
-                        {" "}
-                        {register.compr}{" "}
-                      </span>
-                    </div>
-                    <div className="flex items-center text-sm font-medium text-gray-900 dark:text-white me-3">
-                      Emenda:{" "}
-                      <span className="px-1 inline-block ml-1">
-                        {register.emenda ? "Sim" : "Não"}
-                      </span>
-                      <a
-                        className="cursor-pointer ml-3"
-                        onClick={() =>
-                          handleStatusChange([register._id], "emenda")
-                        }
-                      >
-                        <RefreshCcw className="w-5 h-5" />
-                      </a>
-                    </div>
-                    <div className="flex items-center text-sm font-medium text-gray-900 dark:text-white me-3">
-                      Total Metros:{" "}
-                      <span className="px-1 inline-block ml-1">
-                        {register.totMetros}
-                      </span>
-                    </div>
-                    <div className="flex items-center text-sm font-medium text-gray-900 dark:text-white me-3">
-                      Orçamento:{" "}
-                      <span className="px-1 inline-block ml-1">
-                        R${register.orcamento.toFixed(2)}
-                      </span>
-                    </div>
-                    <div>
-                      <span className="flex items-center text-sm font-medium text-gray-900 dark:text-white me-3">
-                        <span
-                          className={`${
-                            register.recebidoConferido
-                              ? "bg-teal-500"
-                              : "bg-red-500 "
-                          } flex w-2.5 h-2.5  rounded-full me-1.5 flex-shrink-0`}
-                        ></span>
-                        Recebido/Conferido:
-                        <span className="px-1 inline-block ml-1">
-                          {register.recebidoConferido ? "" : "Não"}{" "}
-                          {register.dataRecebidoConferido &&
-                          register.recebidoConferido
-                            ? format(
-                                register.dataRecebidoConferido,
-                                "dd/MM/yyyy HH:mm"
-                              )
-                            : ""}
-                        </span>
-                        {register.recebidoConferido && (
-                          <a
-                            className="cursor-pointer "
-                            onClick={() =>
-                              handleStatusChange(
-                                [register._id],
-                                "recebidoConferido"
-                              )
-                            }
-                          >
-                            <Undo2 className="w-4 h-4" />
-                          </a>
-                        )}
-                      </span>
-                    </div>
-                    <div>
-                      <span className="flex items-center text-sm font-medium text-gray-900 dark:text-white me-3">
-                        <span
-                          className={`${
-                            register.lotePronto ? "bg-teal-500" : "bg-red-500 "
-                          } flex w-2.5 h-2.5  rounded-full me-1.5 flex-shrink-0`}
-                        ></span>
-                        Lote Pronto:{" "}
-                        <span className="px-1 inline-block ml-1">
-                          {register.lotePronto ? "" : "Não"}{" "}
-                          {register.dataLotePronto && register.lotePronto
-                            ? format(
-                                register.dataLotePronto,
-                                "dd/MM/yyyy HH:mm"
-                              )
-                            : ""}
-                        </span>
-                        {register.lotePronto && (
-                          <a
-                            className="cursor-pointer"
-                            onClick={() =>
-                              handleStatusChange([register._id], "lotePronto")
-                            }
-                          >
-                            <Undo2 className="w-4 h-4" />
-                          </a>
-                        )}
-                      </span>
-                    </div>
-                    <div className="flex">
-                      <span className="flex items-center text-sm font-medium text-gray-900 dark:text-white me-3">
-                        <span
-                          className={`${
-                            register.recebido ? "bg-teal-500" : "bg-red-500 "
-                          } flex w-2.5 h-2.5  rounded-full me-1.5 flex-shrink-0`}
-                        ></span>
-                        Recebido:{" "}
-                        <span className="px-1 inline-block ml-1">
-                          {register.recebido ? "Sim" : "Não"}
-                        </span>
-                      </span>
-
-                      <a
-                        className="cursor-pointer"
-                        onClick={() =>
-                          handleStatusChange([register._id], "recebido")
-                        }
-                      >
-                        {register.recebido ? (
-                          <Undo2 className="w-4 h-4" />
-                        ) : (
-                          <SquareCheck className="w-5 h-5" />
-                        )}
-                      </a>
-                    </div>
-
-                    <div className="flex">
-                      <span className="flex items-center text-sm font-medium text-gray-900 dark:text-white me-3">
-                        <span
-                          className={`${
-                            register.emAnalise ? "bg-blue-500" : "bg-teal-500 "
-                          } flex w-2.5 h-2.5  rounded-full me-1.5 flex-shrink-0`}
-                        ></span>
-                        Em análise:{" "}
-                        <span className="px-1 inline-block ml-1">
-                          {register.emAnalise ? "Sim" : "Não"}
-                        </span>
-                      </span>
-                      {/* {!register.emAnalise && ( */}
-                      <a
-                        className="cursor-pointer"
-                        onClick={() =>
-                          handleStatusChange([register._id], "emAnalise")
-                        }
-                      >
-                        {register.emAnalise ? (
-                          <Undo2 className="w-4 h-4" />
-                        ) : (
-                          <SquareCheck className="w-5 h-5" />
-                        )}
-                      </a>
-                      {/* )} */}
-                    </div>
-
-                    <div className="flex">
-                      <span className="flex items-center text-sm font-medium text-gray-900 dark:text-white me-3">
-                        <span
-                          className={`${
-                            register.aprovado ? "bg-teal-500" : "bg-red-500 "
-                          } flex w-2.5 h-2.5  rounded-full me-1.5 flex-shrink-0`}
-                        ></span>
-                        Aprovado:{" "}
-                        <span className="px-1 inline-block ml-1">
-                          {register.aprovado ? "Sim" : "Não"}
-                        </span>
-                      </span>
-                      {/* {!register.aprovado && ( */}
-                      <a
-                        className="cursor-pointer"
-                        onClick={() =>
-                          handleStatusChange([register._id], "aprovado")
-                        }
-                      >
-                        {register.aprovado ? (
-                          <Undo2 className="w-4 h-4" />
-                        ) : (
-                          <SquareCheck className="w-5 h-5" />
-                        )}
-                      </a>
-                      {/* )} */}
-                    </div>
-                  </CardContent>
-                  {/* <Button
-                    onClick={() => handleStatusChange([register._id], "pago")}
-                    className="bg-green-800 flex items-center"
-                  >
-                    <HandCoins className="w-4 h-4 mr-2" />
-                    revert pay
-                  </Button> */}
-                  <CardFooter className="flex justify-center items-center mt-auto">
-                    <motion.div
-                      key={register.pago ? "paid" : "unpaid"}
-                      initial={{ opacity: 0, scale: 0.8 }}
-                      animate={{ opacity: 1, scale: 1 }}
-                      exit={{ opacity: 0, scale: 0.9 }}
-                      transition={{ duration: 0.3 }}
-                      className="flex flex-col gap-2 items-center"
+                <CardHeader>
+                  <CardTitle>
+                    LOTE: {register.lote}
+                    <a
+                      className="cursor-pointer"
+                      onClick={() => openDialog(register._id)}
                     >
-                      {register.pago ? (
-                        <CircleCheck className="w-9 h-9 text-green-500" />
-                      ) : (
-                        <>
-                          {!register.pago && register.recebido ? (
-                            <Button
-                              onClick={() =>
-                                handleOpenPixModal(
-                                  faccionist?.pixKey,
-                                  register.orcamento,
-                                  `${faccionist?.username} ${faccionist?.lastName}`,
-                                  [register._id]
-                                )
-                              }
-                              className="bg-green-800 flex items-center"
-                            >
-                              <HandCoins className="w-4 h-4 mr-2" />
-                              Pagar este lote
-                            </Button>
-                          ) : (
-                            <></>
-                          )}
-                        </>
+                      <ArchiveRestore className="w-4 h-4 float-right text-blue-400" />
+                    </a>
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-2 text-sm">
+                  <div className="flex items-center text-sm font-medium text-gray-900 dark:text-white me-3">
+                    Data:{" "}
+                    <span className="px-1 inline-block ml-1">
+                      {format(register.data, "dd/MM/yy HH:mm")}
+                    </span>
+                  </div>
+
+                  <div className="flex items-center text-sm font-medium text-gray-900 dark:text-white me-3">
+                    Quantidade:{" "}
+                    <span
+                      className="px-1 inline-block ml-1"
+                      onBlur={(e) => {
+                        singleUpdate(e, "qtd", register._id);
+                      }}
+                      contentEditable
+                      suppressContentEditableWarning={true}
+                    >
+                      {register.qtd}
+                    </span>
+                  </div>
+                  <div className="flex items-center text-sm font-medium text-gray-900 dark:text-white me-3">
+                    Largura:{" "}
+                    <span
+                      className="px-1 inline-block ml-1"
+                      onBlur={(e) => {
+                        singleUpdate(e, "larg", register._id);
+                      }}
+                      contentEditable
+                      suppressContentEditableWarning={true}
+                    >
+                      {register.larg}
+                    </span>
+                  </div>
+                  <div className="flex items-center text-sm font-medium text-gray-900 dark:text-white me-3">
+                    Comprimento:{" "}
+                    <span
+                      className="px-1 inline-block ml-1"
+                      onBlur={(e) => {
+                        singleUpdate(e, "compr", register._id);
+                      }}
+                      contentEditable
+                      suppressContentEditableWarning={true}
+                    >
+                      {" "}
+                      {register.compr}{" "}
+                    </span>
+                  </div>
+                  <div className="flex items-center text-sm font-medium text-gray-900 dark:text-white me-3">
+                    Emenda:{" "}
+                    <span className="px-1 inline-block ml-1">
+                      {register.emenda ? "Sim" : "Não"}
+                    </span>
+                    <a
+                      className="cursor-pointer ml-3"
+                      onClick={() =>
+                        handleStatusChange([register._id], "emenda")
+                      }
+                    >
+                      <RefreshCcw className="w-5 h-5" />
+                    </a>
+                  </div>
+                  <div className="flex items-center text-sm font-medium text-gray-900 dark:text-white me-3">
+                    Total Metros:{" "}
+                    <span className="px-1 inline-block ml-1">
+                      {register.totMetros}
+                    </span>
+                  </div>
+                  <div className="flex items-center text-sm font-medium text-gray-900 dark:text-white me-3">
+                    Orçamento:{" "}
+                    <span className="px-1 inline-block ml-1">
+                      R${register.orcamento.toFixed(2)}
+                    </span>
+                  </div>
+                  <div>
+                    <span className="flex items-center text-sm font-medium text-gray-900 dark:text-white me-3">
+                      <span
+                        className={`${
+                          register.recebidoConferido
+                            ? "bg-teal-500"
+                            : "bg-red-500 "
+                        } flex w-2.5 h-2.5  rounded-full me-1.5 flex-shrink-0`}
+                      ></span>
+                      Recebido/Conferido:
+                      <span className="px-1 inline-block ml-1">
+                        {register.recebidoConferido ? "" : "Não"}{" "}
+                        {register.dataRecebidoConferido &&
+                        register.recebidoConferido
+                          ? format(
+                              register.dataRecebidoConferido,
+                              "dd/MM/yyyy HH:mm"
+                            )
+                          : ""}
+                      </span>
+                      {register.recebidoConferido && (
+                        <a
+                          className="cursor-pointer "
+                          onClick={() =>
+                            handleStatusChange(
+                              [register._id],
+                              "recebidoConferido"
+                            )
+                          }
+                        >
+                          <Undo2 className="w-4 h-4" />
+                        </a>
                       )}
-                      {register.dataPgto && register.pago ? (
-                        <div className="text-sm font-medium text-gray-900 dark:text-white text-center">
-                          Data Pagamento:{" "}
-                          {register.dataPgto
-                            ? format(register.dataPgto, "dd/MM/yy")
-                            : "-"}
-                        </div>
-                      ) : null}
-                    </motion.div>
-                  </CardFooter>
-                </Card>
-              </motion.div>
-            ))}
-          </AnimatePresence>
+                    </span>
+                  </div>
+                  <div>
+                    <span className="flex items-center text-sm font-medium text-gray-900 dark:text-white me-3">
+                      <span
+                        className={`${
+                          register.lotePronto ? "bg-teal-500" : "bg-red-500 "
+                        } flex w-2.5 h-2.5  rounded-full me-1.5 flex-shrink-0`}
+                      ></span>
+                      Lote Pronto:{" "}
+                      <span className="px-1 inline-block ml-1">
+                        {register.lotePronto ? "" : "Não"}{" "}
+                        {register.dataLotePronto && register.lotePronto
+                          ? format(register.dataLotePronto, "dd/MM/yyyy HH:mm")
+                          : ""}
+                      </span>
+                      {register.lotePronto && (
+                        <a
+                          className="cursor-pointer"
+                          onClick={() =>
+                            handleStatusChange([register._id], "lotePronto")
+                          }
+                        >
+                          <Undo2 className="w-4 h-4" />
+                        </a>
+                      )}
+                    </span>
+                  </div>
+                  <div className="flex">
+                    <span className="flex items-center text-sm font-medium text-gray-900 dark:text-white me-3">
+                      <span
+                        className={`${
+                          register.recebido ? "bg-teal-500" : "bg-red-500 "
+                        } flex w-2.5 h-2.5  rounded-full me-1.5 flex-shrink-0`}
+                      ></span>
+                      Recebido:{" "}
+                      <span className="px-1 inline-block ml-1">
+                        {register.recebido ? "Sim" : "Não"}
+                      </span>
+                    </span>
+
+                    <a
+                      className="cursor-pointer"
+                      onClick={() =>
+                        handleStatusChange([register._id], "recebido")
+                      }
+                    >
+                      {register.recebido ? (
+                        <Undo2 className="w-4 h-4" />
+                      ) : (
+                        <SquareCheck className="w-5 h-5" />
+                      )}
+                    </a>
+                  </div>
+
+                  <div className="flex">
+                    <span className="flex items-center text-sm font-medium text-gray-900 dark:text-white me-3">
+                      <span
+                        className={`${
+                          register.emAnalise ? "bg-blue-500" : "bg-teal-500 "
+                        } flex w-2.5 h-2.5  rounded-full me-1.5 flex-shrink-0`}
+                      ></span>
+                      Em análise:{" "}
+                      <span className="px-1 inline-block ml-1">
+                        {register.emAnalise ? "Sim" : "Não"}
+                      </span>
+                    </span>
+                    {/* {!register.emAnalise && ( */}
+                    <a
+                      className="cursor-pointer"
+                      onClick={() =>
+                        handleStatusChange([register._id], "emAnalise")
+                      }
+                    >
+                      {register.emAnalise ? (
+                        <Undo2 className="w-4 h-4" />
+                      ) : (
+                        <SquareCheck className="w-5 h-5" />
+                      )}
+                    </a>
+                    {/* )} */}
+                  </div>
+
+                  <div className="flex">
+                    <span className="flex items-center text-sm font-medium text-gray-900 dark:text-white me-3">
+                      <span
+                        className={`${
+                          register.aprovado ? "bg-teal-500" : "bg-red-500 "
+                        } flex w-2.5 h-2.5  rounded-full me-1.5 flex-shrink-0`}
+                      ></span>
+                      Aprovado:{" "}
+                      <span className="px-1 inline-block ml-1">
+                        {register.aprovado ? "Sim" : "Não"}
+                      </span>
+                    </span>
+                    <a
+                      className="cursor-pointer"
+                      onClick={() =>
+                        handleStatusChange(
+                          [register._id],
+                          "aprovado",
+                          register.aprovado
+                        )
+                      }
+                    >
+                      {register.aprovado ? (
+                        <Undo2 className="w-4 h-4" />
+                      ) : (
+                        <SquareCheck className="w-5 h-5" />
+                      )}
+                    </a>
+                  </div>
+                </CardContent>
+                <CardFooter className="flex justify-center items-center mt-auto">
+                  <motion.div
+                    key={register.pago ? "paid" : "unpaid"}
+                    initial={{ opacity: 0, scale: 0.8 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    exit={{ opacity: 0, scale: 0.9 }}
+                    transition={{ duration: 0.3 }}
+                    className="flex flex-col gap-2 items-center"
+                  >
+                    {register.pago ? (
+                      <CircleCheck className="w-9 h-9 text-green-500" />
+                    ) : (
+                      <>
+                        {!register.pago && register.recebido ? (
+                          <Button
+                            onClick={() =>
+                              handleOpenPixModal(
+                                faccionist?.pixKey,
+                                register.orcamento,
+                                `${faccionist?.username} ${faccionist?.lastName}`,
+                                [register._id]
+                              )
+                            }
+                            className="bg-green-800 flex items-center"
+                          >
+                            <HandCoins className="w-4 h-4 mr-2" />
+                            Pagar este lote
+                          </Button>
+                        ) : (
+                          <></>
+                        )}
+                      </>
+                    )}
+                    {register.dataPgto && register.pago ? (
+                      <div className="text-sm font-medium text-gray-900 dark:text-white text-center">
+                        Data Pagamento:{" "}
+                        {register.dataPgto
+                          ? format(register.dataPgto, "dd/MM/yy")
+                          : "-"}
+                      </div>
+                    ) : null}
+                  </motion.div>
+                </CardFooter>
+              </Card>
+            </motion.div>
+          ))}
         </div>
       </div>
       <Dialog open={isDialogJobOpen} onOpenChange={setIsDialogJobOpen}>
