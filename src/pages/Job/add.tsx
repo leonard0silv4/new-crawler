@@ -33,6 +33,7 @@ const AddJob = ({ addJob, lastLote }: any) => {
     aprovado: false,
     pago: false,
     dataPgto: undefined,
+    qtdRolo: undefined,
     faccionistaId: user,
     ownerId: "",
   };
@@ -51,6 +52,7 @@ const AddJob = ({ addJob, lastLote }: any) => {
     aprovado: "Aprovado",
     pago: "Pago",
     dataPgto: "Data de Pagamento",
+    qtdRolo: "Quantidade Rolos",
     faccionistaId: "Faccionista",
     ownerId: "Proprietário",
   };
@@ -74,19 +76,28 @@ const AddJob = ({ addJob, lastLote }: any) => {
     };
 
     const { qtd, larg, compr, emenda } = updatedFormData;
-    if (qtd && larg && compr) {
-      let totMetros = (larg * 2 + compr * 2) * qtd;
+
+    const qtdNum = parseFloat(qtd as string) || 0;
+    const largNum = parseFloat(larg as string) || 0;
+    const comprNum = parseFloat(compr as string) || 0;
+    const emendaBool = emenda === true || emenda === "true";
+
+    if (qtdNum && largNum && comprNum) {
+      let totMetros = (largNum * 2 + comprNum * 2) * qtdNum;
 
       const custoPorMetro = 0.6;
       let orcamento = totMetros * custoPorMetro;
 
-      if (emenda) {
-        orcamento += compr * qtd * custoPorMetro;
-        totMetros = (larg * 2 + compr * 3) * qtd;
+      if (emendaBool) {
+        orcamento += comprNum * qtdNum * custoPorMetro;
+        totMetros = (largNum * 2 + comprNum * 3) * qtdNum;
       }
 
       updatedFormData.totMetros = parseFloat(totMetros.toFixed(2));
       updatedFormData.orcamento = parseFloat(orcamento.toFixed(2));
+      updatedFormData.qtdRolo = Math.ceil(
+        ((largNum * 2 + comprNum * 2) * qtdNum * 1.35) / 50
+      );
     }
 
     setFormData(updatedFormData);
@@ -291,6 +302,25 @@ const AddJob = ({ addJob, lastLote }: any) => {
                 placeholder="Total Metros"
                 value={formData.totMetros}
                 onChange={handleChange}
+              />
+            </div>
+
+            <div className="inline-block  ">
+              <label
+                htmlFor="totMetros"
+                className="block text-sm font-medium text-gray-700 mt-0"
+              >
+                Quantidade rolos
+              </label>
+              <Input
+                id="qtdRolo"
+                readOnly
+                disabled
+                name="qtdRolo"
+                type="number"
+                placeholder="Quantidade rolos"
+                value={formData.qtdRolo}
+                onChange={() => console.log(1)}
               />
             </div>
 

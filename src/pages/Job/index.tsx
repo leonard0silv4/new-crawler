@@ -650,6 +650,12 @@ const Job = () => {
                       </span>
                     </div>
                     <div className="flex items-center text-sm font-medium text-gray-900 dark:text-white me-3">
+                      Quantidade de rolos:{" "}
+                      <span className="px-1 inline-block ml-1">
+                        {register.qtdRolo}
+                      </span>
+                    </div>
+                    <div className="flex items-center text-sm font-medium text-gray-900 dark:text-white me-3">
                       Orçamento:{" "}
                       <span className="px-1 inline-block ml-1">
                         R${register.orcamento.toFixed(2)}

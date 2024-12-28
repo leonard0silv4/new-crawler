@@ -206,6 +206,9 @@ const ListFaccionista = () => {
                   <div className=" flex items-center text-md font-medium text-gray-900 dark:text-white me-3">
                     Total Metros: {register.totMetros} M
                   </div>
+                  <div className=" flex items-center text-md font-medium text-gray-900 dark:text-white me-3">
+                    Quantidade rolos: {register.qtdRolo}
+                  </div>
                   <div className="flex items-center text-md font-medium text-gray-900 dark:text-white me-3">
                     Valor: R$ {register.orcamento.toFixed(2)}
                   </div>
