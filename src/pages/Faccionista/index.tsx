@@ -1,3 +1,4 @@
+"use client";
 // import { Loader2 } from "lucide-react";
 
 import { useEffect, useMemo, useState } from "react";
@@ -172,7 +173,7 @@ const ListFaccionista = () => {
               </div>
 
               <div className="flex items-center text-md font-normal text-gray-900 dark:text-white mb-3">
-                Valroes a receber:{" "}
+                Valores a receber:{" "}
                 <b className="ml-2">R${totalNotPaid.toFixed(2)}</b>
               </div>
             </CardContent>
