@@ -168,11 +168,12 @@ const ListFaccionista = () => {
             <CardContent>
               <div className="flex items-center text-md font-normal text-gray-900 dark:text-white mb-3">
                 Valores pagos
-                <b className="ml-2 capitalize">R${totalPaid}</b>
+                <b className="ml-2 capitalize">R${totalPaid.toFixed(2)}</b>
               </div>
 
               <div className="flex items-center text-md font-normal text-gray-900 dark:text-white mb-3">
-                Valroes a receber: <b className="ml-2">R${totalNotPaid}</b>
+                Valroes a receber:{" "}
+                <b className="ml-2">R${totalNotPaid.toFixed(2)}</b>
               </div>
             </CardContent>
           </Card>
