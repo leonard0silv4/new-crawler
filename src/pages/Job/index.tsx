@@ -355,10 +355,10 @@ const Job = () => {
     });
   };
 
-  const updateRate = (id: string) => {
+  const updateRate = (id: string, rateLote: number) => {
     openModal(
       <Suspense fallback={<>Carregando...</>}>
-        <StarRating ids={id} />
+        <StarRating rateAc={rateLote} ids={id} />
       </Suspense>
     );
   };
@@ -738,7 +738,9 @@ const Job = () => {
                       </a>
                       <a
                         className="cursor-pointer"
-                        onClick={() => updateRate(register._id)}
+                        onClick={() =>
+                          updateRate(register._id, register.rateLote)
+                        }
                       >
                         <Star className="w-4 h-4 float-right text-yellow-400 mr-3">
                           2

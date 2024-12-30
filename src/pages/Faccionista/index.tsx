@@ -191,12 +191,22 @@ const ListFaccionista = () => {
                 </p>
               )}
               <p>
-                <b>Metros:</b> {sumMetr(registers).toFixed(2)}
+                <b>Total metros:</b> {sumMetr(registers).toFixed(2)}
               </p>
             </CardHeader>
 
             <CardContent>
               <hr className="mb-5" />
+              {factionistUser[0]?.advanceMoney &&
+              factionistUser[0]?.advanceMoney != 0 ? (
+                <div className="flex items-center text-md font-normal text-gray-900 dark:text-white mb-3">
+                  Adiantamentos pendentes
+                  <b className="ml-2 capitalize">
+                    R${factionistUser[0]?.advanceMoney.toFixed(2)}
+                  </b>
+                </div>
+              ) : null}
+
               <div className="flex items-center text-md font-normal text-gray-900 dark:text-white mb-3">
                 Valores pagos
                 <b className="ml-2 capitalize">R${totalPaid.toFixed(2)}</b>

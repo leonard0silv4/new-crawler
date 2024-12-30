@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 
 interface RateProps {
   ids: string[] | string;
+  rateAc?: number;
 }
 
 const RatingDescription: Record<number, string> = {
@@ -20,8 +21,8 @@ const RatingDescription: Record<number, string> = {
   10: "Perfeito",
 };
 
-const StarRating = ({ ids }: RateProps) => {
-  const [rating, setRating] = useState(0);
+const StarRating = ({ ids, rateAc }: RateProps) => {
+  const [rating, setRating] = useState(rateAc ?? 0);
 
   const { closeModal } = useModal();
 
@@ -40,12 +41,6 @@ const StarRating = ({ ids }: RateProps) => {
         closeModal();
       });
   };
-
-  useEffect(() => {
-    instance.get(`jobs/rate/${ids}`).then((response: any) => {
-      setRating(response.job.rateLote);
-    });
-  }, []);
 
   return (
     <div className="flex flex-col justify-center content-center text-center">
