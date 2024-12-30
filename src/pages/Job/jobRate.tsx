@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
 import instance from "@/config/axios";
 import { useModal } from "@/context/ModalContext";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
 interface RateProps {
   ids: string[] | string;
