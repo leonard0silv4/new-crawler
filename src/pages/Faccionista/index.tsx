@@ -190,9 +190,6 @@ const ListFaccionista = () => {
                   <b>QoS:</b> {(factionistUser as any)?.evaluationScore}
                 </p>
               )}
-              <p>
-                <b>Total metros:</b> {sumMetr(registers).toFixed(2)}
-              </p>
             </CardHeader>
 
             <CardContent>
@@ -208,27 +205,43 @@ const ListFaccionista = () => {
               ) : null}
 
               <div className="flex items-center text-md font-normal text-gray-900 dark:text-white mb-3">
-                Valores pagos
-                <b className="ml-2 capitalize">R${totalPaid.toFixed(2)}</b>
+                Valores à receber:{" "}
+                <b className="ml-2">
+                  R$
+                  {totalNotPaid.toFixed(2) >
+                  factionistUser[0]?.advanceMoney.toFixed(2)
+                    ? totalNotPaid.toFixed(2) -
+                      factionistUser[0]?.advanceMoney.toFixed(2)
+                    : totalNotPaid.toFixed(2)}
+                </b>
+              </div>
+
+              <hr className="my-5" />
+
+              <div className="flex items-center text-md font-normal text-gray-900 dark:text-white mb-3">
+                Total metros:
+                <b className="ml-2">{sumMetr(registers).toFixed(2)}</b>
               </div>
 
               <div className="flex items-center text-md font-normal text-gray-900 dark:text-white mb-3">
-                Valores a receber:{" "}
-                <b className="ml-2">R${totalNotPaid.toFixed(2)}</b>
+                Total valores pagos
+                <b className="ml-2 capitalize">
+                  R$
+                  {totalPaid -
+                    (factionistUser as any)?.totalAdvancedMoney.toFixed(2)}
+                </b>
               </div>
 
-              {(factionistUser as any)?.totalAdvancedMoney &&
+              {/* {(factionistUser as any)?.totalAdvancedMoney &&
               (factionistUser as any)?.updateLastWeek &&
               (factionistUser as any)?.totalAdvancedMoney != 0 ? (
                 <p className="text-red-700 text-md font-normal my-2">
                   Descontos de adiantamento R$
                   {(factionistUser as any)?.totalAdvancedMoney.toFixed(2)}
                 </p>
-              ) : null}
+              ) : null} */}
 
-              <hr className="my-5" />
-
-              <div className="flex items-center text-md font-normal text-gray-900 dark:text-white mb-3">
+              {/* <div className="flex items-center text-md font-normal text-gray-900 dark:text-white mb-3">
                 Total recebido: <br />
                 <b className="ml-2">
                   {" "}
@@ -237,7 +250,7 @@ const ListFaccionista = () => {
                     2
                   )}
                 </b>
-              </div>
+              </div> */}
 
               {(factionistUser as any)?.recentLotes.length != 0 && (
                 <>
@@ -316,13 +329,13 @@ const ListFaccionista = () => {
                         register.qtdRolo ? register.qtdRolo + " Fita(s) -" : ""
                       }  R$${register.orcamento.toFixed(2)}`}
                     </p>
-                    {register.advancedMoneyPayment &&
+                    {/* {register.advancedMoneyPayment &&
                     register.advancedMoneyPayment != 0 ? (
                       <p className="text-red-700 text-sm my-2">
                         Desconto de adiantamento R$
                         {register.advancedMoneyPayment.toFixed(2)}
                       </p>
-                    ) : null}
+                    ) : null} */}
                   </div>
 
                   <div className=" flex items-center justify-center  text-md font-semibold text-gray-600 dark:text-white  ">
