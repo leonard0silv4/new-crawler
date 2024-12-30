@@ -218,6 +218,7 @@ const ListFaccionista = () => {
               </div>
 
               {(factionistUser as any)?.totalAdvancedMoney &&
+              (factionistUser as any)?.updateLastWeek &&
               (factionistUser as any)?.totalAdvancedMoney != 0 ? (
                 <p className="text-red-700 text-md font-normal my-2">
                   Descontos de adiantamento R$

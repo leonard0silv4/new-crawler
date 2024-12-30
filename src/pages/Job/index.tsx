@@ -267,11 +267,12 @@ const Job = () => {
     );
   };
 
-  const updateAdvancedMoneyPix = (newState: number) =>
+  const updateAdvancedMoneyPix = (newState: number) => {
     setFaccionist((prevState: any) => ({
       ...prevState,
       advanceMoney: newState, // Atualize apenas o campo necessário
     }));
+  };
 
   const addJob = (newJob: any) => {
     setRegisters((prev) => (prev.length ? [newJob, ...prev] : [newJob]));
