@@ -21,19 +21,19 @@ const AddJob = ({ addJob, lastLote }: any) => {
 
   const initial: Record<string, any> = {
     lote: "",
-    qtd: undefined,
-    larg: undefined,
-    compr: undefined,
+    qtd: "",
+    larg: "",
+    compr: "",
     emenda: false,
-    totMetros: undefined,
-    orcamento: undefined,
+    totMetros: "",
+    orcamento: "",
     recebidoConferido: false,
     lotePronto: false,
     recebido: false,
     aprovado: false,
     pago: false,
-    dataPgto: undefined,
-    qtdRolo: undefined,
+    dataPgto: "",
+    qtdRolo: "",
     faccionistaId: user,
     ownerId: "",
   };
@@ -158,12 +158,15 @@ const AddJob = ({ addJob, lastLote }: any) => {
         .post("/job", formData)
         .then((response) => {
           addJob(response);
-          setFormData(initial);
+
           document.getElementById("closeDialog")?.click();
           toast.success("Novo trabalho adicionado!", {
             position: "bottom-right",
           });
+
+          setFormData(initial);
         })
+
         .catch((err) => {
           toast.success("Problema ao adicionar trabalho!", {
             position: "top-right",
@@ -171,9 +174,10 @@ const AddJob = ({ addJob, lastLote }: any) => {
           console.log(err);
         });
     } catch (error) {
-      toast.success("Novo trabalho adicionado!", {
+      toast.success("Problema ao adicionar trabalho!", {
         position: "top-right",
       });
+      console.log(error);
     }
   };
 

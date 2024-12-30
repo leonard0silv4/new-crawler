@@ -12,15 +12,14 @@ import {
   ArchiveRestore,
   ArrowLeft,
   CalendarIcon,
-  Circle,
   CircleCheck,
-  CircleCheckBig,
   FileSpreadsheet,
   HandCoins,
   Loader,
   RefreshCcw,
   Search,
   SquareCheck,
+  Star,
   Undo2,
 } from "lucide-react";
 import { useLocation, useParams, NavLink } from "react-router-dom";
@@ -29,6 +28,7 @@ import { AnimatePresence, motion } from "motion/react";
 import instance from "@/config/axios";
 const AddJob = lazy(() => import("./add"));
 const Pix = lazy(() => import("../Pix"));
+const StarRating = lazy(() => import("./jobRate"));
 
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
@@ -54,6 +54,13 @@ import {
 } from "@/components/ui/dialog";
 import { toast } from "sonner";
 import { useNotifyContext } from "@/context/NotifyContext";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+} from "@/components/ui/select";
+import { SelectValue } from "@radix-ui/react-select";
 
 const Job = () => {
   let { user } = useParams();
@@ -67,17 +74,27 @@ const Job = () => {
   const [load, setLoad] = useState(true);
   const [paymentBySelection, setPaymentBySelection] = useState(false);
 
-  const [showUnPaid, setShowUnPaid] = useState(false);
-  const [showRecebidoConferido, setShowRecebidoConferido] = useState(false);
-  const [showLotePronto, setShowLotePronto] = useState(false);
-  const [showAprovado, setShowAprovado] = useState(false);
-  const [showNotRecebido, setShowRecebido] = useState(false);
+  const [filters, setFilters] = useState({
+    showUnPaid: undefined as boolean | undefined,
+    showRecebidoConferido: undefined as boolean | undefined,
+    showLotePronto: undefined as boolean | undefined,
+    showAprovado: undefined as boolean | undefined,
+    showNotRecebido: undefined as boolean | undefined,
+    range: undefined as DateRange | undefined,
+  });
   const [range, setRange] = useState<DateRange | undefined>(undefined);
 
   const [selectedJob, setSelectedJob] = useState<string | null>(null);
   const [isDialogJobOpen, setIsDialogJobOpen] = useState(false);
 
   const [lastLote, setLastLote] = useState("");
+
+  const [production] = useState(
+    !!(window.localStorage !== undefined &&
+    localStorage.getItem("productionBrowser") == "yes"
+      ? true
+      : false)
+  );
 
   const openDialog = (id: string) => {
     setSelectedJob(id);
@@ -132,55 +149,56 @@ const Job = () => {
     },
   });
 
-  const toggleRecebidoConferidoFilter = () => {
-    setShowRecebidoConferido((prev) => !prev);
-  };
-
-  const toggleLoteProntoFilter = () => {
-    setShowLotePronto((prev) => !prev);
-  };
-
-  const toggleAprovadoFilter = () => {
-    setShowAprovado((prev) => !prev);
-  };
-
-  const toggleRecebidoFilter = () => {
-    setShowRecebido((prev) => !prev);
-  };
-
-  const togglePaid = () => {
-    setShowUnPaid((prev) => !prev);
-  };
-
   const filteredRegisters = registers?.filter((register) =>
     Object.values(register).some((value) =>
       value?.toString().toLowerCase().includes(searchTerm.toLowerCase())
     )
   );
 
-  const applyFilters = (registers: any) => {
-    return registers?.filter((register: any) => {
+  const updateFilter = (filterName: keyof typeof filters, value: string) => {
+    setFilters((prev) => ({
+      ...prev,
+      [filterName]:
+        value === "undefined" ? undefined : value === "true" ? true : false,
+    }));
+  };
+
+  const applyFilters = (registers: any[]) => {
+    return registers.filter((register) => {
       const matchesSearchTerm = Object.values(register).some((value) =>
         value?.toString().toLowerCase().includes(searchTerm.toLowerCase())
       );
 
-      const matchesUnPaid = showUnPaid ? !register.pago : true;
+      const matchesUnPaid =
+        filters.showUnPaid !== undefined
+          ? register.pago === filters.showUnPaid
+          : true;
 
-      const matchesRecebidoConferido = showRecebidoConferido
-        ? register.recebidoConferido
-        : true;
+      const matchesRecebidoConferido =
+        filters.showRecebidoConferido !== undefined
+          ? register.recebidoConferido === filters.showRecebidoConferido
+          : true;
 
-      const matchesLotePronto = showLotePronto ? register.lotePronto : true;
+      const matchesLotePronto =
+        filters.showLotePronto !== undefined
+          ? register.lotePronto === filters.showLotePronto
+          : true;
 
-      const matchesAprovado = showAprovado ? register.aprovado : true;
+      const matchesAprovado =
+        filters.showAprovado !== undefined
+          ? register.aprovado === filters.showAprovado
+          : true;
 
-      const matchesNotRecebido = showNotRecebido ? !register.recebido : true;
+      const matchesNotRecebido =
+        filters.showNotRecebido !== undefined
+          ? register.recebido === filters.showNotRecebido
+          : true;
 
       const matchesDateRange =
-        range && range.from && range.to
+        filters.range && filters.range.from && filters.range.to
           ? isWithinInterval(new Date(register.data), {
-              start: startOfDay(range.from),
-              end: endOfDay(range.to),
+              start: startOfDay(filters.range.from),
+              end: endOfDay(filters.range.to),
             })
           : true;
 
@@ -213,7 +231,9 @@ const Job = () => {
     key: string,
     price: number,
     username: string,
-    jobIds: string[]
+    jobIds: string[],
+    advancedMoney?: number,
+    faccionistId?: string
   ) => {
     openModal(
       <Suspense fallback={<>Carregando...</>}>
@@ -221,14 +241,40 @@ const Job = () => {
           pixKey={key}
           price={price}
           username={username}
+          advancedMoney={advancedMoney ?? 0}
+          faccionistId={faccionistId}
           onMarkAsPaid={() => handleStatusChange(jobIds, "pago")}
+          updateAdvancedMoney={(data) => updateAdvancedMoneyPix(data)}
+          updateValueAdvancedJob={(data) => updateValueAdvancedJob(data)}
+          jobIds={jobIds}
         />
       </Suspense>
     );
   };
 
+  const updateValueAdvancedJob = (jobs: any) => {
+    setRegisters((prevRegisters) =>
+      prevRegisters.map((register) => {
+        const matchingJob = jobs.find((job: any) => job._id === register._id);
+        if (matchingJob) {
+          return {
+            ...register,
+            advancedMoneyPayment: matchingJob.advancedMoneyPayment,
+          };
+        }
+        return register;
+      })
+    );
+  };
+
+  const updateAdvancedMoneyPix = (newState: number) =>
+    setFaccionist((prevState: any) => ({
+      ...prevState,
+      advanceMoney: newState, // Atualize apenas o campo necessário
+    }));
+
   const addJob = (newJob: any) => {
-    setRegisters((prev) => (prev.length ? [...prev, newJob] : [newJob]));
+    setRegisters((prev) => (prev.length ? [newJob, ...prev] : [newJob]));
   };
 
   const downloadPdf = async () => {
@@ -269,13 +315,14 @@ const Job = () => {
   const singleUpdate = async (
     ev: any,
     field: "qtd" | "larg" | "compr",
-    id: string
+    id: string,
+    valueNow?: any
   ) => {
-    console.log(ev.currentTarget.textContent);
-
-    instance
-      .put(`/jobs/sizes`, { id, field, value: ev.currentTarget.textContent })
-      .then(() => {});
+    if (valueNow != ev.currentTarget.textContent) {
+      instance
+        .put(`/jobs/sizes`, { id, field, value: ev.currentTarget.textContent })
+        .then(() => {});
+    }
   };
 
   const handleStatusChange = async (
@@ -288,7 +335,8 @@ const Job = () => {
       | "recebido"
       | "emenda"
       | "emAnalise"
-      | "isArchived"
+      | "isArchived",
+    acValue?: boolean
   ) => {
     instance.put(`jobs`, { ids, field }).then(() => {
       if (field === "isArchived") {
@@ -296,13 +344,50 @@ const Job = () => {
           prevRegisters.filter((register) => !ids.includes(register._id))
         );
       }
+
+      if (field === "aprovado" && !acValue) {
+        openModal(
+          <Suspense fallback={<>Carregando...</>}>
+            <StarRating ids={ids} />
+          </Suspense>
+        );
+      }
     });
   };
 
-  const iconVariants = {
-    hidden: { opacity: 0, scale: 0.8 },
-    visible: { opacity: 1, scale: 1 },
-    exit: { opacity: 0, scale: 0.8 },
+  const updateRate = (id: string) => {
+    openModal(
+      <Suspense fallback={<>Carregando...</>}>
+        <StarRating ids={id} />
+      </Suspense>
+    );
+  };
+
+  const updateAdvancedMoney = async (
+    ev: any,
+    field: "advanceMoney",
+    id: string
+  ) => {
+    if (!production) {
+      if (ev.currentTarget.textContent != faccionist?.advanceMoney) {
+        try {
+          instance
+            .put(`factionist/${id}`, {
+              [field]: ev.currentTarget.textContent,
+            })
+            .then((response: any) => {
+              setFaccionist((prevState: any) => ({
+                ...prevState,
+                advanceMoney: response.advanceMoney, // Atualize apenas o campo necessário
+              }));
+            });
+        } catch (error) {
+          toast.error("Erro ao atualizar usuário", {
+            position: "top-center",
+          });
+        }
+      }
+    }
   };
 
   const itemVariants = {
@@ -340,7 +425,10 @@ const Job = () => {
           <Card className="relative block w-full  bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700 ">
             <CardHeader>
               <CardTitle className="capitalize">
-                {faccionist?.username} {faccionist?.lastName}
+                {faccionist?.username} {faccionist?.lastName}{" "}
+                {faccionist?.evaluationScore
+                  ? "- " + faccionist?.evaluationScore
+                  : ""}
               </CardTitle>
             </CardHeader>
 
@@ -352,6 +440,27 @@ const Job = () => {
 
               <div className="flex items-center text-md font-normal text-gray-900 dark:text-white mb-3">
                 Chave pix: <b className="ml-2">{faccionist?.pixKey}</b>
+              </div>
+
+              <div className="flex items-center text-md font-normal text-gray-900 dark:text-white mb-3">
+                Adiantamento
+                <b className="ml-1">R$</b>
+                {production ? (
+                  <b className="px-1 inline-block ">
+                    {faccionist?.advanceMoney ?? 0}
+                  </b>
+                ) : (
+                  <b
+                    className="px-1 inline-block "
+                    onBlur={(e) => {
+                      updateAdvancedMoney(e, "advanceMoney", faccionist._id);
+                    }}
+                    contentEditable
+                    suppressContentEditableWarning={true}
+                  >
+                    {faccionist?.advanceMoney ?? 0}
+                  </b>
+                )}
               </div>
 
               <div className="flex items-center text-md font-normal text-gray-900 dark:text-white mb-3">
@@ -375,10 +484,12 @@ const Job = () => {
                       faccionist?.pixKey,
                       sumNotPayd(relevantRegisters),
                       `${faccionist?.username} ${faccionist?.lastName}`,
-                      relevantRegisters.map((item: any) => item._id)
+                      relevantRegisters.map((item: any) => item._id),
+                      faccionist.advanceMoney,
+                      faccionist._id
                     );
                   }}
-                  className="mt-2 bg-green-800"
+                  className={`${production && "hidden"} mt-2 bg-green-800`}
                   disabled={
                     paymentBySelection
                       ? displayedRegisters.filter((item: any) => !item.pago)
@@ -411,103 +522,149 @@ const Job = () => {
         </div>
 
         <div className="flex flex-col justify-center flex-wrap md:justify-start md:flex-row">
-          <div className="flex items-center text-sm font-medium text-gray-900 p-3">
-            <Button variant="outline" onClick={togglePaid} className="">
-              {" "}
-              <motion.div
-                key={showUnPaid ? "show" : "hide"}
-                initial="hidden"
-                animate="visible"
-                exit="exit"
-                variants={iconVariants}
-                transition={{ duration: 0.2 }}
-              >
-                {showUnPaid ? <CircleCheckBig /> : <Circle />}
-              </motion.div>
-              Mostrar trabalhos não pagos
-            </Button>
+          <div className="flex gap-3 flex-col text-sm font-medium text-gray-900 p-3">
+            <label
+              htmlFor="filtroAprovado"
+              className="text-sm font-medium text-gray-700"
+            >
+              Trabalhos pagos
+            </label>
+            <Select
+              onValueChange={(value) => updateFilter("showUnPaid", value)}
+              value={
+                filters.showUnPaid === undefined
+                  ? "undefined"
+                  : filters.showUnPaid === true
+                  ? "true"
+                  : "false"
+              }
+            >
+              <SelectTrigger className="w-56">
+                <SelectValue placeholder="Selecione" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="undefined">Selecione</SelectItem>
+                <SelectItem value="true">Sim</SelectItem>
+                <SelectItem value="false">Não</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
 
-          <div className="flex items-center text-sm font-medium text-gray-900 p-3">
-            <Button
-              variant="outline"
-              onClick={toggleRecebidoConferidoFilter}
-              className=""
+          <div className="flex gap-3 flex-col text-sm font-medium text-gray-900 p-3">
+            <label
+              htmlFor="filtroAprovado"
+              className="text-sm font-medium text-gray-700"
             >
-              <motion.div
-                key={showRecebidoConferido ? "show" : "hide"}
-                initial="hidden"
-                animate="visible"
-                exit="exit"
-                variants={iconVariants}
-                transition={{ duration: 0.2 }}
-              >
-                {showRecebidoConferido ? <CircleCheckBig /> : <Circle />}
-              </motion.div>
               Recebidos/conferidos
-            </Button>
+            </label>
+
+            <Select
+              onValueChange={(value) =>
+                updateFilter("showRecebidoConferido", value)
+              }
+              value={
+                filters.showRecebidoConferido === undefined
+                  ? "undefined"
+                  : filters.showRecebidoConferido === true
+                  ? "true"
+                  : "false"
+              }
+            >
+              <SelectTrigger className="w-56">
+                <SelectValue placeholder="Selectione" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="undefined">Selecione</SelectItem>
+                <SelectItem value="true">Sim</SelectItem>
+                <SelectItem value="false">Não</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
 
-          <div className="flex items-center text-sm font-medium text-gray-900 p-3">
-            <Button
-              variant="outline"
-              onClick={toggleLoteProntoFilter}
-              className=""
+          <div className="flex gap-3 flex-col text-sm font-medium text-gray-900 p-3">
+            <label
+              htmlFor="filtroAprovado"
+              className="text-sm font-medium text-gray-700"
             >
-              <motion.div
-                key={showLotePronto ? "show" : "hide"}
-                initial="hidden"
-                animate="visible"
-                exit="exit"
-                variants={iconVariants}
-                transition={{ duration: 0.2 }}
-              >
-                {showLotePronto ? <CircleCheckBig /> : <Circle />}
-              </motion.div>
-              Lotes prontos
-            </Button>
+              Pronto
+            </label>
+            <Select
+              onValueChange={(value) => updateFilter("showLotePronto", value)}
+              value={
+                filters.showLotePronto === undefined
+                  ? "undefined"
+                  : filters.showLotePronto === true
+                  ? "true"
+                  : "false"
+              }
+            >
+              <SelectTrigger className="w-56">
+                <SelectValue placeholder="Selecione" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="undefined">Selecione</SelectItem>
+                <SelectItem value="true">Sim</SelectItem>
+                <SelectItem value="false">Não</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
 
-          <div className="flex items-center text-sm font-medium text-gray-900 p-3">
-            <Button
-              variant="outline"
-              onClick={toggleRecebidoFilter}
-              className=""
+          <div className="flex gap-3 flex-col text-sm font-medium text-gray-900 p-3">
+            <label
+              htmlFor="filtroAprovado"
+              className="text-sm font-medium text-gray-700"
             >
-              <motion.div
-                key={showNotRecebido ? "show" : "hide"}
-                initial="hidden"
-                animate="visible"
-                exit="exit"
-                variants={iconVariants}
-                transition={{ duration: 0.2 }}
-              >
-                {showNotRecebido ? <CircleCheckBig /> : <Circle />}
-              </motion.div>
-              Trabalhos não recebidos
-            </Button>
+              Trabalhos recebidos
+            </label>
+            <Select
+              onValueChange={(value) => updateFilter("showNotRecebido", value)}
+              value={
+                filters.showNotRecebido === undefined
+                  ? "undefined"
+                  : filters.showNotRecebido === true
+                  ? "true"
+                  : "false"
+              }
+            >
+              <SelectTrigger className="w-56">
+                <SelectValue placeholder="Selecione" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="undefined">Selecione</SelectItem>
+                <SelectItem value="true">Sim</SelectItem>
+                <SelectItem value="false">Não</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
-          <div className="flex items-center text-sm font-medium text-gray-900 p-3">
-            <Button
-              variant="outline"
-              onClick={toggleAprovadoFilter}
-              className=""
+          <div className="flex gap-3 flex-col text-sm font-medium text-gray-900 p-3">
+            <label
+              htmlFor="filtroAprovado"
+              className="text-sm font-medium text-gray-700"
             >
-              <motion.div
-                key={showAprovado ? "show" : "hide"}
-                initial="hidden"
-                animate="visible"
-                exit="exit"
-                variants={iconVariants}
-                transition={{ duration: 0.2 }}
-              >
-                {showAprovado ? <CircleCheckBig /> : <Circle />}
-              </motion.div>
               Trabalhos aprovados
-            </Button>
+            </label>
+            <Select
+              onValueChange={(value) => updateFilter("showAprovado", value)}
+              value={
+                filters.showAprovado === undefined
+                  ? "undefined"
+                  : filters.showAprovado === true
+                  ? "true"
+                  : "false"
+              }
+            >
+              <SelectTrigger className="w-56">
+                <SelectValue placeholder="Selecione" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="undefined">Selecione</SelectItem>
+                <SelectItem value="true">Sim</SelectItem>
+                <SelectItem value="false">Não</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
 
-          <div className="flex items-center text-sm font-medium text-gray-900 p-3">
+          <div className="flex items-center text-sm font-medium text-gray-900 p-3 mt-8">
             <Popover>
               <PopoverTrigger asChild>
                 <Button
@@ -547,7 +704,7 @@ const Job = () => {
               </PopoverContent>
             </Popover>
           </div>
-          <div className="flex items-center text-sm font-medium text-gray-900 p-3">
+          <div className="flex items-center text-sm font-medium text-gray-900 p-3 mt-8">
             <a className="cursor-pointer" onClick={downloadPdf}>
               <FileSpreadsheet />
             </a>
@@ -579,9 +736,24 @@ const Job = () => {
                       >
                         <ArchiveRestore className="w-4 h-4 float-right text-blue-400" />
                       </a>
+                      <a
+                        className="cursor-pointer"
+                        onClick={() => updateRate(register._id)}
+                      >
+                        <Star className="w-4 h-4 float-right text-yellow-400 mr-3">
+                          2
+                        </Star>
+                      </a>
                     </CardTitle>
                   </CardHeader>
                   <CardContent className="space-y-2 text-sm">
+                    <div className="flex items-center text-sm font-medium text-gray-900 dark:text-white me-3">
+                      Qualidade:{" "}
+                      <span className="px-1 inline-block ml-1">
+                        {register.rateLote ? register.rateLote : "Não avaliado"}
+                      </span>
+                    </div>
+
                     <div className="flex items-center text-sm font-medium text-gray-900 dark:text-white me-3">
                       Data:{" "}
                       <span className="px-1 inline-block ml-1">
@@ -594,7 +766,7 @@ const Job = () => {
                       <span
                         className="px-1 inline-block ml-1"
                         onBlur={(e) => {
-                          singleUpdate(e, "qtd", register._id);
+                          singleUpdate(e, "qtd", register._id, register.qtd);
                         }}
                         contentEditable
                         suppressContentEditableWarning={true}
@@ -607,7 +779,7 @@ const Job = () => {
                       <span
                         className="px-1 inline-block ml-1"
                         onBlur={(e) => {
-                          singleUpdate(e, "larg", register._id);
+                          singleUpdate(e, "larg", register._id, register.larg);
                         }}
                         contentEditable
                         suppressContentEditableWarning={true}
@@ -620,7 +792,12 @@ const Job = () => {
                       <span
                         className="px-1 inline-block ml-1"
                         onBlur={(e) => {
-                          singleUpdate(e, "compr", register._id);
+                          singleUpdate(
+                            e,
+                            "compr",
+                            register._id,
+                            register.compr
+                          );
                         }}
                         contentEditable
                         suppressContentEditableWarning={true}
@@ -796,7 +973,11 @@ const Job = () => {
                       <a
                         className="cursor-pointer"
                         onClick={() =>
-                          handleStatusChange([register._id], "aprovado")
+                          handleStatusChange(
+                            [register._id],
+                            "aprovado",
+                            register.aprovado
+                          )
                         }
                       >
                         {register.aprovado ? (
@@ -828,7 +1009,9 @@ const Job = () => {
                         <CircleCheck className="w-9 h-9 text-green-500" />
                       ) : (
                         <>
-                          {!register.pago && register.recebido ? (
+                          {!register.pago &&
+                          register.recebido &&
+                          !production ? (
                             <Button
                               onClick={() =>
                                 handleOpenPixModal(
@@ -838,7 +1021,9 @@ const Job = () => {
                                   [register._id]
                                 )
                               }
-                              className="bg-green-800 flex items-center"
+                              className={`${
+                                production ? "hidden" : ""
+                              } bg-green-800 flex items-center`}
                             >
                               <HandCoins className="w-4 h-4 mr-2" />
                               Pagar este lote
@@ -855,6 +1040,13 @@ const Job = () => {
                             ? format(register.dataPgto, "dd/MM/yy")
                             : "-"}
                         </div>
+                      ) : null}
+                      {register.advancedMoneyPayment &&
+                      register.advancedMoneyPayment != 0 ? (
+                        <p className="text-red-700 text-sm my-2">
+                          Desconto de adiantamento R$
+                          {register.advancedMoneyPayment.toFixed(2)}
+                        </p>
                       ) : null}
                     </motion.div>
                   </CardFooter>

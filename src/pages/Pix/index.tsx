@@ -7,6 +7,8 @@ import {
 import { useState } from "react";
 import PIX from "react-qrcode-pix";
 import { useModal } from "../../context/ModalContext"; // Importe o useModal
+import { Input } from "@/components/ui/input";
+import instance from "@/config/axios";
 
 const now = new Date().getTime().toString();
 
@@ -14,22 +16,67 @@ interface PixProps {
   pixKey: string;
   price: number;
   username: string;
+  advancedMoney?: number;
+  faccionistId?: string;
   onMarkAsPaid: () => void;
+  updateAdvancedMoney?: (n: any) => void;
+  updateValueAdvancedJob?: (jobsResponse: any) => void;
+  jobIds: string[];
 }
 
 export default function Pix({
   pixKey,
   price,
   username = "",
+  faccionistId = "",
+  advancedMoney = 0,
   onMarkAsPaid,
+  updateAdvancedMoney,
+  updateValueAdvancedJob,
+  jobIds,
 }: PixProps) {
   const [fullPIX, setFullPIX] = useState("");
   console.log(fullPIX);
+  const [priceI, setPriceI] = useState(price);
+  const [advancedRemove, setAdvancedRemove] = useState<number>();
   const { closeModal } = useModal();
 
-  const handleMarkAsPaid = () => {
+  const handleMarkAsPaid = async () => {
+    if (priceI != price) {
+      await instance
+        .put(`jobs/splitAdvancedMoney`, {
+          ids: jobIds,
+          value: Number((advancedRemove ?? 0) / jobIds.length),
+        })
+        .then((response: any) => {
+          updateValueAdvancedJob && updateValueAdvancedJob(response.jobs);
+        });
+
+      instance
+        .put(`factionist/${faccionistId}`, {
+          advanceMoney: advancedMoney - (advancedRemove ?? 0),
+        })
+        .then((response: any) => {
+          updateAdvancedMoney && updateAdvancedMoney(response.advanceMoney);
+        });
+    }
     onMarkAsPaid();
     closeModal();
+  };
+
+  const onChangeValueAdvanced = (e: React.ChangeEvent<HTMLInputElement>) => {
+    let newAdvancedRemove = parseFloat(e.target.value) || 0;
+
+    if (newAdvancedRemove < 0) {
+      newAdvancedRemove = 0;
+    } else if (newAdvancedRemove > price) {
+      newAdvancedRemove = parseFloat((price - 0.01).toFixed(2));
+    } else if (newAdvancedRemove > advancedMoney) {
+      newAdvancedRemove = parseFloat(advancedMoney.toFixed(2));
+    }
+
+    setAdvancedRemove(newAdvancedRemove);
+    setPriceI(price - newAdvancedRemove);
   };
 
   const addPrefixIfPhone = (pixKey: string) => {
@@ -52,12 +99,34 @@ export default function Pix({
       <DialogHeader>
         <DialogTitle className="leading-6">
           Pagamento para <span className="capitalize">{username}</span> Valor de
-          R$ {price?.toFixed(2)}
+          R$ {priceI?.toFixed(2)}
         </DialogTitle>
         <DialogDescription>
           Confira com cautela os dados do destinatário e valor antes de efetuar
           transferencia.
         </DialogDescription>
+
+        {advancedMoney && advancedMoney != 0 ? (
+          <>
+            <p className="text-red-500 text-center">
+              {`Possui um adiantamento no valor de R$ ${advancedMoney} (${(
+                advancedMoney - (advancedRemove ?? 0)
+              ).toFixed(2)})
+            você gostaria de abater algum valor deste pagamento ?
+            `}
+            </p>
+            <div>
+              <Input
+                id="qtd"
+                name="qtd"
+                type="text"
+                placeholder="Valor a ser abatido"
+                value={advancedRemove}
+                onChange={(e) => onChangeValueAdvanced(e)}
+              />
+            </div>
+          </>
+        ) : null}
       </DialogHeader>
 
       <div className="justify-center flex">
@@ -70,7 +139,7 @@ export default function Pix({
             city="Londrina"
             cep=""
             code={"RQP" + now}
-            amount={price}
+            amount={priceI}
             onLoad={setFullPIX}
             resize={284}
             variant="fluid"
