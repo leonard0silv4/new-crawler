@@ -197,7 +197,7 @@ const ListFaccionista = () => {
               {factionistUser[0]?.advanceMoney &&
               factionistUser[0]?.advanceMoney != 0 ? (
                 <div className="flex items-center text-md font-normal text-gray-900 dark:text-white mb-3">
-                  Adiantamentos pendentes
+                  Adiantamentos pendentes{" "}
                   <b className="ml-2 capitalize">
                     R${factionistUser[0]?.advanceMoney.toFixed(2)}
                   </b>
@@ -207,7 +207,7 @@ const ListFaccionista = () => {
               <div className="flex items-center text-md font-normal text-gray-900 dark:text-white mb-3">
                 Valores à receber:{" "}
                 <b className="ml-2">
-                  R$ {totalNotPaid.toFixed(2)}
+                  R${totalNotPaid.toFixed(2)}
                   {/* {totalNotPaid.toFixed(2) >
                   factionistUser[0]?.advanceMoney.toFixed(2)
                     ? totalNotPaid.toFixed(2) -
@@ -224,12 +224,8 @@ const ListFaccionista = () => {
               </div>
 
               <div className="flex items-center text-md font-normal text-gray-900 dark:text-white mb-3">
-                Total valores pagos
-                <b className="ml-2 capitalize">
-                  R$
-                  {totalPaid -
-                    (factionistUser as any)?.totalAdvancedMoney.toFixed(2)}
-                </b>
+                Total valores pagos{" "}
+                <b className="ml-2 capitalize">R$ {totalPaid.toFixed(2)}</b>
               </div>
 
               {/* {(factionistUser as any)?.totalAdvancedMoney &&

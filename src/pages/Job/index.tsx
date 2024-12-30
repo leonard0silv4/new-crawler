@@ -427,9 +427,12 @@ const Job = () => {
             <CardHeader>
               <CardTitle className="capitalize">
                 {faccionist?.username} {faccionist?.lastName}{" "}
-                {faccionist?.evaluationScore
-                  ? "- " + faccionist?.evaluationScore
-                  : ""}
+                <p className="mt-2 font-medium text-md">
+                  {" "}
+                  {faccionist?.evaluationScore
+                    ? "QoS : " + faccionist?.evaluationScore
+                    : ""}
+                </p>
               </CardTitle>
             </CardHeader>
 
@@ -914,7 +917,14 @@ const Job = () => {
                         ></span>
                         Recebido:{" "}
                         <span className="px-1 inline-block ml-1">
-                          {register.recebido ? "Sim" : "Não"}
+                          {register.recebido
+                            ? register.dataRecebido
+                              ? format(
+                                  register.dataRecebido,
+                                  "dd/MM/yyyy HH:mm"
+                                )
+                              : "Sim"
+                            : "Não"}{" "}
                         </span>
                       </span>
 
@@ -969,7 +979,14 @@ const Job = () => {
                         ></span>
                         Aprovado:{" "}
                         <span className="px-1 inline-block ml-1">
-                          {register.aprovado ? "Sim" : "Não"}
+                          {register.aprovado
+                            ? register.dataAprovado
+                              ? format(
+                                  register.dataAprovado,
+                                  "dd/MM/yyyy HH:mm"
+                                )
+                              : "Sim"
+                            : "Não"}{" "}
                         </span>
                       </span>
                       {/* {!register.aprovado && ( */}
