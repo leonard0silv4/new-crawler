@@ -207,12 +207,12 @@ const ListFaccionista = () => {
               <div className="flex items-center text-md font-normal text-gray-900 dark:text-white mb-3">
                 Valores à receber:{" "}
                 <b className="ml-2">
-                  R$
-                  {totalNotPaid.toFixed(2) >
+                  R$ {totalNotPaid.toFixed(2)}
+                  {/* {totalNotPaid.toFixed(2) >
                   factionistUser[0]?.advanceMoney.toFixed(2)
                     ? totalNotPaid.toFixed(2) -
                       factionistUser[0]?.advanceMoney.toFixed(2)
-                    : totalNotPaid.toFixed(2)}
+                    : totalNotPaid.toFixed(2)} */}
                 </b>
               </div>
 
