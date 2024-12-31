@@ -150,9 +150,13 @@ const Job = () => {
     },
   });
 
+  const searchTerms = searchTerm.split(" ").map((term) => term.toLowerCase());
+
   const filteredRegisters = registers?.filter((register) =>
-    Object.values(register).some((value) =>
-      value?.toString().toLowerCase().includes(searchTerm.toLowerCase())
+    searchTerms.every((term) =>
+      Object.values(register).some((value) =>
+        value?.toString().toLowerCase().includes(term)
+      )
     )
   );
 
@@ -166,8 +170,10 @@ const Job = () => {
 
   const applyFilters = (registers: any[]) => {
     return registers.filter((register) => {
-      const matchesSearchTerm = Object.values(register).some((value) =>
-        value?.toString().toLowerCase().includes(searchTerm.toLowerCase())
+      const matchesSearchTerm = searchTerms.every((term) =>
+        ["qtd", "larg", "compr"].some((key) =>
+          register[key]?.toString().toLowerCase().includes(term)
+        )
       );
 
       const matchesUnPaid =
