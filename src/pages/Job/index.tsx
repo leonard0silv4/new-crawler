@@ -11,6 +11,7 @@ import {
 import {
   ArchiveRestore,
   ArrowLeft,
+  Badge,
   CalendarIcon,
   CircleCheck,
   FileSpreadsheet,
@@ -738,7 +739,7 @@ const Job = () => {
                         className="cursor-pointer"
                         onClick={() => openDialog(register._id)}
                       >
-                        <ArchiveRestore className="w-4 h-4 float-right text-blue-400" />
+                        <ArchiveRestore className="w-5 h-5 float-right text-blue-400" />
                       </a>
                       <a
                         className="cursor-pointer"
@@ -746,19 +747,32 @@ const Job = () => {
                           updateRate(register._id, register.rateLote)
                         }
                       >
-                        <Star className="w-4 h-4 float-right text-yellow-400 mr-3">
-                          2
-                        </Star>
+                        {register.rateLote ? (
+                          <span className="float-right mr-3 relative ">
+                            <Badge
+                              className={`text-yellow-400 w-8 h-8 float-right `}
+                            />
+                            <span className="text-[10px] absolute top-0 flex-1 right-0 w-full h-full text-center flex pt-3 justify-center">
+                              {register.rateLote}
+                            </span>
+                          </span>
+                        ) : (
+                          <span className="float-right mr-3 relative ">
+                            <Star
+                              className={`text-yellow-400 w-5 h-5 float-right `}
+                            />
+                          </span>
+                        )}
                       </a>
                     </CardTitle>
                   </CardHeader>
                   <CardContent className="space-y-2 text-sm">
-                    <div className="flex items-center text-sm font-medium text-gray-900 dark:text-white me-3">
+                    {/* <div className="flex items-center text-sm font-medium text-gray-900 dark:text-white me-3">
                       Qualidade:{" "}
-                      <span className="px-1 inline-block ml-1">
+                      <span className={` px-1 inline-block ml-1`}>
                         {register.rateLote ? register.rateLote : "Não avaliado"}
                       </span>
-                    </div>
+                    </div> */}
 
                     <div className="flex items-center text-sm font-medium text-gray-900 dark:text-white me-3">
                       Data:{" "}

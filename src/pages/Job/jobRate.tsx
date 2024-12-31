@@ -65,10 +65,12 @@ const StarRating = ({ ids, rateAc }: RateProps) => {
       </div>
 
       <p className="my-3 font-medium text-xl">
-        {rating && (
+        {rating ? (
           <>
             Classificação: {rating} - {RatingDescription[rating] || ""}
           </>
+        ) : (
+          ""
         )}
       </p>
 

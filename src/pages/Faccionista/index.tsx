@@ -363,8 +363,15 @@ const ListFaccionista = () => {
                           register.recebido ? "bg-teal-500" : "bg-red-500 "
                         } flex w-2.5 h-2.5  rounded-full me-1.5 flex-shrink-0`}
                       ></span>
+
                       {register.recebido
-                        ? "Lote entregue"
+                        ? `Lote entregue ${
+                            register.dataRecebido
+                              ? format(register.dataRecebido, "P HH:mm", {
+                                  locale: ptBR,
+                                })
+                              : ""
+                          }`
                         : "Aguardando recebimento do lote"}
                     </span>
                   </div>
@@ -385,6 +392,13 @@ const ListFaccionista = () => {
                         : register.aprovado
                         ? "Aprovado com qualidade " + register.rateLote
                         : "Aprovado: Não"}
+                    </span>
+                    <span className="flex items-center justify-center text-sm font-bold text-gray-600">
+                      {register.aprovado && register.dataAprovado
+                        ? format(register.dataAprovado, "P HH:mm", {
+                            locale: ptBR,
+                          })
+                        : ""}
                     </span>
                   </div>
                 </CardContent>
