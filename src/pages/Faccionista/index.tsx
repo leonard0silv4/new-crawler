@@ -120,7 +120,7 @@ const ListFaccionista = () => {
 
   const sumNotPayd = (jobs: any) => {
     return jobs
-      .filter((item: any) => !item.pago)
+      .filter((item: any) => !item.pago && item.recebido)
       .reduce((sum: number, item: any) => sum + item.orcamento, 0);
   };
 
