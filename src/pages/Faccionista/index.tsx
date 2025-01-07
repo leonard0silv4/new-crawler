@@ -120,7 +120,7 @@ const ListFaccionista = () => {
 
   const sumNotPayd = (jobs: any) => {
     return jobs
-      .filter((item: any) => !item.pago && item.recebido)
+      .filter((item: any) => !item.pago)
       .reduce((sum: number, item: any) => sum + item.orcamento, 0);
   };
 
@@ -143,7 +143,7 @@ const ListFaccionista = () => {
 
   const sumMetr = (jobs: any) => {
     return jobs
-      .filter((item: any) => item.totMetros)
+      .filter((item: any) => item.totMetros && item.pago)
       .reduce((sum: number, item: any) => sum + item.totMetros, 0);
   };
 
