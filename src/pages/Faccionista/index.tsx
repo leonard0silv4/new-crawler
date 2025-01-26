@@ -255,7 +255,7 @@ const ListFaccionista = () => {
                     <h4 className="font-bold">Apuração QoS</h4>
                     <p>
                       Pontuação das ultimas{" "}
-                      {(factionistUser as any)?.recentLotes.length == 10
+                      {(factionistUser as any)?.recentLotes.length >= 10
                         ? (factionistUser as any)?.recentLotes.length
                         : "0" +
                           (factionistUser as any)?.recentLotes.length}{" "}

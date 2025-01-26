@@ -83,7 +83,7 @@ const Job = () => {
     showNotRecebido: undefined as boolean | undefined,
     range: undefined as DateRange | undefined,
   });
-  const [range, setRange] = useState<DateRange | undefined>(undefined);
+  // const [range, setRange] = useState<DateRange | undefined>(undefined);
 
   const [selectedJob, setSelectedJob] = useState<string | null>(null);
   const [isDialogJobOpen, setIsDialogJobOpen] = useState(false);
@@ -681,16 +681,18 @@ const Job = () => {
                 <Button
                   variant="outline"
                   className={`w-[240px] pl-3 text-left font-medium text-gray-900 ${
-                    !range ? "text-muted-foreground" : ""
+                    !filters.range ? "text-muted-foreground" : ""
                   }`}
                 >
-                  {range ? (
-                    range.from && range.to ? (
-                      `${format(range.from, "PP", {
+                  {filters.range ? (
+                    filters.range.from && filters.range.to ? (
+                      `${format(filters.range.from, "PP", {
                         locale: ptBR,
-                      })} - ${format(range.to, "PP", { locale: ptBR })}`
-                    ) : range.from ? (
-                      `${format(range.from, "PP", { locale: ptBR })} - ...`
+                      })} - ${format(filters.range.to, "PP", { locale: ptBR })}`
+                    ) : filters.range.from ? (
+                      `${format(filters.range.from, "PP", {
+                        locale: ptBR,
+                      })} - ...`
                     ) : (
                       <span className="font-medium text-gray-900">
                         Selecione intervalo
@@ -707,8 +709,13 @@ const Job = () => {
               <PopoverContent className="w-auto p-0" align="start">
                 <Calendar
                   mode="range"
-                  selected={range}
-                  onSelect={(newRange) => setRange(newRange)}
+                  selected={filters.range}
+                  onSelect={(newRange) =>
+                    setFilters((prevFilters) => ({
+                      ...prevFilters,
+                      range: newRange,
+                    }))
+                  }
                   locale={ptBR}
                   className="rounded-md border"
                 />
