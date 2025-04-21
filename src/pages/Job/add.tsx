@@ -95,9 +95,10 @@ const AddJob = ({ addJob, lastLote }: any) => {
 
       updatedFormData.totMetros = parseFloat(totMetros.toFixed(2));
       updatedFormData.orcamento = parseFloat(orcamento.toFixed(2));
-      updatedFormData.qtdRolo = Math.ceil(
-        ((largNum * 2 + comprNum * 2) * qtdNum * 1.35) / 50
-      );
+      updatedFormData.qtdRolo = (
+        ((largNum * 2 + comprNum * 2) * qtdNum * 1.35) /
+        50
+      ).toFixed(2);
     }
 
     setFormData(updatedFormData);

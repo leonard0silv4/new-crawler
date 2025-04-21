@@ -8,12 +8,14 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+
 import {
   ArchiveRestore,
   ArrowLeft,
   Badge,
   CalendarIcon,
   CircleCheck,
+  Eraser,
   FileSpreadsheet,
   HandCoins,
   Loader,
@@ -74,6 +76,18 @@ const Job = () => {
   const [faccionist, setFaccionist] = useState<any>(null);
   const [load, setLoad] = useState(true);
   const [paymentBySelection, setPaymentBySelection] = useState(false);
+
+  const [jobsSelectedRolls, setJobsSelectedRolls] = useState<number[]>([]);
+
+  const handleCheckboxSelectedJobs = (id: number) => {
+    setJobsSelectedRolls((prevSelected: number[]) => {
+      if (prevSelected.includes(id)) {
+        return prevSelected.filter((item: number) => item !== id);
+      } else {
+        return [...prevSelected, id];
+      }
+    });
+  };
 
   const [filters, setFilters] = useState({
     showUnPaid: undefined as boolean | undefined,
@@ -428,7 +442,6 @@ const Job = () => {
             <AddJob lastLote={lastLote} addJob={addJob} />
           </Suspense>
         </div>
-
         <div className="flex justify-between items-center">
           <Card className="relative block w-full  bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700 ">
             <CardHeader>
@@ -478,6 +491,25 @@ const Job = () => {
                 Valor total em caixa:
                 <b className="ml-2">R$ {totalNotPaid.toFixed(2)}</b>
               </div>
+
+              {jobsSelectedRolls && displayedRegisters ? (
+                <div className="flex items-center text-md font-normal text-gray-900 dark:text-white mb-3">
+                  Soma rolos selecionados:
+                  <b className="ml-2">
+                    {displayedRegisters
+                      .filter((lt) => jobsSelectedRolls.includes(lt.lote))
+                      .reduce((total, item) => total + item.qtdRolo, 0)
+                      .toFixed(2)}
+                  </b>
+                  <a
+                    className="cursor-pointer ml-2"
+                    onClick={() => setJobsSelectedRolls([])}
+                  >
+                    <Eraser className="w-4 h-4" />
+                  </a>
+                </div>
+              ) : null}
+
               {registers
                 .filter((item: any) => !item.pago)
                 .map((item: any) => item._id).length != 0 && (
@@ -531,7 +563,6 @@ const Job = () => {
             </CardContent>
           </Card>
         </div>
-
         <div className="flex flex-col justify-center flex-wrap md:justify-start md:flex-row">
           <div className="flex gap-3 flex-col text-sm font-medium text-gray-900 p-3">
             <label
@@ -747,6 +778,13 @@ const Job = () => {
                 >
                   <CardHeader>
                     <CardTitle>
+                      <Checkbox
+                        onClick={() =>
+                          handleCheckboxSelectedJobs(register.lote)
+                        }
+                        checked={jobsSelectedRolls?.includes(register.lote)}
+                        className="mr-3"
+                      />
                       LOTE: {register.lote}
                       <a
                         className="cursor-pointer"

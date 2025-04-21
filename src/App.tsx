@@ -19,6 +19,7 @@ import Job from "./pages/Job";
 import { ModalProvider } from "./context/ModalContext";
 import { NotifyProvider } from "./context/NotifyContext";
 import NavUser from "./pages/Job/navUser";
+import ProductionForm from "./pages/ControlProd";
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(
@@ -46,6 +47,7 @@ function App() {
             <Route element={<Sales />} path="/orders" />
             <Route element={<Config />} path="/config" />
             <Route element={<Users />} path="/users" />
+            <Route element={<ProductionForm />} path="/control-prod" />
             <Route
               path="/job/:user"
               element={
