@@ -59,6 +59,7 @@ const AddJob = ({ addJob, lastLote }: any) => {
 
   const [formData, setFormData] = useState(initial);
   const [isOpen, setIsOpen] = useState(false);
+  const [onSend, setOnSend] = useState(false);
 
   const handleOpenChange = (open: boolean) => {
     setFormData({ ...formData, lote: Number(lastLote ?? 0) + 1 });
@@ -130,6 +131,10 @@ const AddJob = ({ addJob, lastLote }: any) => {
   };
 
   const handleSubmit = async () => {
+    if (onSend) return;
+
+    setOnSend(true);
+
     const requiredFields: (keyof typeof formData)[] = [
       "lote",
       "qtd",
@@ -151,6 +156,7 @@ const AddJob = ({ addJob, lastLote }: any) => {
           position: "top-right",
         }
       );
+      setOnSend(false);
       return;
     }
 
@@ -173,6 +179,9 @@ const AddJob = ({ addJob, lastLote }: any) => {
             position: "top-right",
           });
           console.log(err);
+        })
+        .finally(() => {
+          setOnSend(false);
         });
     } catch (error) {
       toast.success("Problema ao adicionar trabalho!", {
@@ -351,7 +360,7 @@ const AddJob = ({ addJob, lastLote }: any) => {
         </form>
 
         <DialogFooter>
-          <Button type="button" onClick={handleSubmit}>
+          <Button disabled={onSend} type="button" onClick={handleSubmit}>
             Salvar
           </Button>
         </DialogFooter>
