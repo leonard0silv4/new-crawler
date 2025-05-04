@@ -243,9 +243,20 @@ const Job = () => {
       .reduce((sum: number, item: any) => sum + item.orcamento, 0);
   };
 
+  const sumTotM = (jobs: any) => {
+    return jobs
+      .filter((item: any) => !item.pago && item.recebido)
+      .reduce((sum: number, item: any) => sum + item.totMetros, 0);
+  };
+
   const totalNotPaid = useMemo(() => {
     const relevantJobs = paymentBySelection ? displayedRegisters : registers;
     return sumNotPayd(relevantJobs);
+  }, [displayedRegisters, registers, paymentBySelection]);
+
+  const totalMetros = useMemo(() => {
+    const relevantJobs = paymentBySelection ? displayedRegisters : registers;
+    return sumTotM(relevantJobs);
   }, [displayedRegisters, registers, paymentBySelection]);
 
   const handleOpenPixModal = (
@@ -490,6 +501,11 @@ const Job = () => {
               <div className="flex items-center text-md font-normal text-gray-900 dark:text-white mb-3">
                 Valor total em caixa:
                 <b className="ml-2">R$ {totalNotPaid.toFixed(2)}</b>
+              </div>
+
+              <div className="flex items-center text-md font-normal text-gray-900 dark:text-white mb-3">
+                Metros a serem pagos
+                <b className="ml-2">{totalMetros}m</b>
               </div>
 
               {jobsSelectedRolls && displayedRegisters ? (
