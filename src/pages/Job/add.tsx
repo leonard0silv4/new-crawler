@@ -115,7 +115,7 @@ const AddJob = ({ addJob, lastLote }: any) => {
     if (qtd && larg && compr) {
       let totMetros = (larg * 2 + compr * 2) * qtd;
 
-      const custoPorMetro = 0.6;
+      const custoPorMetro = 0.4;
       let orcamento = totMetros * custoPorMetro;
 
       if (emenda) {
