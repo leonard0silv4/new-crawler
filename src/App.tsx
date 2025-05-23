@@ -20,6 +20,10 @@ import { ModalProvider } from "./context/ModalContext";
 import { NotifyProvider } from "./context/NotifyContext";
 import NavUser from "./pages/Job/navUser";
 import ProductionForm from "./pages/ControlProd";
+import SellerProductsPage from "./pages/AccountsMeli";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+
+const queryClient = new QueryClient();
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(
@@ -30,48 +34,54 @@ function App() {
     isAuthenticated && localStorage.getItem("role") == "owner";
 
   return (
-    <NotifyProvider>
-      <ModalProvider>
-        <Toaster />
-        {isAuthenticated && enableLinks && (
-          <Header handleAuthentication={setIsAuthenticated} />
-        )}
-        {isAuthenticated && !enableLinks && (
-          <MinimalHeader handleAuthentication={setIsAuthenticated} />
-        )}
-        <Routes>
-          <Route element={<PrivateRoutes allowedRoles={["owner"]} />}>
-            <Route element={<Dashboard />} path="/" />
-            <Route element={<Dashboard />} path="/dashboard" />
-            <Route element={<Shopee />} path="/shopee" />
-            <Route element={<Sales />} path="/orders" />
-            <Route element={<Config />} path="/config" />
-            <Route element={<Users />} path="/users" />
-            <Route element={<ProductionForm />} path="/control-prod" />
+    <QueryClientProvider client={queryClient}>
+      <NotifyProvider>
+        <ModalProvider>
+          <Toaster />
+          {isAuthenticated && enableLinks && (
+            <Header handleAuthentication={setIsAuthenticated} />
+          )}
+          {isAuthenticated && !enableLinks && (
+            <MinimalHeader handleAuthentication={setIsAuthenticated} />
+          )}
+          <Routes>
+            <Route element={<PrivateRoutes allowedRoles={["owner"]} />}>
+              <Route element={<Dashboard />} path="/" />
+              <Route element={<Dashboard />} path="/dashboard" />
+              <Route element={<Shopee />} path="/shopee" />
+              <Route element={<Sales />} path="/orders" />
+              <Route element={<Config />} path="/config" />
+              <Route element={<Users />} path="/users" />
+              <Route element={<ProductionForm />} path="/control-prod" />
+              <Route
+                element={<SellerProductsPage />}
+                path="/account/products"
+              />
+              <Route
+                path="/job/:user"
+                element={
+                  <>
+                    <Job />
+                    <NavUser />
+                  </>
+                }
+              />
+            </Route>
+
+            {/* Acesso ao ListFaccionista é restrito a faccionistas */}
+            <Route element={<PrivateRoutes allowedRoles={["faccionista"]} />}>
+              <Route path="/list-faccionist" element={<ListFaccionista />} />
+            </Route>
+
             <Route
-              path="/job/:user"
-              element={
-                <>
-                  <Job />
-                  <NavUser />
-                </>
-              }
+              element={<Login handleAuthentication={setIsAuthenticated} />}
+              path="/login"
             />
-          </Route>
-
-          {/* Acesso ao ListFaccionista é restrito a faccionistas */}
-          <Route element={<PrivateRoutes allowedRoles={["faccionista"]} />}>
-            <Route path="/list-faccionist" element={<ListFaccionista />} />
-          </Route>
-
-          <Route
-            element={<Login handleAuthentication={setIsAuthenticated} />}
-            path="/login"
-          />
-          <Route element={<AccountCreate />} path="/account-create" />
-        </Routes>
-      </ModalProvider>
-    </NotifyProvider>
+            <Route element={<AccountCreate />} path="/account-create" />
+          </Routes>
+        </ModalProvider>
+      </NotifyProvider>
+    </QueryClientProvider>
   );
 }
 

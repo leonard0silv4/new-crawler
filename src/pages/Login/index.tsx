@@ -7,11 +7,16 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 
+import { useContext } from "react";
+import { AuthContext } from "@/context/AuthContext";
+
 interface LoginProps {
   handleAuthentication: (boolean: boolean) => void;
 }
 
 const Login = ({ handleAuthentication }: LoginProps) => {
+  const { login }: any = useContext(AuthContext);
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isLoad, setIsLoad] = useState(false);
@@ -28,6 +33,8 @@ const Login = ({ handleAuthentication }: LoginProps) => {
       .then((response: any) => {
         localStorage.setItem("userToken", response?.token);
         localStorage.setItem("role", response?.role);
+        login(response.token, response.role, response.permissions);
+
         if (response.role != "owner") {
           navigate("/list-faccionist");
         } else {

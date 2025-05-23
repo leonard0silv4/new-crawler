@@ -14,8 +14,13 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { useContext } from "react";
+
+import { AuthContext } from "@/context/AuthContext";
 
 const Config = () => {
+  const { permissions }: any = useContext(AuthContext);
+
   const [emailNotify, setEmailNotify] = useState("");
   const [storeName, setStoreName] = useState("");
   const [sendEmail, setSendEmail] = useState(false);
@@ -88,6 +93,7 @@ const Config = () => {
 
   return (
     <div className="flex min-h-full flex-1 flex-col justify-center px-6 py-12 lg:px-8">
+      <pre className="d-none hidden">{JSON.stringify(permissions)}</pre>
       <div className="mt-20 sm:mx-auto sm:w-full sm:max-w-sm">
         <form className="space-y-6" onSubmit={(e) => handleSubmit(e)}>
           <div>

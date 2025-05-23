@@ -10,4 +10,14 @@ export default defineConfig({
       'react-virtualized/List': 'react-virtualized/dist/es/List',
     },
   },
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks(id) {
+          if (id.includes('node_modules/react')) return 'react';
+          if (id.includes('node_modules/@radix-ui') || id.includes('shadcn')) return 'ui';
+        }
+      }
+    }
+  }
 })
