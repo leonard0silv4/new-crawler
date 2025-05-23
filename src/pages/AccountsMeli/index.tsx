@@ -18,7 +18,7 @@ import {
 
 import instance from "@/config/axios";
 import { useQuery } from "@tanstack/react-query";
-import { ExternalLink, Loader, TriangleAlert, Unplug } from "lucide-react";
+import { ExternalLink, Loader /*TriangleAlert, Unplug*/ } from "lucide-react";
 
 import { Input } from "@/components/ui/input";
 import { FixedSizeList as List } from "react-window";
