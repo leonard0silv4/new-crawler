@@ -9,12 +9,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
+// import {
+//   Tooltip,
+//   TooltipContent,
+//   TooltipProvider,
+//   TooltipTrigger,
+// } from "@/components/ui/tooltip";
 
 import instance from "@/config/axios";
 import { useQuery } from "@tanstack/react-query";
@@ -140,9 +140,9 @@ export default function SellerProductsPage() {
     }
   };
 
-  const disconnectAccount = () => {
-    alert(selectedUserId);
-  };
+  // const disconnectAccount = () => {
+  //   alert(selectedUserId);
+  // };
 
   return (
     <div className="container mx-auto py-8 px-4">
@@ -173,7 +173,8 @@ export default function SellerProductsPage() {
           </SelectContent>
         </Select>
 
-        {/* <div className="flex items-center gap-2">
+        {/* <div className="flex items-center gap-2 hidden "> */}
+        <div className=" items-center gap-2 hidden ">
           <Button
             variant={filterIsFull === null ? "default" : "outline"}
             onClick={() => setFilterIsFull(null)}
@@ -192,7 +193,7 @@ export default function SellerProductsPage() {
           >
             Normal
           </Button>
-        </div> */}
+        </div>
 
         <Input
           placeholder="Buscar por nome ou id"
