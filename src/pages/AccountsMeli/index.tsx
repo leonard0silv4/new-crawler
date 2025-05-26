@@ -64,19 +64,19 @@ export default function SellerProductsPage() {
       const estoqueHistory = [...(p.historySell || [])];
 
       const today = {
-        sellQty: estoqueHistory.at(-1)?.sellQty ?? 0,
+        sellQty: estoqueHistory.at(-4)?.sellQty ?? 0,
         costShipping: estoqueHistory.at(-1)?.shippingCost ?? 0,
       };
       const day1Ago = {
-        sellQty: estoqueHistory.at(-2)?.sellQty ?? 0,
+        sellQty: estoqueHistory.at(-1)?.sellQty ?? 0,
         costShipping: estoqueHistory.at(-2)?.shippingCost ?? 0,
       };
       const day2Ago = {
-        sellQty: estoqueHistory.at(-3)?.sellQty ?? 0,
+        sellQty: estoqueHistory.at(-2)?.sellQty ?? 0,
         costShipping: estoqueHistory.at(-3)?.shippingCost ?? 0,
       };
       const day3Ago = {
-        sellQty: estoqueHistory.at(-4)?.sellQty ?? 0,
+        sellQty: estoqueHistory.at(-3)?.sellQty ?? 0,
         costShipping: estoqueHistory.at(-4)?.shippingCost ?? 0,
       };
       const averageSellDay =
@@ -174,7 +174,7 @@ export default function SellerProductsPage() {
         </Select>
 
         {/* <div className="flex items-center gap-2 hidden "> */}
-        <div className=" items-center gap-2 hidden ">
+        <div className=" items-center gap-3 flex ">
           <Button
             variant={filterIsFull === null ? "default" : "outline"}
             onClick={() => setFilterIsFull(null)}
@@ -204,57 +204,57 @@ export default function SellerProductsPage() {
       </div>
 
       <div className="rounded-md border">
-        {isLoading || loadingAccounts ? (
+        {loadingAccounts || isLoading ? (
           <Loader className="w-10 h-10 animate-spin m-auto my-10" />
         ) : (
           <div className="w-full overflow-x-auto">
-            <div className="grid grid-cols-[80px_2fr_1fr_1fr_1fr_1fr_1fr_1fr_1fr_50px] gap-4 p-3 font-semibold text-sm border-b bg-background min-w-[1200px] sticky top-0 z- px-6 content-center">
-              <div>Imagem</div>
+            <div className="grid grid-cols-[80px_2fr_1fr_1fr_1fr_1fr_1fr_1fr_1fr_50px] gap-4 p-3 font-semibold text-sm border-b bg-background min-w-[1200px] sticky top-0 z- px-6 content-center ">
+              <div className="py-5">Imagem</div>
               <div
-                className="cursor-pointer"
+                className="cursor-pointer py-5"
                 onClick={() => toggleSort("title")}
               >
                 Nome
               </div>
               <div
-                className="text-center cursor-pointer"
+                className="text-center cursor-pointer py-5"
                 onClick={() => toggleSort("nickname")}
               >
                 Conta
               </div>
               <div
-                className="text-center cursor-pointer"
+                className="text-center cursor-pointer py-5"
                 onClick={() => toggleSort("sold_quantity")}
               >
                 Vendidos
               </div>
               <div
-                className="text-center cursor-pointer"
+                className="text-center cursor-pointer py-5"
                 onClick={() => toggleSort("estoqueTotal")}
               >
                 Estoque{" "}
                 {orderBy === "estoqueTotal" ? `(${orderDirection})` : ""}
               </div>
               <div
-                className="text-center cursor-pointer"
+                className="text-center cursor-pointer py-5"
                 onClick={() => toggleSort("day1Ago")}
               >
-                1 Dia
+                1 Dia atrás
               </div>
               <div
-                className="text-center cursor-pointer"
+                className="text-center cursor-pointer py-5"
                 onClick={() => toggleSort("day2Ago")}
               >
-                2 Dias
+                2 Dias atrás
               </div>
               <div
-                className="text-center cursor-pointer"
+                className="text-center cursor-pointer py-5"
                 onClick={() => toggleSort("day3Ago")}
               >
-                3 Dias
+                3 Dias atrás
               </div>
               <div
-                className="text-center cursor-pointer"
+                className="text-center cursor-pointer py-5"
                 onClick={() => toggleSort("averageSellDay")}
               >
                 Média Vendas
@@ -333,8 +333,11 @@ export default function SellerProductsPage() {
                         Modalidade: {product.modalidade}
                       </p>
                     </div>
-                    <div className="text-center text-sm">
-                      {product.nickname.substr(0, 10)}
+                    <div
+                      title={product.nickname}
+                      className="text-center text-sm"
+                    >
+                      {product.nickname.substr(0, 7)}...
                     </div>
                     <div className="text-center text-sm">
                       {product.sold_quantity}
