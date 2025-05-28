@@ -89,6 +89,18 @@ const Header = ({ handleAuthentication }: HeaderProps) => {
               Shopee
             </NavLink>
           )}
+          {!production && (
+            <NavLink
+              className={({ isActive }: any) =>
+                `${
+                  isActive ? "underline " : ""
+                } text-sm font-semibold leading-6 text-zinc-200 cursor-pointer`
+              }
+              to="/account/products"
+            >
+              Produtos Mercado Livre
+            </NavLink>
+          )}
         </div>
         <div className="hidden lg:flex lg:flex-3 lg:justify-end items-center gap-6">
           <TooltipProvider>
@@ -181,6 +193,16 @@ const Header = ({ handleAuthentication }: HeaderProps) => {
                     to="/shopee"
                   >
                     Shoppe
+                  </NavLink>
+                  <NavLink
+                    className={({ isActive }: any) =>
+                      `${
+                        isActive ? "underline " : ""
+                      } -mx-3 block rounded-lg px-3 py-2 text-base font-semibold leading-7 text-gray-900 hover:bg-gray-50 cursor-pointer`
+                    }
+                    to="/account/products"
+                  >
+                    Produtos Mercado Livre
                   </NavLink>
                 </div>
                 <div className="py-6">
