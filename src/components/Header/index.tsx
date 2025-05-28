@@ -98,7 +98,7 @@ const Header = ({ handleAuthentication }: HeaderProps) => {
               }
               to="/account/products"
             >
-              Produtos Mercado Livre
+              ML Estoque
             </NavLink>
           )}
         </div>
@@ -202,7 +202,7 @@ const Header = ({ handleAuthentication }: HeaderProps) => {
                     }
                     to="/account/products"
                   >
-                    Produtos Mercado Livre
+                    ML Estoque
                   </NavLink>
                 </div>
                 <div className="py-6">
