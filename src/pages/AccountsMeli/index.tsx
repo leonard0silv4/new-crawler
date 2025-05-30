@@ -265,7 +265,7 @@ export default function SellerProductsPage() {
             <List
               height={600}
               itemCount={sortedFilteredProducts.length}
-              itemSize={170}
+              itemSize={190}
               width="100%"
             >
               {({ index, style }) => {
@@ -333,6 +333,23 @@ export default function SellerProductsPage() {
                       <p className="text-sm font-medium truncate">
                         Modalidade: {product.modalidade}
                       </p>
+                      {product.variations.length > 0
+                        ? product.variations.map((v: any, idx: number) => {
+                            const atributos = v.attributes
+                              ?.map((attr: any) => attr.value_name)
+                              .filter(Boolean)
+                              .join(", ");
+
+                            return (
+                              <p
+                                key={idx}
+                                className="text-sm font-medium truncate"
+                              >
+                                {atributos} : {v.available_quantity}
+                              </p>
+                            );
+                          })
+                        : null}
                     </div>
                     <div
                       title={product.nickname}
