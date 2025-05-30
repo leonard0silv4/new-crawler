@@ -9,16 +9,16 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-// import {
-//   Tooltip,
-//   TooltipContent,
-//   TooltipProvider,
-//   TooltipTrigger,
-// } from "@/components/ui/tooltip";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 import instance from "@/config/axios";
 import { useQuery } from "@tanstack/react-query";
-import { ExternalLink, Loader /*TriangleAlert, Unplug*/ } from "lucide-react";
+import { ExternalLink, Loader, TriangleAlert /*, Unplug*/ } from "lucide-react";
 
 import { Input } from "@/components/ui/input";
 import { FixedSizeList as List } from "react-window";
@@ -278,8 +278,9 @@ export default function SellerProductsPage() {
                     className="grid grid-cols-[80px_2fr_1fr_1fr_1fr_1fr_1fr_1fr_1fr_50px] gap-4 p-2 px-6 items-center border-b min-w-[1200px]"
                   >
                     <div className="flex justify-center items-center align-middle flex-col">
-                      {/* {product.alertRuptura !==
-                      "Dados insuficientes para previsão" ? (
+                      {product.alertRuptura &&
+                      product.alertRuptura !==
+                        "Dados insuficientes para previsão" ? (
                         <TooltipProvider>
                           <Tooltip>
                             <TooltipTrigger>
@@ -298,7 +299,7 @@ export default function SellerProductsPage() {
                             </TooltipContent>
                           </Tooltip>
                         </TooltipProvider>
-                      ) : null} */}
+                      ) : null}
                       <div className="w-16 h-16 rounded overflow-hidden">
                         <img
                           src={product.thumbnail}

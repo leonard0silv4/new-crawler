@@ -22,6 +22,8 @@ import NavUser from "./pages/Job/navUser";
 import ProductionForm from "./pages/ControlProd";
 import SellerProductsPage from "./pages/AccountsMeli";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { useContext } from "react";
+import { AuthContext } from "@/context/AuthContext";
 
 const queryClient = new QueryClient();
 
@@ -29,6 +31,8 @@ function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(
     !!(window.localStorage !== undefined && localStorage.getItem("userToken"))
   );
+
+  const { permissions }: any = useContext(AuthContext);
 
   const enableLinks =
     isAuthenticated && localStorage.getItem("role") == "owner";
@@ -46,7 +50,15 @@ function App() {
           )}
           <Routes>
             <Route element={<PrivateRoutes allowedRoles={["owner"]} />}>
-              <Route element={<Dashboard />} path="/" />
+              {permissions.includes("view_links") ? (
+                <Route element={<Dashboard />} path="/" />
+              ) : (
+                <Route
+                  element={<SellerProductsPage />}
+                  path="/account/products"
+                />
+              )}
+
               <Route element={<Dashboard />} path="/dashboard" />
               <Route element={<Shopee />} path="/shopee" />
               <Route element={<Sales />} path="/orders" />
