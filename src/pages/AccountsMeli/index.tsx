@@ -18,7 +18,12 @@ import {
 
 import instance from "@/config/axios";
 import { useQuery } from "@tanstack/react-query";
-import { ExternalLink, Loader, TriangleAlert /*, Unplug*/ } from "lucide-react";
+import {
+  CircleAlert,
+  ExternalLink,
+  Loader,
+  TriangleAlert /*, Unplug*/,
+} from "lucide-react";
 
 import { Input } from "@/components/ui/input";
 import { FixedSizeList as List } from "react-window";
@@ -320,6 +325,9 @@ export default function SellerProductsPage() {
                         ) : (
                           ""
                         )}
+                        {product.status == "paused" ? (
+                          <CircleAlert className="h-4 w-4 inline mr-2 text-orange-400" />
+                        ) : null}
                         ID: {product.id}
                       </p>
                       <p className="text-sm ">{product.title}</p>
