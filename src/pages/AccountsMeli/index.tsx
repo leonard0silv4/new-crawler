@@ -287,14 +287,14 @@ export default function SellerProductsPage() {
                               <TriangleAlert className="w-4 h-4 0 mb-3 text-red-800" />
                             </TooltipTrigger>
                             <TooltipContent
-                              side="left"
+                              side="right"
                               align="end"
                               className="text-xs"
                             >
                               <p>{product.alertRuptura}</p>
                               <p>
                                 Previsão de dias restantes :{" "}
-                                {product.daysRestStock ?? 0}
+                                {product.daysRestStock.toFixed(0) ?? 0}
                               </p>
                             </TooltipContent>
                           </Tooltip>
