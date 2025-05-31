@@ -50,15 +50,16 @@ function App() {
           )}
           <Routes>
             <Route element={<PrivateRoutes allowedRoles={["owner"]} />}>
-              {permissions.includes("view_links") ? (
-                <Route element={<Dashboard />} path="/" />
-              ) : (
-                <Route
-                  element={<SellerProductsPage />}
-                  path="/account/products"
-                />
-              )}
-
+              <Route
+                path="/"
+                element={
+                  permissions.includes("view_links") ? (
+                    <Dashboard />
+                  ) : (
+                    <SellerProductsPage />
+                  )
+                }
+              />
               <Route element={<Dashboard />} path="/dashboard" />
               <Route element={<Shopee />} path="/shopee" />
               <Route element={<Sales />} path="/orders" />
