@@ -45,7 +45,7 @@ const Login = ({ handleAuthentication }: LoginProps) => {
       .catch((err) => {
         toast.error("Erro ", {
           description: err?.response?.data?.error,
-          position: "top-center",
+          position: "top-right",
         });
       })
       .finally(() => {

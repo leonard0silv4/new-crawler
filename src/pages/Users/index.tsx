@@ -1,4 +1,4 @@
-import { lazy, useEffect, useState, Suspense } from "react";
+import { lazy, useEffect, useState, Suspense, useContext } from "react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -29,6 +29,7 @@ const AddFaccionista = lazy(() => import("./add"));
 const EditFaccionista = lazy(() => import("./edit"));
 
 import { useSse } from "@/hooks/useSse";
+import { AuthContext } from "@/context/AuthContext";
 
 const Users = () => {
   const [registers, setRegisters] = useState<any[]>([]);
@@ -37,6 +38,7 @@ const Users = () => {
   const [selectedUser, setSelectedUser] = useState<string | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const navigate = useNavigate();
+  const { permissions }: any = useContext(AuthContext);
 
   const [selectedUserUpdate, setSelectedUserUpdate] = useState<string | null>(
     null
@@ -164,9 +166,11 @@ const Users = () => {
           />
           <Search className="absolute left-3 top-2.5 h-5 w-5 text-gray-400" />
         </div>
-        <Suspense fallback={<>Carregando...</>}>
-          <AddFaccionista addUserState={addUserState} />
-        </Suspense>
+        {permissions.includes("manage_faccionistas") ? (
+          <Suspense fallback={<>Carregando...</>}>
+            <AddFaccionista addUserState={addUserState} />
+          </Suspense>
+        ) : null}
       </div>
 
       {!load && !filteredRegisters.length && (
@@ -188,13 +192,15 @@ const Users = () => {
           >
             <CardHeader>
               <CardTitle>
-                {register.username.toUpperCase()}{" "}
-                <a
-                  className="cursor-pointer"
-                  onClick={() => openDialog(register._id)}
-                >
-                  <Trash className="w-4 h-4 float-right text-red-500" />
-                </a>
+                {register.username.toUpperCase()}
+                {permissions.includes("manage_faccionistas") ? (
+                  <a
+                    className="cursor-pointer"
+                    onClick={() => openDialog(register._id)}
+                  >
+                    <Trash className="w-4 h-4 float-right text-red-500" />
+                  </a>
+                ) : null}
               </CardTitle>
               <CardDescription data-id={register._id}>
                 <p className="min-h-5">{register?.lastName?.toUpperCase()}</p>
@@ -211,13 +217,15 @@ const Users = () => {
               >
                 Fila de trabalho
               </Button>
-              <Button
-                onClick={() => openEditDialog(register)}
-                variant="outline"
-                className="w-full ml-2"
-              >
-                Editar usuário
-              </Button>
+              {permissions.includes("manage_faccionistas") ? (
+                <Button
+                  onClick={() => openEditDialog(register)}
+                  variant="outline"
+                  className="w-full ml-2"
+                >
+                  Editar usuário
+                </Button>
+              ) : null}
             </CardFooter>
           </Card>
         ))}

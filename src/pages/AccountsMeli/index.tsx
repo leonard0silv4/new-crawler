@@ -150,7 +150,7 @@ export default function SellerProductsPage() {
   // };
 
   return (
-    <div className="container mx-auto py-8 px-4">
+    <div className="p-6 max-w-7xl mx-auto space-y-4">
       <div className="flex gap-4 mb-4">
         <Button onClick={handleAuthRedirect}>Conectar nova conta</Button>
       </div>

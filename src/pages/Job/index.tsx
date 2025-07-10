@@ -1,4 +1,11 @@
-import { useEffect, useMemo, useState, lazy, Suspense } from "react";
+import {
+  useEffect,
+  useMemo,
+  useState,
+  lazy,
+  Suspense,
+  useContext,
+} from "react";
 import { useModal } from "../../context/ModalContext";
 import { Input } from "@/components/ui/input";
 import {
@@ -64,12 +71,14 @@ import {
   SelectTrigger,
 } from "@/components/ui/select";
 import { SelectValue } from "@radix-ui/react-select";
+import { AuthContext } from "@/context/AuthContext";
 
 const Job = () => {
   let { user } = useParams();
   const { openModal } = useModal();
   const location = useLocation();
   const { addOrUpdateNotify } = useNotifyContext();
+  const { permissions }: any = useContext(AuthContext);
 
   const [registers, setRegisters] = useState<any[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
@@ -97,7 +106,6 @@ const Job = () => {
     showNotRecebido: undefined as boolean | undefined,
     range: undefined as DateRange | undefined,
   });
-  // const [range, setRange] = useState<DateRange | undefined>(undefined);
 
   const [selectedJob, setSelectedJob] = useState<string | null>(null);
   const [isDialogJobOpen, setIsDialogJobOpen] = useState(false);
@@ -449,9 +457,11 @@ const Job = () => {
             />
             <Search className="absolute left-3 top-2.5 h-5 w-5 text-gray-400" />
           </div>
-          <Suspense fallback={<>Carregando...</>}>
-            <AddJob lastLote={lastLote} addJob={addJob} />
-          </Suspense>
+          {permissions.includes("add_production") ? (
+            <Suspense fallback={<>Carregando...</>}>
+              <AddJob lastLote={lastLote} addJob={addJob} />
+            </Suspense>
+          ) : null}
         </div>
         <div className="flex justify-between items-center">
           <Card className="relative block w-full  bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700 ">
@@ -776,7 +786,6 @@ const Job = () => {
           </div>
         </div>
 
-        {/* Cards Grid */}
         <div className="grid items-stretch grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-5 lg:grid-cols-4 gap-4">
           <AnimatePresence>
             {displayedRegisters?.map((register: any) => (
@@ -834,13 +843,6 @@ const Job = () => {
                     </CardTitle>
                   </CardHeader>
                   <CardContent className="space-y-2 text-sm">
-                    {/* <div className="flex items-center text-sm font-medium text-gray-900 dark:text-white me-3">
-                      Qualidade:{" "}
-                      <span className={` px-1 inline-block ml-1`}>
-                        {register.rateLote ? register.rateLote : "Não avaliado"}
-                      </span>
-                    </div> */}
-
                     <div className="flex items-center text-sm font-medium text-gray-900 dark:text-white me-3">
                       Data:{" "}
                       <span className="px-1 inline-block ml-1">
@@ -1035,7 +1037,6 @@ const Job = () => {
                           {register.emAnalise ? "Sim" : "Não"}
                         </span>
                       </span>
-                      {/* {!register.emAnalise && ( */}
                       <a
                         className="cursor-pointer"
                         onClick={() =>
@@ -1070,7 +1071,6 @@ const Job = () => {
                             : "Não"}{" "}
                         </span>
                       </span>
-                      {/* {!register.aprovado && ( */}
                       <a
                         className="cursor-pointer"
                         onClick={() =>
@@ -1090,13 +1090,7 @@ const Job = () => {
                       {/* )} */}
                     </div>
                   </CardContent>
-                  {/* <Button
-                    onClick={() => handleStatusChange([register._id], "pago")}
-                    className="bg-green-800 flex items-center"
-                  >
-                    <HandCoins className="w-4 h-4 mr-2" />
-                    revert pay
-                  </Button> */}
+
                   <CardFooter className="flex justify-center items-center mt-auto">
                     <motion.div
                       key={register.pago ? "paid" : "unpaid"}

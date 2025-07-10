@@ -16,7 +16,7 @@ interface HeaderProps {
 }
 
 const Header = ({ handleAuthentication }: HeaderProps) => {
-  const { permissions }: any = useContext(AuthContext);
+  const { permissions, role }: any = useContext(AuthContext);
 
   const [menuOpen, setMenuOpen] = useState(false);
   const [production] = useState(
@@ -51,7 +51,7 @@ const Header = ({ handleAuthentication }: HeaderProps) => {
             className="-m-2.5 inline-flex items-center justify-center rounded-md p-2.5 text-gray-50"
             onClick={() => setMenuOpen(true)}
           >
-            <span className="sr-only">Open main menu</span>
+            <span className="sr-only">Open menu</span>
             <svg
               className="h-6 w-6"
               fill="none"
@@ -76,7 +76,7 @@ const Header = ({ handleAuthentication }: HeaderProps) => {
                   isActive ? "underline " : ""
                 } text-sm font-semibold leading-6 text-zinc-200 cursor-pointer`
               }
-              to="/"
+              to="/dashboard"
             >
               Mercado livre
             </NavLink>
@@ -93,7 +93,7 @@ const Header = ({ handleAuthentication }: HeaderProps) => {
               Shopee
             </NavLink>
           )}
-          {!production && (
+          {!production && permissions.includes("manage_meli_products") ? (
             <NavLink
               className={({ isActive }: any) =>
                 `${
@@ -102,14 +102,38 @@ const Header = ({ handleAuthentication }: HeaderProps) => {
               }
               to="/account/products"
             >
-              ML Estoque
+              Estoque Mercado Livre
             </NavLink>
-          )}
+          ) : null}
+          {!production && permissions.includes("control_users") ? (
+            <NavLink
+              className={({ isActive }: any) =>
+                `${
+                  isActive ? "underline " : ""
+                } text-sm font-semibold leading-6 text-zinc-200 cursor-pointer`
+              }
+              to="/manage-users"
+            >
+              Gerenciar usuários
+            </NavLink>
+          ) : null}
+          {!production && permissions.includes("view_logs") ? (
+            <NavLink
+              className={({ isActive }: any) =>
+                `${
+                  isActive ? "underline " : ""
+                } text-sm font-semibold leading-6 text-zinc-200 cursor-pointer`
+              }
+              to="/logs"
+            >
+              Logs
+            </NavLink>
+          ) : null}
         </div>
         <div className="hidden lg:flex lg:flex-3 lg:justify-end items-center gap-6">
           <TooltipProvider>
             {/* Faccionistas */}
-            {permissions.includes("view_production") && (
+            {permissions.includes("manage_faccionistas") && (
               <Tooltip>
                 <TooltipTrigger>
                   <NavLink className="text-zinc-200" to="/users">
@@ -123,7 +147,7 @@ const Header = ({ handleAuthentication }: HeaderProps) => {
             )}
 
             {/* Configurações */}
-            {!production && (
+            {!production && role == "owner" ? (
               <Tooltip>
                 <TooltipTrigger>
                   <NavLink className="text-zinc-200" to="/config">
@@ -134,7 +158,7 @@ const Header = ({ handleAuthentication }: HeaderProps) => {
                   <p>Configurações</p>
                 </TooltipContent>
               </Tooltip>
-            )}
+            ) : null}
 
             {/* Sair */}
             <Tooltip>
@@ -187,7 +211,7 @@ const Header = ({ handleAuthentication }: HeaderProps) => {
                           isActive ? "underline " : ""
                         } -mx-3 block rounded-lg px-3 py-2 text-base font-semibold leading-7 text-gray-900 hover:bg-gray-50 cursor-pointer`
                       }
-                      to="/"
+                      to="/dashboard"
                     >
                       Mercado livre
                     </NavLink>
@@ -204,19 +228,30 @@ const Header = ({ handleAuthentication }: HeaderProps) => {
                       Shoppe
                     </NavLink>
                   ) : null}
-                  <NavLink
-                    className={({ isActive }: any) =>
-                      `${
-                        isActive ? "underline " : ""
-                      } -mx-3 block rounded-lg px-3 py-2 text-base font-semibold leading-7 text-gray-900 hover:bg-gray-50 cursor-pointer`
-                    }
-                    to="/account/products"
-                  >
-                    ML Estoque
-                  </NavLink>
-                </div>
-                <div className="py-6">
-                  {!production && permissions.includes("view_production") ? (
+                  {!production &&
+                  permissions.includes("manage_meli_products") ? (
+                    <NavLink
+                      className={({ isActive }: any) =>
+                        `${
+                          isActive ? "underline " : ""
+                        } -mx-3 block rounded-lg px-3 py-2 text-base font-semibold leading-7 text-gray-900 hover:bg-gray-50 cursor-pointer`
+                      }
+                      to="/account/products"
+                    >
+                      Estoque Mercado livre
+                    </NavLink>
+                  ) : null}
+
+                  {!production && permissions.includes("control_users") ? (
+                    <NavLink
+                      className="-mx-3 block rounded-lg px-3 py-2 text-base font-semibold leading-7 text-gray-900 hover:bg-gray-50 cursor-pointer"
+                      to="/manage-users"
+                    >
+                      Gerenciar usuários
+                    </NavLink>
+                  ) : null}
+                  {!production &&
+                  permissions.includes("manage_faccionistas") ? (
                     <NavLink
                       className="-mx-3 block rounded-lg px-3 py-2.5 text-base font-semibold leading-7 text-gray-900 hover:bg-gray-50"
                       to="/users"
@@ -224,13 +259,24 @@ const Header = ({ handleAuthentication }: HeaderProps) => {
                       Faccionistas
                     </NavLink>
                   ) : null}
-
-                  <NavLink
-                    className="-mx-3 block rounded-lg px-3 py-2.5 text-base font-semibold leading-7 text-gray-900 hover:bg-gray-50"
-                    to="/config"
-                  >
-                    Configurações
-                  </NavLink>
+                  {!production && permissions.includes("view_logs") ? (
+                    <NavLink
+                      className="-mx-3 block rounded-lg px-3 py-2.5 text-base font-semibold leading-7 text-gray-900 hover:bg-gray-50"
+                      to="/logs"
+                    >
+                      Logs
+                    </NavLink>
+                  ) : null}
+                  {!production && role == "owner" ? (
+                    <NavLink
+                      className="-mx-3 block rounded-lg px-3 py-2.5 text-base font-semibold leading-7 text-gray-900 hover:bg-gray-50"
+                      to="/config"
+                    >
+                      Configurações
+                    </NavLink>
+                  ) : null}
+                </div>
+                <div className="py-6">
                   <a
                     className="-mx-3 block rounded-lg px-3 py-2.5 text-base font-semibold leading-7 text-gray-900 hover:bg-gray-50 cursor-pointer"
                     onClick={logout}

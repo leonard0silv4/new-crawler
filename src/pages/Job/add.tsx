@@ -168,7 +168,7 @@ const AddJob = ({ addJob, lastLote }: any) => {
 
           document.getElementById("closeDialog")?.click();
           toast.success("Novo trabalho adicionado!", {
-            position: "bottom-right",
+            position: "top-right",
           });
 
           setFormData(initial);

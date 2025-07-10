@@ -48,11 +48,11 @@ const EditFaccionista = ({
       updateUserState(response);
       onClose();
       toast.success("Usuário atualizado com sucesso!", {
-        position: "top-center",
+        position: "top-right",
       });
     } catch (error) {
       toast.error("Erro ao atualizar usuário", {
-        position: "top-center",
+        position: "top-right",
       });
     }
   };

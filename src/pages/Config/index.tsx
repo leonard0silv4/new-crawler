@@ -71,7 +71,7 @@ const Config = () => {
       .then(() => {
         toast.success("Configurações", {
           description: "Atualizadas",
-          position: "top-center",
+          position: "top-right",
           closeButton: true,
           duration: 1000,
         });
@@ -79,7 +79,7 @@ const Config = () => {
       .catch((err) => {
         toast.error("Erro ", {
           description: err?.response?.data?.error,
-          position: "top-center",
+          position: "top-right",
           closeButton: true,
         });
       })
