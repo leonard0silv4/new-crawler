@@ -359,6 +359,13 @@ const Job = () => {
     id: string,
     valueNow?: any
   ) => {
+    if (!permissions.includes("edit_production")) {
+      toast.error("Você não possui permissões de alteração", {
+        position: "top-center",
+      });
+      return;
+    }
+
     if (valueNow != ev.currentTarget.textContent) {
       instance
         .put(`/jobs/sizes`, { id, field, value: ev.currentTarget.textContent })
@@ -379,6 +386,13 @@ const Job = () => {
       | "isArchived",
     acValue?: boolean
   ) => {
+    if (field == "emenda" && !permissions.includes("edit_production")) {
+      toast.error("Você não possui permissões de alteração", {
+        position: "top-center",
+      });
+      return;
+    }
+
     instance.put(`jobs`, { ids, field }).then(() => {
       if (field === "isArchived") {
         setRegisters((prevRegisters) =>
