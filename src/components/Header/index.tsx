@@ -133,18 +133,19 @@ const Header = ({ handleAuthentication }: HeaderProps) => {
         <div className="hidden lg:flex lg:flex-3 lg:justify-end items-center gap-6">
           <TooltipProvider>
             {/* Faccionistas */}
-            {permissions.includes("manage_faccionistas") && (
-              <Tooltip>
-                <TooltipTrigger>
-                  <NavLink className="text-zinc-200" to="/users">
-                    <Users className="h-6 w-6" />
-                  </NavLink>
-                </TooltipTrigger>
-                <TooltipContent>
-                  <p>Faccionistas</p>
-                </TooltipContent>
-              </Tooltip>
-            )}
+            {permissions.includes("manage_faccionistas") ||
+              (permissions.includes("view_production") && (
+                <Tooltip>
+                  <TooltipTrigger>
+                    <NavLink className="text-zinc-200" to="/users">
+                      <Users className="h-6 w-6" />
+                    </NavLink>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>Faccionistas</p>
+                  </TooltipContent>
+                </Tooltip>
+              ))}
 
             {/* Configurações */}
             {!production && role == "owner" ? (
