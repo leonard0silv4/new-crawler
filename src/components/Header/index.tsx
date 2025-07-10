@@ -133,19 +133,20 @@ const Header = ({ handleAuthentication }: HeaderProps) => {
         <div className="hidden lg:flex lg:flex-3 lg:justify-end items-center gap-6">
           <TooltipProvider>
             {/* Faccionistas */}
-            {permissions.includes("manage_faccionistas") ||
-              (permissions.includes("view_production") && (
-                <Tooltip>
-                  <TooltipTrigger>
-                    <NavLink className="text-zinc-200" to="/users">
-                      <Users className="h-6 w-6" />
-                    </NavLink>
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    <p>Faccionistas</p>
-                  </TooltipContent>
-                </Tooltip>
-              ))}
+
+            {(permissions.includes("manage_faccionistas") ||
+              permissions.includes("view_production")) && (
+              <Tooltip>
+                <TooltipTrigger>
+                  <NavLink className="text-zinc-200" to="/users">
+                    <Users className="h-6 w-6" />
+                  </NavLink>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>Faccionistas</p>
+                </TooltipContent>
+              </Tooltip>
+            )}
 
             {/* Configurações */}
             {!production && role == "owner" ? (
@@ -252,7 +253,8 @@ const Header = ({ handleAuthentication }: HeaderProps) => {
                     </NavLink>
                   ) : null}
                   {!production &&
-                  permissions.includes("manage_faccionistas") ? (
+                  (permissions.includes("manage_faccionistas") ||
+                    permissions.includes("view_production")) ? (
                     <NavLink
                       className="-mx-3 block rounded-lg px-3 py-2.5 text-base font-semibold leading-7 text-gray-900 hover:bg-gray-50"
                       to="/users"
