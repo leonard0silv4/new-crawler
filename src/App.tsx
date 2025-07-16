@@ -26,7 +26,7 @@ import LogsPage from "./pages/Logs";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
 import instance from "./config/axios";
-import WelcomePage from "./pages/Welcome/";
+import WelcomePage from "./pages/Welcome/indexV1";
 import Nf from "./pages/Nf";
 
 const queryClient = new QueryClient();
