@@ -26,7 +26,7 @@ export default function WelcomePage() {
   const shortcuts = [
     {
       title: "Mercado Livre",
-      description: "Gerencie suas vendas e produtos",
+      description: "Acampanhamento links Mercado Livre",
       icon: <ShoppingCart className="h-8 w-8 text-yellow-600" />,
       path: "/dashboard",
       show: !production && can("view_links"),
@@ -34,7 +34,7 @@ export default function WelcomePage() {
     },
     {
       title: "Shopee",
-      description: "Acesse sua loja Shopee",
+      description: "Acampanhamento links Shopee",
       icon: <Store className="h-8 w-8 text-orange-600" />,
       path: "/shopee",
       show: !production && can("view_links"),
