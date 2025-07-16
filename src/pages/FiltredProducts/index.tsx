@@ -4,6 +4,8 @@ import { Product } from "../Dashboard";
 import TableRowComponent from "../Dashboard/TableRow";
 import { ContainerLine } from "../Dashboard/DashboardStyles";
 import { FixedSizeList as List } from "react-window";
+const SafeList = List as any;
+
 import { ArrowUp, ArrowDown } from "lucide-react";
 import instance from "@/config/axios";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -178,7 +180,7 @@ const FiltredProducts = ({
           <span>Status</span>
           <span></span>
         </ContainerLine>
-        <List
+        <SafeList
           itemData={filtredProducts}
           height={740}
           itemCount={filtredProducts.length}
@@ -199,7 +201,7 @@ const FiltredProducts = ({
               updated={false}
             />
           )}
-        </List>
+        </SafeList>
       </div>
     )
   );

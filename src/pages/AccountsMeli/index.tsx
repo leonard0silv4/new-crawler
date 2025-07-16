@@ -27,6 +27,8 @@ import {
 
 import { Input } from "@/components/ui/input";
 import { FixedSizeList as List } from "react-window";
+const SafeList = List as any;
+
 import full from "../Dashboard/full.png";
 
 export default function SellerProductsPage() {
@@ -267,13 +269,13 @@ export default function SellerProductsPage() {
               <div></div>
             </div>
 
-            <List
+            <SafeList
               height={600}
               itemCount={sortedFilteredProducts.length}
               itemSize={190}
               width="100%"
             >
-              {({ index, style }) => {
+              {({ index, style }: any) => {
                 const product = sortedFilteredProducts[index];
 
                 return (
@@ -409,7 +411,7 @@ export default function SellerProductsPage() {
                   </div>
                 );
               }}
-            </List>
+            </SafeList>
           </div>
         )}
       </div>

@@ -9,14 +9,14 @@ import Login from "./pages/Login";
 import ListFaccionista from "./pages/Faccionista";
 import Users from "./pages/Users";
 import Sales from "./pages/Sales";
-import Config from "./pages/Config";
+import Config from "./pages/Config/indexV2";
 import { Toaster } from "@/components/ui/sonner";
 import AccountCreate from "./pages/ManagerUsers";
 import UsersPage from "./pages/ManagerUsers/ManageUsers";
 import Shopee from "./pages/Shopee";
 import Header from "./components/Header";
 import MinimalHeader from "./components/Header/MinimalHeader";
-import Job from "./pages/Job";
+import Job from "./pages/Job/index";
 import { ModalProvider } from "./context/ModalContext";
 import { NotifyProvider } from "./context/NotifyContext";
 import NavUser from "./pages/Job/navUser";
@@ -26,7 +26,8 @@ import LogsPage from "./pages/Logs";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
 import instance from "./config/axios";
-import WelcomePage from "./pages/Welcome";
+import WelcomePage from "./pages/Welcome/indexV1";
+import Nf from "./pages/Nf";
 
 const queryClient = new QueryClient();
 
@@ -74,6 +75,7 @@ function App() {
                 <Route element={<AccountCreate />} path="/account-create" />
                 <Route element={<UsersPage />} path="/manage-users" />
                 <Route element={<ProductionForm />} path="/control-prod" />
+                <Route element={<Nf />} path="/nf" />
                 <Route
                   element={<SellerProductsPage />}
                   path="/account/products"

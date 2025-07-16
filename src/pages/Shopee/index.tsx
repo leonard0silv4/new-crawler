@@ -33,6 +33,7 @@ import { toast } from "sonner";
 import TableRowComponent from "./TableRow";
 import { EventSourcePolyfill } from "event-source-polyfill";
 import { FixedSizeList as List } from "react-window";
+const SafeList = List as any;
 
 import * as S from "../Dashboard/DashboardStyles";
 import FiltredProducts from "../FiltredProducts";
@@ -434,7 +435,7 @@ export default function Shopee() {
             {load == "initial" ? (
               <Loader className="w-10 h-10 animate-spin m-auto my-10" />
             ) : (
-              <List
+              <SafeList
                 itemData={products}
                 height={740}
                 itemCount={products.length}
@@ -455,7 +456,7 @@ export default function Shopee() {
                     }
                   />
                 )}
-              </List>
+              </SafeList>
             )}
           </div>
         )}

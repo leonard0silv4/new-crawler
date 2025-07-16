@@ -1,4 +1,4 @@
-import { lazy, useEffect, useState, Suspense, useContext } from "react";
+import { lazy, useEffect, useState, Suspense } from "react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -29,7 +29,7 @@ const AddFaccionista = lazy(() => import("./add"));
 const EditFaccionista = lazy(() => import("./edit"));
 
 import { useSse } from "@/hooks/useSse";
-import { AuthContext } from "@/context/AuthContext";
+import { usePermission } from "@/hooks/usePermissions";
 
 const Users = () => {
   const [registers, setRegisters] = useState<any[]>([]);
@@ -38,7 +38,7 @@ const Users = () => {
   const [selectedUser, setSelectedUser] = useState<string | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const navigate = useNavigate();
-  const { permissions }: any = useContext(AuthContext);
+  const { can } = usePermission();
 
   const [selectedUserUpdate, setSelectedUserUpdate] = useState<string | null>(
     null
@@ -166,7 +166,7 @@ const Users = () => {
           />
           <Search className="absolute left-3 top-2.5 h-5 w-5 text-gray-400" />
         </div>
-        {permissions.includes("manage_faccionistas") ? (
+        {can("manage_faccionistas") ? (
           <Suspense fallback={<>Carregando...</>}>
             <AddFaccionista addUserState={addUserState} />
           </Suspense>
@@ -193,7 +193,7 @@ const Users = () => {
             <CardHeader>
               <CardTitle>
                 {register.username.toUpperCase()}
-                {permissions.includes("manage_faccionistas") ? (
+                {can("manage_faccionistas") ? (
                   <a
                     className="cursor-pointer"
                     onClick={() => openDialog(register._id)}
@@ -217,7 +217,7 @@ const Users = () => {
               >
                 Fila de trabalho
               </Button>
-              {permissions.includes("manage_faccionistas") ? (
+              {can("manage_faccionistas") ? (
                 <Button
                   onClick={() => openEditDialog(register)}
                   variant="outline"

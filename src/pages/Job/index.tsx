@@ -1,11 +1,4 @@
-import {
-  useEffect,
-  useMemo,
-  useState,
-  lazy,
-  Suspense,
-  useContext,
-} from "react";
+import { useEffect, useMemo, useState, lazy, Suspense } from "react";
 import { useModal } from "../../context/ModalContext";
 import { Input } from "@/components/ui/input";
 import {
@@ -34,10 +27,11 @@ import {
 } from "lucide-react";
 import { useLocation, useParams, NavLink } from "react-router-dom";
 import { AnimatePresence, motion } from "motion/react";
+import { usePermission } from "@/hooks/usePermissions";
 
 import instance from "@/config/axios";
 const AddJob = lazy(() => import("./add"));
-const Pix = lazy(() => import("../Pix"));
+const Pix = lazy(() => import("../Pix/indexV2"));
 const StarRating = lazy(() => import("./jobRate"));
 
 import { Button } from "@/components/ui/button";
@@ -71,14 +65,13 @@ import {
   SelectTrigger,
 } from "@/components/ui/select";
 import { SelectValue } from "@radix-ui/react-select";
-import { AuthContext } from "@/context/AuthContext";
 
 const Job = () => {
   let { user } = useParams();
   const { openModal } = useModal();
   const location = useLocation();
   const { addOrUpdateNotify } = useNotifyContext();
-  const { permissions }: any = useContext(AuthContext);
+  const { can } = usePermission();
 
   const [registers, setRegisters] = useState<any[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
@@ -193,7 +186,7 @@ const Job = () => {
   const applyFilters = (registers: any[]) => {
     return registers.filter((register) => {
       const matchesSearchTerm = searchTerms.every((term) =>
-        ["qtd", "larg", "compr"].some((key) =>
+        ["qtd", "larg", "compr", "lote"].some((key) =>
           register[key]?.toString().toLowerCase().includes(term)
         )
       );
@@ -359,7 +352,7 @@ const Job = () => {
     id: string,
     valueNow?: any
   ) => {
-    if (!permissions.includes("edit_production")) {
+    if (!can("edit_production")) {
       toast.error("Você não possui permissões de alteração", {
         position: "top-center",
       });
@@ -386,7 +379,7 @@ const Job = () => {
       | "isArchived",
     acValue?: boolean
   ) => {
-    if (field == "emenda" && !permissions.includes("edit_production")) {
+    if (field == "emenda" && !can("edit_production")) {
       toast.error("Você não possui permissões de alteração", {
         position: "top-center",
       });
@@ -471,7 +464,7 @@ const Job = () => {
             />
             <Search className="absolute left-3 top-2.5 h-5 w-5 text-gray-400" />
           </div>
-          {permissions.includes("add_production") ? (
+          {can("add_production") ? (
             <Suspense fallback={<>Carregando...</>}>
               <AddJob lastLote={lastLote} addJob={addJob} />
             </Suspense>

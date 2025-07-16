@@ -58,6 +58,7 @@ import { useNavigate } from "react-router-dom";
 import TableRowComponent from "./TableRow";
 import { EventSourcePolyfill } from "event-source-polyfill";
 import { FixedSizeList as List } from "react-window";
+const SafeList = List as any;
 
 import * as S from "./DashboardStyles";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -721,7 +722,7 @@ export default function Dashboard() {
           {load == "initial" ? (
             <Loader className="w-10 h-10 animate-spin m-auto my-10" />
           ) : (
-            <List
+            <SafeList
               itemData={filtredProducts ?? products}
               height={740}
               itemCount={filtredProducts.length ?? products.length}
@@ -744,7 +745,7 @@ export default function Dashboard() {
                   }
                 />
               )}
-            </List>
+            </SafeList>
           )}
         </div>
       </S.Main>
