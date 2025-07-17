@@ -347,13 +347,13 @@ export function InvoiceViewModal({
                       )}
 
                       {/* Quantidade */}
-                      {product.quantity !== undefined && (
+                      {product.quantity !== undefined && !product.qtdBox && (
                         <div className="space-y-1">
                           <span className="font-medium text-muted-foreground">
                             Quantidade
                           </span>
                           <p className="text-base font-semibold">
-                            {product.quantity}
+                            {product.quantity ?? product.boxQty}
                           </p>
                         </div>
                       )}
