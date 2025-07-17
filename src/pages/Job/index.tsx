@@ -303,7 +303,7 @@ const Job = () => {
   const updateAdvancedMoneyPix = (newState: number) => {
     setFaccionist((prevState: any) => ({
       ...prevState,
-      advanceMoney: newState, // Atualize apenas o campo necessário
+      advanceMoney: newState,
     }));
   };
 
@@ -426,7 +426,7 @@ const Job = () => {
             .then((response: any) => {
               setFaccionist((prevState: any) => ({
                 ...prevState,
-                advanceMoney: response.advanceMoney, // Atualize apenas o campo necessário
+                advanceMoney: response.advanceMoney,
               }));
             });
         } catch (error) {

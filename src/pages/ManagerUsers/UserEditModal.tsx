@@ -52,7 +52,6 @@ export default function UserEditModal({
         const rolesData = res as any;
         setRoles(rolesData);
 
-        // Só seta o roleId após garantir que as roles foram carregadas
         const userRoleId = user.roleId || "";
         const foundRole = rolesData.find((r: any) => r._id === userRoleId);
         if (foundRole) {

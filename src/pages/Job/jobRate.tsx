@@ -27,7 +27,7 @@ const StarRating = ({ ids, rateAc }: RateProps) => {
   const { closeModal } = useModal();
 
   const handleStarClick = (index: number) => {
-    setRating(index + 1); // Atualiza a nota
+    setRating(index + 1); // atualiza a nota
   };
 
   const saveRate = () => {

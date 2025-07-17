@@ -6,7 +6,7 @@ import {
 } from "@/components/ui/dialog";
 import { useState } from "react";
 import PIX from "react-qrcode-pix";
-import { useModal } from "../../context/ModalContext"; // Importe o useModal
+import { useModal } from "../../context/ModalContext";
 import { Input } from "@/components/ui/input";
 import instance from "@/config/axios";
 

@@ -44,7 +44,6 @@ export function ProductForm({ products, onProductsChange }: ProductFormProps) {
     const updatedProducts = [...products];
     updatedProducts[index] = { ...updatedProducts[index], [field]: value };
 
-    // Recalcular total da linha quando quantidade ou valor unitário mudar
     if (field === "quantity" || field === "unitValue") {
       updatedProducts[index].totalValue =
         updatedProducts[index].quantity * updatedProducts[index].unitValue;
@@ -67,7 +66,6 @@ export function ProductForm({ products, onProductsChange }: ProductFormProps) {
         {products.map((product, index) => (
           <Card key={index} className="p-4">
             <div className="space-y-4">
-              {/* Primeira linha - Informações básicas */}
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor={`product-code-${index}`}>Código/SKU *</Label>
@@ -108,7 +106,6 @@ export function ProductForm({ products, onProductsChange }: ProductFormProps) {
                 </div>
               </div>
 
-              {/* Segunda linha - NCM e valores */}
               <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor={`product-ncm-${index}`}>NCM *</Label>
@@ -174,7 +171,6 @@ export function ProductForm({ products, onProductsChange }: ProductFormProps) {
                 </div>
               </div>
 
-              {/* Terceira linha - Impostos */}
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor={`product-icms-${index}`}>Valor ICMS</Label>

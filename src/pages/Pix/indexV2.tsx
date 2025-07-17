@@ -54,9 +54,9 @@ export default function Pix({
     setIsLoading(true);
 
     try {
-      // Se o preço foi alterado (houve desconto do adiantamento)
+      // se o preco foi alterado (houve desconto do adiantamento)
       if (priceI !== price && advancedRemove > 0) {
-        // Atualizar jobs com valor do adiantamento dividido
+        // atualizar jobs com valor do adiantamento dividido
         const jobsResponse = await instance.put(`jobs/splitAdvancedMoney`, {
           ids: jobIds,
           value: Number((advancedRemove / jobIds.length).toFixed(2)),
@@ -66,7 +66,7 @@ export default function Pix({
           updateValueAdvancedJob(jobsResponse.data.jobs);
         }
 
-        // Atualizar adiantamento do facionista
+        // atualizar adiantamento do facionista
         const faccionistResponse = await instance.put(
           `factionist/${faccionistId}`,
           {
@@ -102,7 +102,7 @@ export default function Pix({
   const onChangeValueAdvanced = (e: React.ChangeEvent<HTMLInputElement>) => {
     let newAdvancedRemove = Number.parseFloat(e.target.value) || 0;
 
-    // Validações
+    // validacoes
     if (newAdvancedRemove < 0) {
       newAdvancedRemove = 0;
     } else if (newAdvancedRemove > price) {
@@ -135,7 +135,7 @@ export default function Pix({
         description: "O código PIX foi copiado para a área de transferência.",
       });
 
-      // Reset do ícone após 2 segundos
+      // reset icone 2 segundos
       setTimeout(() => setIsCopied(false), 2000);
     } catch (error) {
       toast({

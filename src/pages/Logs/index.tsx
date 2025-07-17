@@ -202,7 +202,6 @@ export default function LogsPage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/50 dark:from-slate-950 dark:via-slate-900 dark:to-slate-800">
       <div className="container mx-auto p-6 max-w-7xl space-y-8">
-        {/* Header */}
         <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6">
           <div className="space-y-2">
             <div className="flex items-center gap-3">
@@ -216,7 +215,6 @@ export default function LogsPage() {
           </div>
         </div>
 
-        {/* Filters */}
         <Card className="border-0 shadow-lg bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm">
           <CardHeader className="pb-4">
             <div className="flex items-center justify-between">
@@ -327,7 +325,6 @@ export default function LogsPage() {
           </CardContent>
         </Card>
 
-        {/* Results */}
         <div className="space-y-6">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
@@ -473,7 +470,6 @@ export default function LogsPage() {
                 </Card>
               ))}
 
-              {/* Load More Trigger */}
               <div ref={loadMoreRef} className="flex justify-center py-8">
                 {isFetchingNextPage && (
                   <div className="flex items-center gap-3 text-muted-foreground">

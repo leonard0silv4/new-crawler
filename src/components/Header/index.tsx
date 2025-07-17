@@ -101,7 +101,6 @@ export default function Header({ handleAuthentication }: HeaderProps) {
           className="mx-auto flex max-w-7xl items-center justify-between p-6 lg:px-8"
           aria-label="Global"
         >
-          {/* Mobile menu trigger */}
           <div className="flex lg:hidden">
             <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
               <SheetTrigger asChild>
@@ -127,17 +126,16 @@ export default function Header({ handleAuthentication }: HeaderProps) {
                             <NavLink
                               key={item.title}
                               to={item.href}
-                              className={
-                                ({ isActive }) =>
-                                  `-mx-3 block rounded-lg px-3 py-2 text-base font-semibold leading-7 text-gray-900 hover:bg-gray-50 cursor-pointer ${
-                                    isActive ? "underline" : ""
-                                  } ${
-                                    item.isIconLink
-                                      ? "flex items-center gap-x-2"
-                                      : ""
-                                  }` // Adiciona flex para ícone
+                              className={({ isActive }) =>
+                                `-mx-3 block rounded-lg px-3 py-2 text-base font-semibold leading-7 text-gray-900 hover:bg-gray-50 cursor-pointer ${
+                                  isActive ? "underline" : ""
+                                } ${
+                                  item.isIconLink
+                                    ? "flex items-center gap-x-2"
+                                    : ""
+                                }`
                               }
-                              onClick={() => setIsSheetOpen(false)} // Fecha o sheet ao clicar no link
+                              onClick={() => setIsSheetOpen(false)}
                             >
                               {item.isIconLink && item.icon && (
                                 <item.icon className="h-6 w-6" />
@@ -178,7 +176,6 @@ export default function Header({ handleAuthentication }: HeaderProps) {
             </Sheet>
           </div>
 
-          {/* Desktop navigation links */}
           <div className="hidden lg:flex lg:gap-x-12">
             {navItems.map(
               (item) =>
@@ -186,11 +183,10 @@ export default function Header({ handleAuthentication }: HeaderProps) {
                   <NavLink
                     key={item.title}
                     to={item.href}
-                    className={
-                      ({ isActive }) =>
-                        `text-sm font-semibold leading-6 text-zinc-200 cursor-pointer ${
-                          isActive ? "underline" : ""
-                        } ${item.isIconLink ? "flex items-center gap-x-1" : ""}` // Adiciona flex para ícone
+                    className={({ isActive }) =>
+                      `text-sm font-semibold leading-6 text-zinc-200 cursor-pointer ${
+                        isActive ? "underline" : ""
+                      } ${item.isIconLink ? "flex items-center gap-x-1" : ""}`
                     }
                   >
                     {item.isIconLink && item.icon && (
@@ -202,7 +198,6 @@ export default function Header({ handleAuthentication }: HeaderProps) {
             )}
           </div>
 
-          {/* Desktop action icons */}
           <div className="hidden lg:flex lg:flex-3 lg:justify-end items-center gap-6">
             {iconActions.map(
               (action) =>
@@ -220,7 +215,7 @@ export default function Header({ handleAuthentication }: HeaderProps) {
                   </Tooltip>
                 )
             )}
-            {/* Logout icon */}
+
             <Tooltip>
               <TooltipTrigger asChild>
                 <a className="text-zinc-200 cursor-pointer" onClick={logout}>

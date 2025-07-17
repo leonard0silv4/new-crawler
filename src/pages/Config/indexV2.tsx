@@ -121,7 +121,6 @@ const Config = () => {
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-6">
-        {/* Configurações de Email */}
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
@@ -164,7 +163,6 @@ const Config = () => {
           </CardContent>
         </Card>
 
-        {/* Configurações da Loja */}
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
@@ -189,7 +187,6 @@ const Config = () => {
           </CardContent>
         </Card>
 
-        {/* Configurações de Rotina */}
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
@@ -224,7 +221,6 @@ const Config = () => {
           </CardContent>
         </Card>
 
-        {/* Configurações do Sistema */}
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
@@ -259,7 +255,6 @@ const Config = () => {
 
         <Separator />
 
-        {/* Botão de Salvar */}
         <div className="flex justify-end">
           <Button
             type="submit"
@@ -282,7 +277,6 @@ const Config = () => {
         </div>
       </form>
 
-      {/* Debug info (hidden) */}
       <pre className="hidden">{JSON.stringify(permissions)}</pre>
     </div>
   );

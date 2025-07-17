@@ -46,7 +46,6 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 
-// Lista de colaboradores (você pode substituir por dados reais)
 const colaboradores = [
   { value: "1", label: "João Silva" },
   { value: "2", label: "Maria Oliveira" },
@@ -82,25 +81,20 @@ export default function ProductionForm() {
   });
 
   function onSubmit(values: z.infer<typeof formSchema>) {
-    // Encontrar o nome completo do colaborador
     const colaboradorNome =
       colaboradores.find((c) => c.value === values.colaborador)?.label ||
       values.colaborador;
 
-    // Definir a mensagem de sucesso
     setSuccessMessage(
       `Apontamento para ${colaboradorNome} realizado com sucesso!`
     );
 
-    // Mostrar a modal de sucesso
     setShowSuccessModal(true);
 
-    // Configurar o fechamento automático após 5 segundos
     setTimeout(() => {
       setShowSuccessModal(false);
     }, 5000);
 
-    // Resetar o formulário
     form.reset();
   }
 

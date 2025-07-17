@@ -7,15 +7,15 @@ export interface Supplier {
 }
 
 export interface Product {
-    code: string // cProd - SKU/Código do Produto
-    name: string // xProd - Nome do Produto
-    ean?: string // cEAN - Código EAN (GTIN)
-    ncm?: string // NCM - Nomenclatura Comum do Mercosul
-    quantity: number // qCom - Quantidade
-    unitValue: number // vUnCom - Valor Unitário
-    icmsValue?: number // vICMS - Valor do ICMS do Item
-    ipiValue?: number // vIPI - Valor do IPI do Item
-    totalValue: number // vProd - Total da Linha
+    code: string // cProd 
+    name: string // xProd 
+    ean?: string // cEAN 
+    ncm?: string // NCM 
+    quantity: number // qCom 
+    unitValue: number // vUnCom 
+    icmsValue?: number // vICMS 
+    ipiValue?: number // vIPI 
+    totalValue: number // vProd 
     box?: number
     boxValue?: number
     qtdBox?: number
@@ -23,17 +23,17 @@ export interface Product {
 }
 
 export interface InvoiceTotals {
-    productsValue: number // vProd - Valor Líquido (Produtos)
-    freightValue: number // vFrete - Valor do Frete
-    icmsTotal: number // vICMS - Valor Total do ICMS
-    ipiTotal: number // vIPI - Valor Total do IPI
-    totalValue: number // vNF - Valor Total da Nota
+    productsValue: number // vProd 
+    freightValue: number // vFrete 
+    icmsTotal: number // vICMS 
+    ipiTotal: number // vIPI 
+    totalValue: number // vNF 
 }
 
 export interface Invoice {
     id: string
-    number: string // nNF - Número da NF
-    issueDate: Date // dhEmi - Data de Emissão
+    number: string // nNF 
+    issueDate: Date // dhEmi
     supplier: Supplier
     products: Product[]
     totals: InvoiceTotals

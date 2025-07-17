@@ -439,7 +439,6 @@ const Job = () => {
   return (
     <div className="flex min-h-full flex-1 flex-col justify-center px-6 py-12 lg:px-8 pb-24">
       <div className=" space-y-6">
-        {/* Header */}
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
           <div className="flex items-center gap-4">
             <NavLink
@@ -473,7 +472,6 @@ const Job = () => {
           </div>
         </div>
 
-        {/* Faccionist Info Card */}
         <Card className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-gray-800 dark:to-gray-700 border-0 shadow-lg">
           <CardHeader>
             <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
@@ -632,7 +630,6 @@ const Job = () => {
           </CardContent>
         </Card>
 
-        {/* Filters Section */}
         <Card>
           <CardHeader>
             <div className="flex items-center justify-between">
@@ -848,7 +845,6 @@ const Job = () => {
           )}
         </Card>
 
-        {/* Jobs Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-4">
           <AnimatePresence>
             {displayedRegisters?.map((register: any) => (
@@ -996,7 +992,6 @@ const Job = () => {
 
                     <Separator />
 
-                    {/* Status Indicators */}
                     <div className="space-y-2">
                       {[
                         {
@@ -1150,7 +1145,6 @@ const Job = () => {
         )}
       </div>
 
-      {/* Archive Dialog */}
       <Dialog open={isDialogJobOpen} onOpenChange={setIsDialogJobOpen}>
         <DialogContent>
           <DialogTitle>Confirmar arquivamento de lote</DialogTitle>

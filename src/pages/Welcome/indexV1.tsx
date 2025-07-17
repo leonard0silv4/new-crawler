@@ -99,7 +99,6 @@ export default function WelcomePage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-gray-100 p-6">
       <div className="max-w-7xl mx-auto">
-        {/* Header */}
         <div className="text-center mb-12 pt-8">
           <h1 className="text-4xl font-bold text-gray-900 mb-4">
             Bem-vindo! 👋
@@ -109,7 +108,6 @@ export default function WelcomePage() {
           </p>
         </div>
 
-        {/* Shortcuts Grid */}
         {availableShortcuts.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             {availableShortcuts.map((shortcut, index) => (
@@ -155,7 +153,6 @@ export default function WelcomePage() {
           </div>
         )}
 
-        {/* Footer Info */}
         {availableShortcuts.length > 0 && (
           <div className="mt-16 text-center">
             <div className="inline-flex items-center gap-2 bg-white rounded-full px-6 py-3 shadow-sm border">

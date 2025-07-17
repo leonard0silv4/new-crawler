@@ -45,7 +45,6 @@ export function ProductFormSlim({
   ) => {
     const updatedProducts = [...products];
 
-    // Determina se o campo é numérico
     const isNumericField: (keyof Product)[] = [
       "box",
       "quantity",

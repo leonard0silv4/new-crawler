@@ -3,10 +3,10 @@
 import React from "react";
 
 import { useQuery } from "@tanstack/react-query";
-import instance from "@/config/axios"; // Assuming this path is correct for your project
+import instance from "@/config/axios";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Skeleton } from "@/components/ui/skeleton"; // Import Skeleton component
+import { Skeleton } from "@/components/ui/skeleton";
 import {
   ShoppingCart,
   Package,
@@ -20,8 +20,8 @@ import {
   TrendingUp,
   AlertCircle,
 } from "lucide-react";
-import { useNavigate } from "react-router-dom"; // Note: Next.js App Router typically uses next/navigation for navigation
-import { usePermission } from "@/hooks/usePermissions"; // Assuming this path is correct
+import { useNavigate } from "react-router-dom";
+import { usePermission } from "@/hooks/usePermissions";
 
 export default function WelcomePage() {
   const navigate = useNavigate();
@@ -135,7 +135,6 @@ export default function WelcomePage() {
     navigate(path);
   };
 
-  // Retorna a cor para o pequeno círculo de status
   const getStatusDotColor = (status: string) => {
     switch (status) {
       case "online":
@@ -149,11 +148,10 @@ export default function WelcomePage() {
     }
   };
 
-  // Retorna a cor do texto para o Badge
   const getStatusBadgeTextColor = (status: string) => {
     switch (status) {
       case "online":
-        return "text-green-700"; // Corrigido de text-white-700
+        return "text-green-700";
       case "warning":
         return "text-yellow-700";
       case "info":
@@ -166,7 +164,6 @@ export default function WelcomePage() {
   return (
     <div className="min-h-screen bg-gray-50 p-6">
       <div className="container mx-auto p-6 max-w-7xl space-y-8">
-        {/* Header Dashboard */}
         <div className="flex flex-col md:flex-row md:items-center md:justify-between pb-6 border-b border-gray-200">
           <div>
             <h1 className="text-3xl font-extrabold text-gray-900">Dashboard</h1>
@@ -188,7 +185,6 @@ export default function WelcomePage() {
           </div>
         </div>
 
-        {/* Stats Overview - Only for Owner */}
         {isOwner && (
           <div className="space-y-4">
             <h2 className="text-xl font-semibold text-gray-900">Visão Geral</h2>
@@ -268,7 +264,6 @@ export default function WelcomePage() {
           </div>
         )}
 
-        {/* Quick Access Modules */}
         <div className="space-y-4">
           <h2 className="text-xl font-semibold text-gray-900">Acesso Rápido</h2>
           {isLoading ? (
@@ -306,16 +301,14 @@ export default function WelcomePage() {
                   <CardContent className="p-5">
                     <div className="flex items-center justify-between mb-3">
                       <div className="flex items-center gap-3">
-                        {/* Ícone com cor neutra */}
                         {React.cloneElement(shortcut.icon, {
                           className: "h-5 w-5 text-gray-600",
                         })}
                         <span className="font-medium text-gray-900 text-base">
                           {shortcut.title}
                         </span>{" "}
-                        {/* Font medium e text-base */}
                       </div>
-                      {/* Pequeno círculo de status colorido */}
+
                       <div
                         className={`w-2.5 h-2.5 rounded-full ${getStatusDotColor(
                           shortcut.status
@@ -327,12 +320,11 @@ export default function WelcomePage() {
                         <span className="text-xl font-bold text-gray-900">
                           {shortcut.count}
                         </span>{" "}
-                        {/* Text-xl */}
                         <span className="text-sm text-gray-500 ml-1">
                           {shortcut.label}
                         </span>
                       </div>
-                      {/* Badge com fundo neutro e texto colorido */}
+
                       <Badge
                         className={`text-xs font-medium bg-gray-100 ${getStatusBadgeTextColor(
                           shortcut.status
@@ -365,7 +357,6 @@ export default function WelcomePage() {
           )}
         </div>
 
-        {/* System Status */}
         <Card className="bg-white rounded-xl border border-gray-200">
           <CardHeader className="p-6 pb-4">
             <CardTitle className="text-xl font-semibold text-gray-900">
@@ -393,21 +384,18 @@ export default function WelcomePage() {
                     <p className="font-medium text-gray-900">
                       Servidor Principal
                     </p>
-                    {/* <p className="text-sm text-gray-600">OK</p> */}
                   </div>
                 </div>
                 <div className="flex items-center gap-3">
                   <div className="w-3 h-3 bg-green-500 rounded-full"></div>
                   <div>
                     <p className="font-medium text-gray-900">Base de Dados</p>
-                    {/* <p className="text-sm text-gray-600">OK</p> */}
                   </div>
                 </div>
                 <div className="flex items-center gap-3">
                   <div className="w-3 h-3 bg-green-500 rounded-full"></div>
                   <div>
                     <p className="font-medium text-gray-900">APIs Externas</p>
-                    {/* <p className="text-sm text-gray-600">OK</p> */}
                   </div>
                 </div>
               </div>

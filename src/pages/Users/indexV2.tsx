@@ -37,7 +37,6 @@ import {
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
-// Lazy loaded components
 const AddFaccionista = lazy(() => import("./add"));
 const EditFaccionista = lazy(() => import("./edit"));
 import CalculateJobs from "./calculateJobs";
@@ -189,7 +188,6 @@ export default function Faccionistas() {
 
   const hasManagePermissions = permissions?.includes("manage_faccionistas");
 
-  // Load faccionistas
   useEffect(() => {
     const loadFaccionistas = async () => {
       try {
@@ -211,7 +209,6 @@ export default function Faccionistas() {
     loadFaccionistas();
   }, [toast]);
 
-  // SSE for real-time updates
   useSse({
     eventName: "jobUpdated",
     onEvent: (updatedJob: any) => {
@@ -322,7 +319,6 @@ export default function Faccionistas() {
 
   return (
     <div className="p-6 max-w-7xl mx-auto space-y-6">
-      {/* Header */}
       <div className="flex flex-col sm:flex-row gap-4 justify-between items-start sm:items-center">
         <div>
           <h1 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
@@ -341,7 +337,6 @@ export default function Faccionistas() {
         )}
       </div>
 
-      {/* Search and Filters */}
       <div className="flex flex-col sm:flex-row gap-4 items-center justify-between">
         <div className="relative flex-1 max-w-md">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
@@ -381,14 +376,13 @@ export default function Faccionistas() {
         </div>
       </div>
 
-      {/* Content */}
       <AnimatePresence mode="wait">
         {filteredRegisters.length === 0 ? (
           <EmptyState
             onAdd={
               hasManagePermissions
                 ? () => {
-                    /* Open add dialog */
+                    /* open add dialog */
                   }
                 : undefined
             }
@@ -419,7 +413,6 @@ export default function Faccionistas() {
         )}
       </AnimatePresence>
 
-      {/* Edit Dialog */}
       {selectedUserUpdate && (
         <Suspense fallback={null}>
           <EditFaccionista
@@ -430,7 +423,6 @@ export default function Faccionistas() {
         </Suspense>
       )}
 
-      {/* Delete Confirmation Dialog */}
       <AlertDialog
         open={isDeleteDialogOpen}
         onOpenChange={setIsDeleteDialogOpen}

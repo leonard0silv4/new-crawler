@@ -85,7 +85,7 @@ export function InvoiceViewModal({
       currentValue = invoice?.[field]?.toString().trim() || "";
     }
 
-    if (newValue === currentValue) return; // ⛔️ Sem mudanças, não atualiza
+    if (newValue === currentValue) return;
 
     const payload =
       field === "nome" ||
@@ -346,7 +346,6 @@ export function InvoiceViewModal({
                         </div>
                       )}
 
-                      {/* Quantidade */}
                       {product.quantity !== undefined && !product.qtdBox && (
                         <div className="space-y-1">
                           <span className="font-medium text-muted-foreground">
@@ -358,7 +357,6 @@ export function InvoiceViewModal({
                         </div>
                       )}
 
-                      {/* Valor Unitário */}
                       <div className="space-y-1">
                         <span className="font-medium text-muted-foreground">
                           Valor Unitário
@@ -371,7 +369,6 @@ export function InvoiceViewModal({
                         </p>
                       </div>
 
-                      {/* ICMS */}
                       <div className="space-y-1">
                         <span className="font-medium text-muted-foreground">
                           ICMS
@@ -384,7 +381,6 @@ export function InvoiceViewModal({
                         </p>
                       </div>
 
-                      {/* IPI */}
                       <div className="space-y-1">
                         <span className="font-medium text-muted-foreground">
                           IPI
@@ -397,7 +393,6 @@ export function InvoiceViewModal({
                         </p>
                       </div>
 
-                      {/* Subtotal */}
                       <div className="space-y-1">
                         <span className="font-medium text-muted-foreground">
                           Subtotal

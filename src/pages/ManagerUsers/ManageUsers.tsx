@@ -96,7 +96,6 @@ export default function UsersPage() {
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
       <div className="p-6 max-w-7xl mx-auto space-y-6">
-        {/* Header */}
         <div className="flex flex-col gap-4">
           <div className="flex items-center justify-between">
             <div>
@@ -126,7 +125,6 @@ export default function UsersPage() {
             </div>
           </div>
 
-          {/* Stats Cards */}
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
             <Card>
               <CardContent className="p-3">
@@ -208,7 +206,6 @@ export default function UsersPage() {
           </div>
         </div>
 
-        {/* Search */}
         <Card>
           <CardContent className="p-4">
             <div className="flex flex-col sm:flex-row gap-4 items-end">
@@ -230,7 +227,6 @@ export default function UsersPage() {
           </CardContent>
         </Card>
 
-        {/* Users List */}
         {isLoading ? (
           <div className="space-y-4">
             {[...Array(6)].map((_, i) => (
@@ -311,7 +307,6 @@ export default function UsersPage() {
           </div>
         )}
 
-        {/* Load More */}
         <div ref={loadMoreRef} className="text-center py-8">
           {isFetchingNextPage && (
             <div className="flex items-center justify-center gap-2">
@@ -328,7 +323,6 @@ export default function UsersPage() {
           )}
         </div>
 
-        {/* Empty State */}
         {!isLoading && users.length === 0 && (
           <Card>
             <CardContent className="p-12 text-center">
@@ -349,7 +343,6 @@ export default function UsersPage() {
           </Card>
         )}
 
-        {/* Modals */}
         <UserEditModal
           user={editingUser}
           open={!!editingUser}
