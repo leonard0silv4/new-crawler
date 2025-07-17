@@ -69,6 +69,26 @@ export function useInvoicesService({
     },
   });
 
+  const updateInvoice = useMutation({
+    mutationFn: async ({
+      id,
+      payload,
+    }: {
+      id: string;
+      payload: Record<string, any>;
+    }) => {
+      const res = await instance.put(`/nfe/${id}`, payload);
+      return res.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["invoices"] });
+      toast.success("Nota fiscal atualizada com sucesso!");
+    },
+    onError: () => {
+      toast.error("Erro ao atualizar a nota fiscal.");
+    },
+  });
+
   const parseXml = useMutation({
     mutationFn: async (file: File) => {
       const formData = new FormData();
@@ -82,6 +102,7 @@ export function useInvoicesService({
     invoicesQuery,
     saveInvoice,
     deleteInvoice,
+    updateInvoice,
     parseXml,
   };
 }

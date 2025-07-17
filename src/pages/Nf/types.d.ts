@@ -3,18 +3,23 @@ export interface Supplier {
     nome?: string // xNome
     cnpj: string // CNPJ
     phone?: string // fone
+    address?: string
 }
 
 export interface Product {
     code: string // cProd - SKU/Código do Produto
     name: string // xProd - Nome do Produto
     ean?: string // cEAN - Código EAN (GTIN)
-    ncm: string // NCM - Nomenclatura Comum do Mercosul
+    ncm?: string // NCM - Nomenclatura Comum do Mercosul
     quantity: number // qCom - Quantidade
     unitValue: number // vUnCom - Valor Unitário
     icmsValue?: number // vICMS - Valor do ICMS do Item
     ipiValue?: number // vIPI - Valor do IPI do Item
     totalValue: number // vProd - Total da Linha
+    box?: number
+    boxValue?: number
+    qtdBox?: number
+
 }
 
 export interface InvoiceTotals {

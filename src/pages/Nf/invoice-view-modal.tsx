@@ -18,6 +18,7 @@ import { Button } from "@/components/ui/button";
 import { FileDown, Printer } from "lucide-react";
 import instance from "@/config/axios";
 import { toast } from "sonner";
+import { useInvoicesService } from "@/hooks/useInvoiceService";
 
 interface InvoiceViewModalProps {
   invoice: any;
@@ -31,6 +32,8 @@ export function InvoiceViewModal({
   onClose,
 }: InvoiceViewModalProps) {
   if (!invoice) return null;
+
+  const { updateInvoice } = useInvoicesService();
 
   const handleDownloadXml = () => {
     const xmlString = normalizeToXml(invoice);
@@ -64,6 +67,35 @@ export function InvoiceViewModal({
       toast.error("Erro ao gerar PDF da nota fiscal!");
       console.error(err);
     }
+  };
+
+  const updateFieldInvoice = (
+    ev: React.FocusEvent<HTMLElement>,
+    field: string,
+    id: string
+  ) => {
+    const newValue = ev.currentTarget.textContent?.trim();
+    if (!newValue) return;
+
+    let currentValue;
+
+    if (["nome", "cnpj", "telefone", "endereco"].includes(field)) {
+      currentValue = invoice.fornecedor?.[field]?.toString().trim() || "";
+    } else {
+      currentValue = invoice?.[field]?.toString().trim() || "";
+    }
+
+    if (newValue === currentValue) return; // ⛔️ Sem mudanças, não atualiza
+
+    const payload =
+      field === "nome" ||
+      field === "cnpj" ||
+      field === "telefone" ||
+      field === "endereco"
+        ? { fornecedor: { [field]: newValue } }
+        : { [field]: newValue };
+
+    updateInvoice.mutate({ id, payload });
   };
 
   return (
@@ -101,12 +133,14 @@ export function InvoiceViewModal({
               <CardTitle className="text-lg">
                 Informações da Nota Fiscal
               </CardTitle>
-              <div className="hidden md:block text-sm text-muted-foreground">
-                <span className="font-medium">Chave de acesso:</span>{" "}
-                <span className="font-mono text-xs bg-muted px-2 py-1 rounded">
-                  {invoice.accessKey}
-                </span>
-              </div>
+              {invoice.accessKey && (
+                <div className="hidden md:block text-sm text-muted-foreground">
+                  <span className="font-medium">Chave de acesso:</span>{" "}
+                  <span className="font-mono text-xs bg-muted px-2 py-1 rounded">
+                    {invoice.accessKey}
+                  </span>
+                </div>
+              )}
             </CardHeader>
             <CardContent>
               <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
@@ -114,7 +148,16 @@ export function InvoiceViewModal({
                   <p className="text-sm font-medium text-muted-foreground">
                     Número da NF
                   </p>
-                  <p className="text-xl font-bold">{invoice.numeroNota}</p>
+                  <p
+                    onBlur={(e) => {
+                      updateFieldInvoice(e, "numeroNota", invoice._id);
+                    }}
+                    contentEditable
+                    suppressContentEditableWarning={true}
+                    className="text-xl font-bold"
+                  >
+                    {invoice.numeroNota || "Não informado"}
+                  </p>
                 </div>
                 <div className="space-y-1">
                   <p className="text-sm font-medium text-muted-foreground">
@@ -161,22 +204,62 @@ export function InvoiceViewModal({
                   <p className="text-sm font-medium text-muted-foreground">
                     Nome
                   </p>
-                  <p className="text-lg font-medium">
-                    {invoice.fornecedor.nome}
+                  <p
+                    onBlur={(e) => {
+                      updateFieldInvoice(e, "nome", invoice._id);
+                    }}
+                    contentEditable
+                    suppressContentEditableWarning={true}
+                    className="text-lg font-medium"
+                  >
+                    {invoice.fornecedor.nome || "Não informado"}
                   </p>
                 </div>
                 <div className="space-y-1">
                   <p className="text-sm font-medium text-muted-foreground">
                     CNPJ
                   </p>
-                  <p className="text-lg font-mono">{invoice.fornecedor.cnpj}</p>
+                  <p
+                    onBlur={(e) => {
+                      updateFieldInvoice(e, "cnpj", invoice._id);
+                    }}
+                    contentEditable
+                    suppressContentEditableWarning={true}
+                    className="text-lg font-mono"
+                  >
+                    {invoice.fornecedor.cnpj || "Não informado"}
+                  </p>
                 </div>
                 <div className="space-y-1">
                   <p className="text-sm font-medium text-muted-foreground">
                     Telefone
                   </p>
-                  <p className="text-lg">
-                    {invoice.fornecedor.phone || "Não informado"}
+                  <p
+                    onBlur={(e) => {
+                      updateFieldInvoice(e, "telefone", invoice._id);
+                    }}
+                    contentEditable
+                    suppressContentEditableWarning={true}
+                    className="text-lg"
+                  >
+                    {invoice.fornecedor.telefone || "Não informado"}
+                  </p>
+                </div>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-1 gap-6 mt-3">
+                <div className="space-y-1">
+                  <p className="text-sm font-medium text-muted-foreground">
+                    Endereço
+                  </p>
+                  <p
+                    onBlur={(e) => {
+                      updateFieldInvoice(e, "endereco", invoice._id);
+                    }}
+                    contentEditable
+                    suppressContentEditableWarning={true}
+                    className="text-lg font-medium"
+                  >
+                    {invoice.fornecedor.endereco || "Não informado"}
                   </p>
                 </div>
               </div>
@@ -228,15 +311,54 @@ export function InvoiceViewModal({
                       </div>
                     </div>
 
-                    <div className="grid grid-cols-2 md:grid-cols-5 gap-4 text-sm">
-                      <div className="space-y-1">
-                        <span className="font-medium text-muted-foreground">
-                          Quantidade
-                        </span>
-                        <p className="text-base font-semibold">
-                          {product.quantity}
-                        </p>
-                      </div>
+                    <div className="grid grid-cols-2 md:grid-cols-5 lg:grid-cols-7 gap-4 text-sm">
+                      {product.box !== undefined && (
+                        <div className="space-y-1">
+                          <span className="font-medium text-muted-foreground">
+                            Caixas
+                          </span>
+                          <p className="text-base font-semibold">
+                            {product.box}
+                          </p>
+                        </div>
+                      )}
+                      {product.boxValue !== undefined && (
+                        <div className="space-y-1">
+                          <span className="font-medium text-muted-foreground">
+                            Valor por Caixa
+                          </span>
+                          <p className="text-base font-semibold">
+                            {new Intl.NumberFormat("pt-BR", {
+                              style: "currency",
+                              currency: "BRL",
+                            }).format(product.boxValue)}
+                          </p>
+                        </div>
+                      )}
+                      {product.qtdBox !== undefined && (
+                        <div className="space-y-1">
+                          <span className="font-medium text-muted-foreground">
+                            Qtd por Caixa
+                          </span>
+                          <p className="text-base font-semibold">
+                            {product.qtdBox}
+                          </p>
+                        </div>
+                      )}
+
+                      {/* Quantidade */}
+                      {product.quantity !== undefined && (
+                        <div className="space-y-1">
+                          <span className="font-medium text-muted-foreground">
+                            Quantidade
+                          </span>
+                          <p className="text-base font-semibold">
+                            {product.quantity}
+                          </p>
+                        </div>
+                      )}
+
+                      {/* Valor Unitário */}
                       <div className="space-y-1">
                         <span className="font-medium text-muted-foreground">
                           Valor Unitário
@@ -248,6 +370,8 @@ export function InvoiceViewModal({
                           }).format(product.unitValue)}
                         </p>
                       </div>
+
+                      {/* ICMS */}
                       <div className="space-y-1">
                         <span className="font-medium text-muted-foreground">
                           ICMS
@@ -259,6 +383,8 @@ export function InvoiceViewModal({
                           }).format(product.icmsValue || 0)}
                         </p>
                       </div>
+
+                      {/* IPI */}
                       <div className="space-y-1">
                         <span className="font-medium text-muted-foreground">
                           IPI
@@ -270,6 +396,8 @@ export function InvoiceViewModal({
                           }).format(product.ipiValue || 0)}
                         </p>
                       </div>
+
+                      {/* Subtotal */}
                       <div className="space-y-1">
                         <span className="font-medium text-muted-foreground">
                           Subtotal
@@ -278,7 +406,7 @@ export function InvoiceViewModal({
                           {new Intl.NumberFormat("pt-BR", {
                             style: "currency",
                             currency: "BRL",
-                          }).format(product.quantity * product.unitValue)}
+                          }).format(product.totalValue)}
                         </p>
                       </div>
                     </div>

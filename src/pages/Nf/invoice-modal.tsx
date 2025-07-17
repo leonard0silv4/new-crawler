@@ -28,6 +28,7 @@ import type { Product, Supplier, InvoiceTotals } from "./types";
 import { useInvoicesService } from "@/hooks/useInvoiceService";
 
 import { toast } from "sonner";
+import { ProductFormSlim } from "./product-form-slim";
 
 interface InvoiceModalProps {
   isOpen: boolean;
@@ -45,6 +46,7 @@ export function InvoiceModal({ isOpen, onClose }: InvoiceModalProps) {
     name: "",
     cnpj: "",
     phone: "",
+    address: "",
   });
   const [products, setProducts] = useState<Product[]>([
     {
@@ -77,6 +79,7 @@ export function InvoiceModal({ isOpen, onClose }: InvoiceModalProps) {
       name: "",
       cnpj: "",
       phone: "",
+      address: "",
     });
     setProducts([
       {
@@ -123,6 +126,7 @@ export function InvoiceModal({ isOpen, onClose }: InvoiceModalProps) {
         nome: supplier.name,
         cnpj: supplier.cnpj,
         telefone: supplier.phone,
+        endereco: supplier.address,
       },
       accessKey: invoiceKeyAccess,
       numeroNota: invoiceNumber,
@@ -238,10 +242,161 @@ export function InvoiceModal({ isOpen, onClose }: InvoiceModalProps) {
           onValueChange={(val) => setTab(val as any)}
           className="space-y-4"
         >
-          <TabsList className="grid w-full grid-cols-2">
+          <TabsList className="grid w-full grid-cols-3">
             <TabsTrigger value="upload">Upload XML</TabsTrigger>
             <TabsTrigger value="manual">Inserção Nf</TabsTrigger>
+            <TabsTrigger value="manual_plant">
+              Inserção pedidos de plantas
+            </TabsTrigger>
           </TabsList>
+          <TabsContent value="manual_plant" className="space-y-4">
+            <div className="space-y-4">
+              <h3 className="text-lg font-semibold">
+                Informações da Nota Fiscal
+              </h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="invoice-number">Número da NF *</Label>
+                  <Input
+                    id="invoice-number"
+                    value={invoiceNumber}
+                    onChange={(e) => setInvoiceNumber(e.target.value)}
+                    placeholder="000001"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="issue-date">Data de Emissão *</Label>
+                  <Popover modal={true}>
+                    <PopoverTrigger asChild>
+                      <Button
+                        variant="outline"
+                        className="w-full justify-start text-left font-normal bg-transparent"
+                      >
+                        <CalendarIcon className="mr-2 h-4 w-4" />
+                        {issueDate
+                          ? format(issueDate, "dd/MM/yyyy", { locale: ptBR })
+                          : "Selecionar data"}
+                      </Button>
+                    </PopoverTrigger>
+
+                    <PopoverContent className="w-auto p-0">
+                      <Calendar
+                        mode="single"
+                        selected={issueDate}
+                        onSelect={(date) => {
+                          setIssueDate(date);
+                        }}
+                        initialFocus
+                        locale={ptBR}
+                      />
+                    </PopoverContent>
+                  </Popover>
+                </div>
+              </div>
+            </div>
+
+            <div className="space-y-4">
+              <h3 className="text-lg font-semibold">Dados do Fornecedor</h3>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="supplier-name">Nome do Fornecedor *</Label>
+                  <Input
+                    id="supplier-name"
+                    placeholder="Nome do fornecedor"
+                    value={supplier.name}
+                    onChange={(e) =>
+                      setSupplier({ ...supplier, name: e.target.value })
+                    }
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="supplier-cnpj">CNPJ *</Label>
+                  <Input
+                    id="supplier-cnpj"
+                    placeholder="00.000.000/0000-00"
+                    value={supplier.cnpj}
+                    onChange={(e) =>
+                      setSupplier({ ...supplier, cnpj: e.target.value })
+                    }
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="supplier-phone">Telefone</Label>
+                  <Input
+                    id="supplier-phone"
+                    placeholder="(00) 0000-0000"
+                    value={supplier.phone || ""}
+                    onChange={(e) =>
+                      setSupplier({ ...supplier, phone: e.target.value })
+                    }
+                  />
+                </div>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="supplier-address">Endereço</Label>
+                  <Input
+                    id="supplier-address"
+                    placeholder="Av. joao 23 , nª 32, Londrina, PR"
+                    value={supplier.address || ""}
+                    onChange={(e) =>
+                      setSupplier({ ...supplier, address: e.target.value })
+                    }
+                  />
+                </div>
+              </div>
+            </div>
+
+            <ProductFormSlim
+              products={products}
+              onProductsChange={setProducts}
+            />
+
+            <div className="space-y-4">
+              <h3 className="text-lg font-semibold">Resumo Financeiro</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label>Valor dos Produtos</Label>
+                  <Input
+                    type="text"
+                    value={new Intl.NumberFormat("pt-BR", {
+                      style: "currency",
+                      currency: "BRL",
+                    }).format(calculateTotals().productsValue)}
+                    disabled
+                    className="bg-muted"
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label>Valor Total da Nota</Label>
+                  <Input
+                    type="text"
+                    value={new Intl.NumberFormat("pt-BR", {
+                      style: "currency",
+                      currency: "BRL",
+                    }).format(calculateTotals().totalValue)}
+                    disabled
+                    className="bg-muted font-bold"
+                  />
+                </div>
+              </div>
+            </div>
+
+            <div className="flex gap-2 pt-4">
+              <Button
+                className="flex-1"
+                onClick={handleSaveNota}
+                disabled={saving}
+              >
+                <Plus className="w-4 h-4 mr-2" />
+                {saving ? "Salvando..." : "Salvar Nota Fiscal"}
+              </Button>
+              <Button variant="outline" onClick={onClose}>
+                Cancelar
+              </Button>
+            </div>
+          </TabsContent>
 
           <TabsContent value="upload" className="space-y-4">
             <div
@@ -372,6 +527,19 @@ export function InvoiceModal({ isOpen, onClose }: InvoiceModalProps) {
                     value={supplier.phone || ""}
                     onChange={(e) =>
                       setSupplier({ ...supplier, phone: e.target.value })
+                    }
+                  />
+                </div>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="supplier-address">Endereço</Label>
+                  <Input
+                    id="supplier-address"
+                    placeholder="Av. joao 23 , nª 32, Londrina, PR"
+                    value={supplier.address || ""}
+                    onChange={(e) =>
+                      setSupplier({ ...supplier, address: e.target.value })
                     }
                   />
                 </div>
