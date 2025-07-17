@@ -141,7 +141,7 @@ export function InvoiceModal({ isOpen, onClose }: InvoiceModalProps) {
 
     saveNota(nota, {
       onSuccess: () => {
-        toast.success("Nota salva com sucesso!");
+        toast.success("Nota salva com sucesso!", { id: "nota-save-success" });
         resetForm();
         onClose();
       },
@@ -149,6 +149,7 @@ export function InvoiceModal({ isOpen, onClose }: InvoiceModalProps) {
         toast.error("Erro ao salvar nota", {
           description:
             err?.response?.data?.error || "Verifique os dados enviados",
+          id: "nota-save-error",
         });
       },
     });

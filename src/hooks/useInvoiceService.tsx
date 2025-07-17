@@ -49,10 +49,10 @@ export function useInvoicesService({
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["invoices"] });
-      toast.success("Nota fiscal salva com sucesso.");
+      toast.success("Nota salva com sucesso!", { id: "nota-save-success" });
     },
     onError: () => {
-      toast.error("Erro ao salvar a nota fiscal.");
+      toast.error("Erro ao salvar a nota fiscal.", { id: "nota-save-error" });
     },
   });
 
