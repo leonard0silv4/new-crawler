@@ -9,6 +9,7 @@ import PIX from "react-qrcode-pix";
 import { useModal } from "../../context/ModalContext";
 import { Input } from "@/components/ui/input";
 import instance from "@/config/axios";
+import { Loader2 } from "lucide-react";
 
 const now = new Date().getTime().toString();
 
@@ -40,8 +41,11 @@ export default function Pix({
   const [priceI, setPriceI] = useState(price);
   const [advancedRemove, setAdvancedRemove] = useState<number>();
   const { closeModal } = useModal();
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleMarkAsPaid = async () => {
+    setIsLoading(true);
+
     if (priceI != price) {
       await instance
         .put(`jobs/splitAdvancedMoney`, {
@@ -62,6 +66,7 @@ export default function Pix({
     }
     onMarkAsPaid();
     closeModal();
+    setIsLoading(false);
   };
 
   const onChangeValueAdvanced = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -107,25 +112,31 @@ export default function Pix({
         </DialogDescription>
 
         {advancedMoney && advancedMoney != 0 ? (
-          <>
-            <p className="text-red-500 text-center">
+          <div className="space-y-3 p-4 bg-red-50 rounded-lg border border-red-200">
+            <p className="text-red-600 text-center text-sm">
               {`Possui um adiantamento no valor de R$ ${advancedMoney} (${(
                 advancedMoney - (advancedRemove ?? 0)
               ).toFixed(2)})
             você gostaria de abater algum valor deste pagamento ?
             `}
             </p>
-            <div>
-              <Input
-                id="qtd"
-                name="qtd"
-                type="text"
-                placeholder="Valor a ser abatido"
-                value={advancedRemove}
-                onChange={(e) => onChangeValueAdvanced(e)}
-              />
+            <div className="space-y-2">
+              <div>
+                <Input
+                  id="qtd"
+                  name="qtd"
+                  type="text"
+                  placeholder="Valor a ser abatido"
+                  value={advancedRemove}
+                  onChange={(e) => onChangeValueAdvanced(e)}
+                  className="text-center"
+                />
+              </div>
+              <p className="text-xs text-gray-500 text-center">
+                Máximo: R$ {Math.min(price, advancedMoney).toFixed(2)}
+              </p>
             </div>
-          </>
+          </div>
         ) : null}
       </DialogHeader>
 
@@ -158,7 +169,14 @@ export default function Pix({
         </Button>
 
         <Button onClick={handleMarkAsPaid} type="button">
-          Marcar como pago
+          {isLoading ? (
+            <>
+              <Loader2 className="h-4 w-4 animate-spin" />
+              Processando...
+            </>
+          ) : (
+            "Marcar como pago"
+          )}
         </Button>
 
         <small className="text-center text-red-700">

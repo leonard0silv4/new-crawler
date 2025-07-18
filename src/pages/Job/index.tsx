@@ -31,7 +31,7 @@ import { usePermission } from "@/hooks/usePermissions";
 
 import instance from "@/config/axios";
 const AddJob = lazy(() => import("./add"));
-const Pix = lazy(() => import("../Pix/indexV2"));
+const Pix = lazy(() => import("../Pix"));
 const StarRating = lazy(() => import("./jobRate"));
 
 import { Button } from "@/components/ui/button";
