@@ -27,6 +27,8 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
 import instance from "./config/axios";
 import WelcomePage from "./pages/Welcome/indexV1";
+import WelcomePageNew from "./pages/Welcome/";
+
 import Nf from "./pages/Nf";
 
 const queryClient = new QueryClient();
@@ -67,6 +69,7 @@ function App() {
             {roles.length > 0 && (
               <Route element={<PrivateRoutes allowedRoles={roles} />}>
                 <Route path="/" element={<WelcomePage />} />
+                <Route path="/v2" element={<WelcomePageNew />} />
                 <Route element={<Dashboard />} path="/dashboard" />
                 <Route element={<Shopee />} path="/shopee" />
                 <Route element={<Sales />} path="/orders" />
