@@ -1,10 +1,10 @@
 "use client";
 
-import React from "react";
-
-import { useQuery } from "@tanstack/react-query";
-import instance from "@/config/axios";
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { usePermission } from "@/hooks/usePermissions";
+import { useDashboardSalesData } from "@/hooks/useDashboardSalesData";
+import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
@@ -16,150 +16,123 @@ import {
   Settings,
   Activity,
   Store,
-  Clock,
-  TrendingUp,
-  AlertCircle,
+  Loader2,
 } from "lucide-react";
-import { useNavigate } from "react-router-dom";
-import { usePermission } from "@/hooks/usePermissions";
+import instance from "@/config/axios";
+import { toast } from "sonner";
+import { Button } from "@/components/ui/button";
+import { ResumeCard } from "./resumeCard"; // Import the new ResumeCard component
+import { cn } from "@/lib/utils"; // Import cn for conditional class names
 
-export default function WelcomePage() {
+export default function WelcomePageNew() {
   const navigate = useNavigate();
   const { can, isOwner, canAny } = usePermission();
+  const [isProcessing, setIsProcessing] = useState(false);
+  const {
+    hoje,
+    ontem,
+    mediaDiaria,
+    previsaoMes,
+    isLoading,
+    refetchAll,
+    // hourlySalesHoje,
+  } = useDashboardSalesData();
 
-  const production = !!(
+  const handleClick = async () => {
+    setIsProcessing(true);
+    try {
+      await instance.post("/orders/summary/clear-cache");
+      await refetchAll();
+      toast.success("Cache limpo com sucesso!");
+    } catch (err) {
+      console.error(err);
+      toast.error("Erro ao limpar cache.");
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+
+  const production =
     typeof window !== "undefined" &&
-    localStorage.getItem("productionBrowser") == "yes"
-  );
-
-  const { data, isLoading } = useQuery({
-    queryKey: ["dashboard-summary"],
-    queryFn: async () => {
-      const res = await instance.get("/dashboard/summary", {
-        headers: {
-          ownerId:
-            typeof window !== "undefined"
-              ? localStorage.getItem("ownerId") || ""
-              : "",
-        },
-      });
-      return res as any;
-    },
-  });
-
-  const currentTime = new Date().toLocaleString("pt-BR", {
-    weekday: "long",
-    year: "numeric",
-    month: "long",
-    day: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
-  });
+    localStorage.getItem("productionBrowser") === "yes";
 
   const shortcuts = [
     {
       title: "Mercado Livre",
-      icon: <ShoppingCart className="h-5 w-5" />,
+      icon: <ShoppingCart />,
       path: "/dashboard",
       show: !production && can("view_links"),
       status: "online",
-      count: data?.links?.mercadolivre,
+      count: null,
       label: "produtos",
     },
     {
       title: "Shopee",
-      icon: <Store className="h-5 w-5" />,
+      icon: <Store />,
       path: "/shopee",
       show: !production && can("view_links"),
       status: "online",
-      count: data?.links?.shopee,
+      count: null,
       label: "itens",
     },
     {
       title: "Estoque ML",
-      icon: <Package className="h-5 w-5" />,
+      icon: <Package />,
       path: "/account/products",
       show: !production && can("manage_meli_products"),
       status: "warning",
-      count: data?.meliAtivosQtd ?? 0,
+      count: null,
       label: "Estoque",
     },
     {
       title: "Faccionistas",
-      icon: <Users className="h-5 w-5" />,
+      icon: <Users />,
       path: "/users",
       show: canAny("manage_faccionistas", "view_production"),
       status: "online",
-      count: data?.faccionistasQtd ?? 0,
+      count: null,
       label: "ativos",
     },
     {
       title: "Usuários",
-      icon: <UserCog className="h-5 w-5" />,
+      icon: <UserCog />,
       path: "/manage-users",
       show: !production && can("control_users"),
       status: "online",
-      count: data?.usuariosQtd ?? 0,
+      count: null,
       label: "usuários",
     },
     {
       title: "Logs",
-      icon: <Activity className="h-5 w-5" />,
+      icon: <Activity />,
       path: "/logs",
       show: !production && can("view_logs"),
       status: "info",
-      count: data?.logsHojeQtd ?? 0,
+      count: null,
       label: "hoje",
     },
     {
       title: "Notas Fiscais",
-      icon: <FileText className="h-5 w-5" />,
+      icon: <FileText />,
       path: "/nf",
       show: !production && can("view_nf"),
       status: "online",
-      count: data?.notasFiscaisQtd ?? 0,
+      count: null,
       label: "Disponíveis",
     },
     {
       title: "Configurações",
-      icon: <Settings className="h-5 w-5" />,
+      icon: <Settings />,
       path: "/config",
       show: !production && isOwner,
       status: "online",
+      count: null,
+      label: "geral",
     },
   ];
 
-  const availableShortcuts = shortcuts.filter((shortcut) => shortcut.show);
-
-  const handleNavigation = (path: string) => {
-    navigate(path);
-  };
-
-  const getStatusDotColor = (status: string) => {
-    switch (status) {
-      case "online":
-        return "bg-green-500";
-      case "warning":
-        return "bg-yellow-500";
-      case "info":
-        return "bg-blue-500";
-      default:
-        return "bg-gray-500";
-    }
-  };
-
-  const getStatusBadgeTextColor = (status: string) => {
-    switch (status) {
-      case "online":
-        return "text-green-700";
-      case "warning":
-        return "text-yellow-700";
-      case "info":
-        return "text-blue-700";
-      default:
-        return "text-gray-700";
-    }
-  };
+  const availableShortcuts = shortcuts.filter((s) => s.show);
+  const handleNavigation = (path: string) => navigate(path);
 
   return (
     <div className="min-h-screen bg-gray-50 p-6">
@@ -167,11 +140,10 @@ export default function WelcomePage() {
         <div className="flex flex-col md:flex-row md:items-center md:justify-between pb-6 border-b border-gray-200">
           <div>
             <h1 className="text-3xl font-extrabold text-gray-900">Dashboard</h1>
-            <p className="text-gray-600 mt-2 text-sm">{currentTime}</p>
           </div>
           <div className="flex items-center gap-4 mt-4 md:mt-0">
             <div className="flex items-center gap-2">
-              <div className="w-2.5 h-2.5 bg-green-500 rounded-full animate-pulse"></div>
+              <div className="w-2.5 h-2.5 bg-green-500 rounded-full animate-pulse" />
               <span className="text-sm text-gray-600 font-medium">
                 Sistema Online
               </span>
@@ -185,117 +157,55 @@ export default function WelcomePage() {
           </div>
         </div>
 
-        {isOwner && (
-          <div className="space-y-4">
-            <h2 className="text-xl font-semibold text-gray-900">Visão Geral</h2>
-            {isLoading ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                {Array.from({ length: 4 }).map((_, i) => (
-                  <Card
-                    key={i}
-                    className="bg-white rounded-xl border border-gray-200 p-6"
-                  >
-                    <div className="flex items-center justify-between">
-                      <div className="space-y-2">
-                        <Skeleton className="h-4 w-24" />
-                        <Skeleton className="h-8 w-32" />
-                      </div>
-                      <Skeleton className="h-10 w-10 rounded-full" />
-                    </div>
-                  </Card>
-                ))}
-              </div>
+        <div className="space-y-4">
+          <h2 className="text-xl font-semibold text-gray-900">
+            Resumo de Vendas
+          </h2>
+          {/* {!isLoading && hourlySalesHoje.length > 0 && (
+            <HourlySalesChart data={hourlySalesHoje} />
+          )} */}
+          {isLoading || isProcessing ? (
+            <Skeleton className="h-32 w-full" />
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+              <ResumeCard title="Hoje" data={hoje} showOrdersCount={true} />
+              <ResumeCard title="Ontem" data={ontem} showOrdersCount={true} />
+              <ResumeCard
+                title="Média"
+                data={mediaDiaria}
+                showOrdersCount={false}
+              />
+              <ResumeCard
+                title="Previsão Mês"
+                data={previsaoMes}
+                showOrdersCount={false}
+              />
+            </div>
+          )}
+          <Button
+            variant="default"
+            onClick={handleClick}
+            disabled={isProcessing}
+          >
+            {isProcessing ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Processando...
+              </>
             ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                <Card className="bg-white rounded-xl border border-gray-200">
-                  <CardContent className="p-6">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <p className="text-sm text-gray-600">Vendas Ontem</p>
-                        <p className="text-3xl font-bold text-gray-900">
-                          R$ {data?.vendasOntemReais?.toFixed(2) ?? 0}
-                        </p>
-                      </div>
-                      <TrendingUp className="h-10 w-10 text-gray-500" />
-                    </div>
-                  </CardContent>
-                </Card>
-                <Card className="bg-white rounded-xl border border-gray-200">
-                  <CardContent className="p-6">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <p className="text-sm text-gray-600">Pedidos ontem</p>
-                        <p className="text-3xl font-bold text-gray-900">
-                          {data?.pedidosOntemQtd ?? 0}
-                        </p>
-                      </div>
-                      <ShoppingCart className="h-10 w-10 text-gray-500" />
-                    </div>
-                  </CardContent>
-                </Card>
-                <Card className="bg-white rounded-xl border border-gray-200">
-                  <CardContent className="p-6">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <p className="text-sm text-gray-600">Estoque Baixo</p>
-                        <p className="text-3xl font-bold text-gray-900">
-                          {data?.estoqueBaixoQtd ?? 0}
-                        </p>
-                      </div>
-                      <AlertCircle className="h-10 w-10 text-gray-500" />
-                    </div>
-                  </CardContent>
-                </Card>
-                <Card className="bg-white rounded-xl border border-gray-200">
-                  <CardContent className="p-6">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <p className="text-sm text-gray-600">Uptime</p>
-                        <p className="text-3xl font-bold text-gray-900">
-                          99.8%
-                        </p>
-                      </div>
-                      <Clock className="h-10 w-10 text-gray-500" />
-                    </div>
-                  </CardContent>
-                </Card>
-              </div>
+              "Limpar Cache e Recalcular"
             )}
-          </div>
-        )}
+          </Button>
+        </div>
 
         <div className="space-y-4">
           <h2 className="text-xl font-semibold text-gray-900">Acesso Rápido</h2>
-          {isLoading ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-              {Array.from({ length: 8 }).map((_, i) => (
-                <Card
-                  key={i}
-                  className="bg-white rounded-xl border border-gray-200 p-5"
-                >
-                  <div className="flex items-center justify-between mb-3">
-                    <div className="flex items-center gap-2">
-                      <Skeleton className="h-5 w-5 rounded-full" />
-                      <Skeleton className="h-4 w-28" />
-                    </div>
-                    <Skeleton className="h-2.5 w-2.5 rounded-full" />
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <div className="space-y-1">
-                      <Skeleton className="h-6 w-16" />
-                      <Skeleton className="h-3 w-12" />
-                    </div>
-                    <Skeleton className="h-6 w-16 rounded-full" />
-                  </div>
-                </Card>
-              ))}
-            </div>
-          ) : availableShortcuts.length > 0 ? (
+          {availableShortcuts.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
               {availableShortcuts.map((shortcut, index) => (
                 <Card
                   key={index}
-                  className={`bg-white rounded-xl border border-gray-200 hover:bg-gray-100 transition-colors cursor-pointer`}
+                  className="bg-white rounded-xl border border-gray-200 hover:bg-gray-100 transition-colors cursor-pointer"
                   onClick={() => handleNavigation(shortcut.path)}
                 >
                   <CardContent className="p-5">
@@ -304,38 +214,56 @@ export default function WelcomePage() {
                         {React.cloneElement(shortcut.icon, {
                           className: "h-5 w-5 text-gray-600",
                         })}
-                        <span className="font-medium text-gray-900 text-base">
+                        <span className="font-semibold text-gray-900 text-lg">
                           {shortcut.title}
-                        </span>{" "}
+                        </span>
                       </div>
-
-                      <div
-                        className={`w-2.5 h-2.5 rounded-full ${getStatusDotColor(
-                          shortcut.status
-                        )}`}
-                      ></div>
+                      {/* Dynamic status indicator */}
+                      {shortcut.status === "online" && (
+                        <div className="w-2.5 h-2.5 rounded-full bg-green-500" />
+                      )}
+                      {shortcut.status === "warning" && (
+                        <div className="w-2.5 h-2.5 rounded-full bg-yellow-500" />
+                      )}
+                      {shortcut.status === "info" && (
+                        <div className="w-2.5 h-2.5 rounded-full bg-blue-500" />
+                      )}
                     </div>
                     <div className="flex items-center justify-between">
                       <div>
-                        <span className="text-xl font-bold text-gray-900">
-                          {shortcut.count}
-                        </span>{" "}
-                        <span className="text-sm text-gray-500 ml-1">
-                          {shortcut.label}
-                        </span>
+                        {shortcut.count !== null ? (
+                          <>
+                            <span className="text-2xl font-bold text-gray-900">
+                              {shortcut.count}
+                            </span>
+                            <span className="text-sm text-gray-500 ml-1">
+                              {shortcut.label}
+                            </span>
+                          </>
+                        ) : (
+                          <span className="text-base font-medium text-gray-500">
+                            {shortcut.label}
+                          </span>
+                        )}
                       </div>
-
-                      <Badge
-                        className={`text-xs font-medium bg-gray-100 ${getStatusBadgeTextColor(
-                          shortcut.status
-                        )}`}
-                      >
-                        {shortcut.status === "online"
-                          ? "Ativo"
-                          : shortcut.status === "warning"
-                          ? "Alerta"
-                          : "Info"}
-                      </Badge>
+                      {/* Dynamic Badge based on status */}
+                      {shortcut.status && (
+                        <Badge
+                          className={cn(
+                            "text-xs font-medium",
+                            shortcut.status === "online" &&
+                              "bg-green-100 text-green-700",
+                            shortcut.status === "warning" &&
+                              "bg-yellow-100 text-yellow-700",
+                            shortcut.status === "info" &&
+                              "bg-blue-100 text-blue-700"
+                          )}
+                        >
+                          {shortcut.status === "online" && "Ativo"}
+                          {shortcut.status === "warning" && "Atenção"}
+                          {shortcut.status === "info" && "Info"}
+                        </Badge>
+                      )}
                     </div>
                   </CardContent>
                 </Card>
@@ -356,52 +284,6 @@ export default function WelcomePage() {
             </Card>
           )}
         </div>
-
-        <Card className="bg-white rounded-xl border border-gray-200">
-          <CardHeader className="p-6 pb-4">
-            <CardTitle className="text-xl font-semibold text-gray-900">
-              Status do Sistema
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="p-6 pt-0">
-            {isLoading ? (
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                {Array.from({ length: 3 }).map((_, i) => (
-                  <div key={i} className="flex items-center gap-3">
-                    <Skeleton className="w-3 h-3 rounded-full" />
-                    <div>
-                      <Skeleton className="h-4 w-32 mb-1" />
-                      <Skeleton className="h-3 w-24" />
-                    </div>
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div className="flex items-center gap-3">
-                  <div className="w-3 h-3 bg-green-500 rounded-full"></div>
-                  <div>
-                    <p className="font-medium text-gray-900">
-                      Servidor Principal
-                    </p>
-                  </div>
-                </div>
-                <div className="flex items-center gap-3">
-                  <div className="w-3 h-3 bg-green-500 rounded-full"></div>
-                  <div>
-                    <p className="font-medium text-gray-900">Base de Dados</p>
-                  </div>
-                </div>
-                <div className="flex items-center gap-3">
-                  <div className="w-3 h-3 bg-green-500 rounded-full"></div>
-                  <div>
-                    <p className="font-medium text-gray-900">APIs Externas</p>
-                  </div>
-                </div>
-              </div>
-            )}
-          </CardContent>
-        </Card>
       </div>
     </div>
   );

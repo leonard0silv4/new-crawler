@@ -33,6 +33,10 @@ const Login = ({ handleAuthentication }: LoginProps) => {
       .then((response: any) => {
         localStorage.setItem("userToken", response?.token);
         localStorage.setItem("role", response?.role);
+        localStorage.setItem(
+          "permissions",
+          JSON.stringify(response.permissions)
+        );
         login(response.token, response.role, response.permissions);
 
         if (response.role != "owner") {

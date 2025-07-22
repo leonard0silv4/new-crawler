@@ -30,6 +30,7 @@ import WelcomePage from "./pages/Welcome/indexV1";
 import WelcomePageNew from "./pages/Welcome/";
 
 import Nf from "./pages/Nf";
+import { usePermission } from "./hooks/usePermissions";
 
 const queryClient = new QueryClient();
 
@@ -40,6 +41,7 @@ function App() {
 
   const [roles, setRoles] = useState([]);
   const location = useLocation();
+  const { can, isOwner } = usePermission();
 
   useEffect(() => {
     instance.get("/roles").then((res: any) => {
@@ -68,7 +70,16 @@ function App() {
           <Routes>
             {roles.length > 0 && (
               <Route element={<PrivateRoutes allowedRoles={roles} />}>
-                <Route path="/" element={<WelcomePage />} />
+                <Route
+                  path="/"
+                  element={
+                    isOwner || can("view_sales") ? (
+                      <WelcomePageNew />
+                    ) : (
+                      <WelcomePage />
+                    )
+                  }
+                />
                 <Route path="/v2" element={<WelcomePageNew />} />
                 <Route element={<Dashboard />} path="/dashboard" />
                 <Route element={<Shopee />} path="/shopee" />

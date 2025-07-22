@@ -1,6 +1,6 @@
 "use client";
 
-import { Bolt, LogOut, Users, Menu, Home } from "lucide-react";
+import { Bolt, LogOut, Users, Menu, Home, Gauge } from "lucide-react";
 import { useState, useEffect } from "react";
 import { NavLink, useLocation, useNavigate } from "react-router-dom";
 
@@ -36,16 +36,17 @@ export default function Header({ handleAuthentication }: HeaderProps) {
     handleAuthentication && handleAuthentication(false);
     localStorage.removeItem("userToken");
     localStorage.removeItem("role");
+    localStorage.removeItem("permissions");
     navigate("/login");
   };
 
   const navItems = [
     {
-      title: "Início", // Título para o link
-      href: "/", // Rota para a página inicial
-      icon: Home, // Ícone da casa
-      condition: true, // Geralmente a página inicial é sempre visível
-      isIconLink: true, // Flag para indicar que este item tem um ícone
+      title: "Início",
+      href: isOwner || can("view_sales") ? "/v2" : "/",
+      icon: isOwner || can("view_sales") ? Gauge : Home,
+      condition: true,
+      isIconLink: true,
     },
     {
       title: "Mercado livre",

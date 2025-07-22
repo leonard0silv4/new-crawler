@@ -51,7 +51,11 @@ export const AuthProvider = ({ children }: any) => {
     setRole(null);
     setPermissions([]);
 
-    localStorage.clear();
+    localStorage.removeItem("userToken");
+    localStorage.removeItem("role");
+    localStorage.removeItem("permissions");
+
+    console.log("logout chamado");
   };
 
   return (

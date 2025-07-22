@@ -1,4 +1,4 @@
-import { useQueries, useQuery } from "@tanstack/react-query";
+import { useQueries, useQuery, useQueryClient } from "@tanstack/react-query";
 import instance from "@/config/axios";
 import {
   format,
@@ -8,48 +8,60 @@ import {
   endOfToday,
   getDaysInMonth,
 } from "date-fns";
-import { useEffect } from "react";
 
 const getDayKey = (date: Date) => format(date, "yyyy-MM-dd");
 
-type SummaryResponse = {
+type HourlySalesEntry = {
+  hour: string;
+  totalAmount: number;
+};
+
+type SummaryItem = {
   source: string;
   totalOrders: number;
   totalProductsAmount: number;
   totalShipping: number;
   totalAmount: number;
-}[];
+};
 
-const fetchSummary = async (day: string): Promise<SummaryResponse> => {
+type SummaryApiResponse = {
+  summary: SummaryItem[];
+  hourlySales: HourlySalesEntry[];
+};
+
+const fetchSummary = async (day: string): Promise<SummaryApiResponse> => {
   try {
     const res = await instance.get(`/orders/summary?day=${day}`);
-    return Array.isArray(res) ? res : [];
+    return res as any;
   } catch (error) {
     console.error("Erro ao buscar resumo de pedidos para", day, error);
-    return [];
+    return { summary: [], hourlySales: [] };
   }
 };
 
 export function useDashboardSalesData() {
+  const queryClient = useQueryClient();
+
   const today = new Date();
   const yesterday = subDays(today, 1);
   const todayKey = getDayKey(today);
   const yesterdayKey = getDayKey(yesterday);
 
-  const todayQuery = useQuery<SummaryResponse>({
+  const todayQuery = useQuery<SummaryApiResponse>({
     queryKey: ["orders-summary", todayKey],
     queryFn: () => fetchSummary(todayKey),
   });
 
-  const yesterdayQuery = useQuery<SummaryResponse>({
+  const yesterdayQuery = useQuery<SummaryApiResponse>({
     queryKey: ["orders-summary", yesterdayKey],
     queryFn: () => fetchSummary(yesterdayKey),
   });
 
   const daysInMonth = eachDayOfInterval({
     start: startOfMonth(today),
+    // start: subDays(today, 15),
     end: endOfToday(),
-  }).slice(-5);
+  });
 
   const dailyQueries = useQueries({
     queries: daysInMonth.map((day) => {
@@ -67,9 +79,11 @@ export function useDashboardSalesData() {
     yesterdayQuery.isLoading ||
     dailyQueries.some((q) => q.isLoading);
 
-  const dailyResults = dailyQueries.map((q) => q.data ?? []).filter(Boolean);
+  const dailyResults = dailyQueries
+    .map((q) => q.data?.summary ?? [])
+    .filter(Boolean);
 
-  function aggregateLojas(results: SummaryResponse[]) {
+  function aggregateLojas(results: SummaryItem[][]) {
     const map: Record<string, { totalAmount: number; count: number }> = {};
     for (const result of results) {
       for (const loja of result) {
@@ -96,27 +110,20 @@ export function useDashboardSalesData() {
     totalAmount: Number((loja.totalAmount * diasNoMes).toFixed(2)),
   }));
 
-  useEffect(() => {
-    console.log("Resumo de vendas hook", {
-      hoje: todayQuery.data,
-      ontem: yesterdayQuery.data,
-      mediaDiaria,
-      previsaoMes,
-      isLoading,
-    });
-  }, [
-    todayQuery.data,
-    yesterdayQuery.data,
-    mediaDiaria,
-    previsaoMes,
-    isLoading,
-  ]);
-
   return {
     isLoading,
-    hoje: todayQuery.data ?? [],
-    ontem: yesterdayQuery.data ?? [],
+    hoje: todayQuery.data?.summary ?? [],
+    ontem: yesterdayQuery.data?.summary ?? [],
+    hourlySalesHoje: todayQuery.data?.hourlySales ?? [],
     mediaDiaria,
     previsaoMes,
+    refetchAll: async () => {
+      await queryClient.invalidateQueries({
+        predicate: (query) => query.queryKey[0] === "orders-summary",
+      });
+      await queryClient.refetchQueries({
+        predicate: (query) => query.queryKey[0] === "orders-summary",
+      });
+    },
   };
 }

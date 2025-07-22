@@ -16,7 +16,16 @@ import { Badge } from "@/components/ui/badge";
 import instance from "@/config/axios";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
-import { Loader2, Mail, Store, Clock, Bell, Monitor, Save } from "lucide-react";
+import {
+  Loader2,
+  Mail,
+  Store,
+  Clock,
+  Bell,
+  Monitor,
+  Save,
+  Download,
+} from "lucide-react";
 import {
   Select,
   SelectContent,
@@ -66,6 +75,44 @@ const Config = () => {
       setProduction(false);
     }
     window.location.reload();
+  };
+
+  const clearOldJobs = () => {
+    instance.get("jobs/archive").then((response: any) => {
+      console.log(response);
+      toast.success("Trabalhos", {
+        description: `${response?.archived}  com 4 meses e pagos limpos`,
+        position: "top-right",
+        closeButton: true,
+        duration: 2000,
+      });
+    });
+  };
+
+  const backup = async () => {
+    try {
+      const response: any = await instance.get("/backup", {
+        responseType: "blob", // importante para tratar como arquivo
+      });
+
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement("a");
+      link.href = url;
+      link.setAttribute("download", `backup-${new Date().toISOString()}.json`);
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+
+      toast.success("Backup gerado com sucesso", {
+        position: "top-right",
+        duration: 3000,
+      });
+    } catch (err) {
+      console.error("Erro ao fazer backup", err);
+      toast.error("Erro ao gerar backup", {
+        position: "top-right",
+      });
+    }
   };
 
   const handleSubmit = (e: any) => {
@@ -255,7 +302,32 @@ const Config = () => {
 
         <Separator />
 
-        <div className="flex justify-end">
+        <div className="flex justify-end gap-10">
+          <Button
+            disabled={load}
+            size="lg"
+            className="min-w-[120px]"
+            onClick={(e) => {
+              e.preventDefault();
+              backup();
+            }}
+          >
+            <Download className="w-4 h-4 mr-2" />
+            Backup banco de dados
+          </Button>
+          <Button
+            disabled={load}
+            size="lg"
+            className="min-w-[120px]"
+            onClick={(e) => {
+              e.preventDefault();
+              clearOldJobs();
+            }}
+          >
+            <Save className="w-4 h-4 mr-2" />
+            Limpar lotes antigos
+          </Button>
+
           <Button
             type="submit"
             disabled={load}
