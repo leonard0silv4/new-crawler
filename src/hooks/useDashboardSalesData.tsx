@@ -79,7 +79,7 @@ export function useDashboardSalesData() {
 
   const daysInMonth = eachDayOfInterval({
     // start: startOfMonth(today),
-    start: subDays(today, 5),
+    start: subDays(today, 6),
     end: endOfToday(),
   });
 
@@ -97,7 +97,8 @@ export function useDashboardSalesData() {
   const isLoading =
     todayQuery.isLoading ||
     yesterdayQuery.isLoading ||
-    dailyQueries.some((q) => q.isLoading);
+    dailyQueries.some((q) => q.isLoading) ||
+    lastMonthQuery.isLoading;
 
   const dailyResults = dailyQueries
     .map((q) => q.data?.summary ?? [])
@@ -131,11 +132,7 @@ export function useDashboardSalesData() {
   }));
 
   return {
-    isLoading:
-      todayQuery.isLoading ||
-      yesterdayQuery.isLoading ||
-      dailyQueries.some((q) => q.isLoading) ||
-      lastMonthQuery.isLoading,
+    isLoading,
     hoje: todayQuery.data?.summary ?? [],
     ontem: yesterdayQuery.data?.summary ?? [],
     hourlySalesHoje: todayQuery.data?.hourlySales ?? [],
