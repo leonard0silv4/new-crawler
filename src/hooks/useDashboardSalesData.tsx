@@ -39,6 +39,18 @@ const fetchSummary = async (day: string): Promise<SummaryApiResponse> => {
   }
 };
 
+const fetchMonthlySummary = async (
+  month: string
+): Promise<SummaryApiResponse> => {
+  try {
+    const res = await instance.get(`/orders/monthly-summary?month=${month}`);
+    return res as any;
+  } catch (error) {
+    console.error("Erro ao buscar resumo mensal para", month, error);
+    return { summary: [], hourlySales: [] };
+  }
+};
+
 export function useDashboardSalesData() {
   const queryClient = useQueryClient();
 
@@ -46,6 +58,14 @@ export function useDashboardSalesData() {
   const yesterday = subDays(today, 1);
   const todayKey = getDayKey(today);
   const yesterdayKey = getDayKey(yesterday);
+
+  const lastMonthDate = subDays(startOfMonth(today), 1); // último dia do mês anterior
+  const lastMonthKey = format(lastMonthDate, "yyyy-MM");
+
+  const lastMonthQuery = useQuery<SummaryApiResponse>({
+    queryKey: ["orders-monthly-summary", lastMonthKey],
+    queryFn: () => fetchMonthlySummary(lastMonthKey),
+  });
 
   const todayQuery = useQuery<SummaryApiResponse>({
     queryKey: ["orders-summary", todayKey],
@@ -58,8 +78,8 @@ export function useDashboardSalesData() {
   });
 
   const daysInMonth = eachDayOfInterval({
-    start: startOfMonth(today),
-    // start: subDays(today, 15),
+    // start: startOfMonth(today),
+    start: subDays(today, 5),
     end: endOfToday(),
   });
 
@@ -111,10 +131,15 @@ export function useDashboardSalesData() {
   }));
 
   return {
-    isLoading,
+    isLoading:
+      todayQuery.isLoading ||
+      yesterdayQuery.isLoading ||
+      dailyQueries.some((q) => q.isLoading) ||
+      lastMonthQuery.isLoading,
     hoje: todayQuery.data?.summary ?? [],
     ontem: yesterdayQuery.data?.summary ?? [],
     hourlySalesHoje: todayQuery.data?.hourlySales ?? [],
+    lastMonth: lastMonthQuery.data?.summary ?? [],
     mediaDiaria,
     previsaoMes,
     refetchAll: async () => {

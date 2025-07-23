@@ -35,6 +35,7 @@ export default function WelcomePageNew() {
     previsaoMes,
     isLoading,
     refetchAll,
+    lastMonth,
     // hourlySalesHoje,
   } = useDashboardSalesData();
 
@@ -167,7 +168,7 @@ export default function WelcomePageNew() {
           {isLoading || isProcessing ? (
             <Skeleton className="h-32 w-full" />
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               <ResumeCard title="Hoje" data={hoje} showOrdersCount={true} />
               <ResumeCard title="Ontem" data={ontem} showOrdersCount={true} />
               <ResumeCard
@@ -178,6 +179,11 @@ export default function WelcomePageNew() {
               <ResumeCard
                 title="Previsão Mês"
                 data={previsaoMes}
+                showOrdersCount={false}
+              />
+              <ResumeCard
+                title="Mês passado"
+                data={lastMonth}
                 showOrdersCount={false}
               />
             </div>
