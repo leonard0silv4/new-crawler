@@ -56,10 +56,12 @@ export function useDashboardSalesData() {
 
   const today = new Date();
   const yesterday = subDays(today, 1);
+  const yesterday2 = subDays(today, 2);
   const todayKey = getDayKey(today);
   const yesterdayKey = getDayKey(yesterday);
+  const yesterday2Key = getDayKey(yesterday2);
 
-  const lastMonthDate = subDays(startOfMonth(today), 1); // último dia do mês anterior
+  const lastMonthDate = subDays(startOfMonth(today), 1);
   const lastMonthKey = format(lastMonthDate, "yyyy-MM");
 
   const lastMonthQuery = useQuery<SummaryApiResponse>({
@@ -75,6 +77,11 @@ export function useDashboardSalesData() {
   const yesterdayQuery = useQuery<SummaryApiResponse>({
     queryKey: ["orders-summary", yesterdayKey],
     queryFn: () => fetchSummary(yesterdayKey),
+  });
+
+  const yesterday2Query = useQuery<SummaryApiResponse>({
+    queryKey: ["orders-summary", yesterday2Key],
+    queryFn: () => fetchSummary(yesterday2Key),
   });
 
   const daysInMonth = eachDayOfInterval({
@@ -97,6 +104,7 @@ export function useDashboardSalesData() {
   const isLoading =
     todayQuery.isLoading ||
     yesterdayQuery.isLoading ||
+    yesterday2Query.isLoading ||
     dailyQueries.some((q) => q.isLoading) ||
     lastMonthQuery.isLoading;
 
@@ -135,6 +143,7 @@ export function useDashboardSalesData() {
     isLoading,
     hoje: todayQuery.data?.summary ?? [],
     ontem: yesterdayQuery.data?.summary ?? [],
+    ontem2: yesterday2Query.data?.summary ?? [],
     hourlySalesHoje: todayQuery.data?.hourlySales ?? [],
     lastMonth: lastMonthQuery.data?.summary ?? [],
     mediaDiaria,

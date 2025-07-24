@@ -7,6 +7,12 @@ interface ResumeCardProps {
   showOrdersCount?: boolean;
 }
 
+const storeName: Record<string, string> = {
+  melibr: "Mercado Livre",
+  shopeebr: "Shopee",
+  amazon: "Amazon",
+};
+
 export function ResumeCard({
   title,
   data,
@@ -28,7 +34,9 @@ export function ResumeCard({
             key={loja.source}
             className="flex justify-between text-sm text-gray-700"
           >
-            <span className="font-medium">{loja.source}</span>
+            <span className="font-medium">
+              {storeName[loja.source] || loja.source}
+            </span>
             <span className="text-right">
               {new Intl.NumberFormat("pt-BR", {
                 style: "currency",
@@ -36,7 +44,7 @@ export function ResumeCard({
               }).format(loja.totalAmount)}
               {showOrdersCount &&
                 loja.totalOrders !== undefined &&
-                ` (${loja.totalOrders} pedidos)`}
+                ` (${loja.totalOrders})`}
             </span>
           </div>
         ))}

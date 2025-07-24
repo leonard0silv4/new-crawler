@@ -1,5 +1,4 @@
 "use client";
-
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { usePermission } from "@/hooks/usePermissions";
@@ -31,6 +30,7 @@ export default function WelcomePageNew() {
   const {
     hoje,
     ontem,
+    ontem2,
     mediaDiaria,
     previsaoMes,
     isLoading,
@@ -133,11 +133,14 @@ export default function WelcomePageNew() {
   ];
 
   const availableShortcuts = shortcuts.filter((s) => s.show);
+
   const handleNavigation = (path: string) => navigate(path);
 
   return (
     <div className="min-h-screen bg-gray-50 p-6">
-      <div className="container mx-auto p-6 max-w-7xl space-y-8">
+      <div className="container mx-auto p-6 max-w-screen-2xl space-y-8">
+        {" "}
+        {/* Increased max-width to accommodate more columns */}
         <div className="flex flex-col md:flex-row md:items-center md:justify-between pb-6 border-b border-gray-200">
           <div>
             <h1 className="text-3xl font-extrabold text-gray-900">Dashboard</h1>
@@ -157,7 +160,6 @@ export default function WelcomePageNew() {
             </Badge>
           </div>
         </div>
-
         <div className="space-y-4">
           <h2 className="text-xl font-semibold text-gray-900">
             Resumo de Vendas
@@ -168,9 +170,15 @@ export default function WelcomePageNew() {
           {isLoading || isProcessing ? (
             <Skeleton className="h-32 w-full" />
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              <ResumeCard title="Hoje" data={hoje} showOrdersCount={true} />
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+              {" "}
+              {/* Adjusted grid for 5 columns on xl screens */}
               <ResumeCard title="Ontem" data={ontem} showOrdersCount={true} />
+              <ResumeCard
+                title="Anteontem"
+                data={ontem2}
+                showOrdersCount={true}
+              />
               <ResumeCard
                 title="Média"
                 data={mediaDiaria}
@@ -203,7 +211,6 @@ export default function WelcomePageNew() {
             )}
           </Button>
         </div>
-
         <div className="space-y-4">
           <h2 className="text-xl font-semibold text-gray-900">Acesso Rápido</h2>
           {availableShortcuts.length > 0 ? (
