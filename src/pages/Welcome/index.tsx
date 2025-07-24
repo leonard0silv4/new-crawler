@@ -172,6 +172,9 @@ export default function WelcomePageNew() {
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
               {" "}
+              <div className="hidden">
+                <ResumeCard title="Hoje" data={hoje} showOrdersCount={true} />
+              </div>
               {/* Adjusted grid for 5 columns on xl screens */}
               <ResumeCard title="Ontem" data={ontem} showOrdersCount={true} />
               <ResumeCard
