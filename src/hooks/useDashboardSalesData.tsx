@@ -67,27 +67,32 @@ export function useDashboardSalesData() {
   const lastMonthQuery = useQuery<SummaryApiResponse>({
     queryKey: ["orders-monthly-summary", lastMonthKey],
     queryFn: () => fetchMonthlySummary(lastMonthKey),
+    staleTime: 1000 * 60 * 5,
   });
 
   const todayQuery = useQuery<SummaryApiResponse>({
     queryKey: ["orders-summary", todayKey],
     queryFn: () => fetchSummary(todayKey),
+    staleTime: 1000 * 60 * 5,
   });
 
   const yesterdayQuery = useQuery<SummaryApiResponse>({
     queryKey: ["orders-summary", yesterdayKey],
     queryFn: () => fetchSummary(yesterdayKey),
+    staleTime: 1000 * 60 * 5,
   });
 
   const yesterday2Query = useQuery<SummaryApiResponse>({
     queryKey: ["orders-summary", yesterday2Key],
     queryFn: () => fetchSummary(yesterday2Key),
+    staleTime: 1000 * 60 * 5,
   });
 
   const daysInMonth = eachDayOfInterval({
     // start: startOfMonth(today),
     start: subDays(today, 6),
     end: endOfToday(),
+    staleTime: 1000 * 60 * 5,
   });
 
   const dailyQueries = useQueries({
@@ -96,7 +101,7 @@ export function useDashboardSalesData() {
       return {
         queryKey: ["orders-summary", key],
         queryFn: () => fetchSummary(key),
-        staleTime: 1000 * 60 * 10,
+        staleTime: 1000 * 60 * 5,
       };
     }),
   });

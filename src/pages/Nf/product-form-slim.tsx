@@ -1,11 +1,11 @@
 "use client";
-
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Plus, Minus } from "lucide-react";
 import type { Product } from "./types";
+import { ProductAutocompleteInput } from "./product-autocomplete-input";
 
 interface ProductFormProps {
   products: Product[];
@@ -28,6 +28,10 @@ export function ProductFormSlim({
         qtdBox: 1,
         unitValue: 0,
         totalValue: 0,
+        ean: "",
+        ncm: "",
+        icmsValue: 0,
+        ipiValue: 0,
       },
     ]);
   };
@@ -44,7 +48,6 @@ export function ProductFormSlim({
     value: string | number
   ) => {
     const updatedProducts = [...products];
-
     const isNumericField: (keyof Product)[] = [
       "box",
       "quantity",
@@ -52,12 +55,14 @@ export function ProductFormSlim({
       "qtdBox",
       "unitValue",
       "totalValue",
+      "icmsValue",
+      "ipiValue",
     ];
 
     updatedProducts[index] = {
       ...updatedProducts[index],
       [field]: isNumericField.includes(field)
-        ? parseFloat(value as string) || 0
+        ? Number.parseFloat(value as string) || 0
         : value,
     };
 
@@ -67,11 +72,29 @@ export function ProductFormSlim({
 
     const unitValue = qtdBox > 0 ? boxValue / qtdBox : 0;
     const totalValue = box * boxValue;
+    const quantity = box * qtdBox;
 
-    updatedProducts[index].unitValue = parseFloat(unitValue.toFixed(2));
-    updatedProducts[index].totalValue = parseFloat(totalValue.toFixed(2));
+    updatedProducts[index].unitValue = Number.parseFloat(unitValue.toFixed(2));
+    updatedProducts[index].totalValue = Number.parseFloat(
+      totalValue.toFixed(2)
+    );
+    updatedProducts[index].quantity = Number.parseFloat(quantity.toFixed(0));
 
     onProductsChange(updatedProducts);
+  };
+
+  const handleProductAutocompleteSelect = (
+    index: number,
+    selectedProduct: Pick<Product, "name" | "code">
+  ) => {
+    const newProducts = [...products];
+    newProducts[index] = {
+      ...newProducts[index],
+      name: selectedProduct.name,
+      code: selectedProduct.code,
+    };
+
+    onProductsChange(newProducts);
   };
 
   return (
@@ -79,29 +102,20 @@ export function ProductFormSlim({
       <div className="flex items-center justify-between">
         <Label className="text-base font-semibold">Produtos</Label>
       </div>
-
       <div className="space-y-4">
         {products.map((product, index) => (
           <Card key={index} className="p-4">
-            <div className="grid grid-cols-1 md:grid-cols-7 gap-4 items-end">
-              <div className="space-y-1">
-                <Label htmlFor={`product-code-${index}`}>SKU</Label>
-                <Input
-                  id={`product-code-${index}`}
-                  value={product.code}
-                  onChange={(e) => updateProduct(index, "code", e.target.value)}
-                />
-              </div>
-
-              <div className="space-y-1">
+            <div className="grid grid-cols-1 md:grid-cols-6 gap-4 items-end">
+              <div className="space-y-1 md:col-span-3">
                 <Label htmlFor={`product-name-${index}`}>Nome</Label>
-                <Input
-                  id={`product-name-${index}`}
-                  value={product.name}
-                  onChange={(e) => updateProduct(index, "name", e.target.value)}
+
+                <ProductAutocompleteInput
+                  value={{ name: product.name, code: product.code }}
+                  onSelect={(selected) => {
+                    handleProductAutocompleteSelect(index, selected);
+                  }}
                 />
               </div>
-
               <div className="space-y-1">
                 <Label htmlFor={`product-box-${index}`}>Caixas</Label>
                 <Input
@@ -111,7 +125,6 @@ export function ProductFormSlim({
                   onChange={(e) => updateProduct(index, "box", e.target.value)}
                 />
               </div>
-
               <div className="space-y-1">
                 <Label htmlFor={`product-boxValue-${index}`}>
                   Valor por Caixa
@@ -126,7 +139,6 @@ export function ProductFormSlim({
                   }
                 />
               </div>
-
               <div className="space-y-1">
                 <Label htmlFor={`product-qtdBox-${index}`}>Qtd por Caixa</Label>
                 <Input
@@ -138,7 +150,6 @@ export function ProductFormSlim({
                   }
                 />
               </div>
-
               <div className="space-y-1">
                 <Label>Valor Unitário</Label>
                 <Input
@@ -151,7 +162,6 @@ export function ProductFormSlim({
                   className="bg-muted"
                 />
               </div>
-
               <div className="space-y-1">
                 <Label>Valor Total</Label>
                 <Input
@@ -164,7 +174,6 @@ export function ProductFormSlim({
                   className="bg-muted"
                 />
               </div>
-
               {products.length > 1 && (
                 <div className="mt-2">
                   <Button
@@ -182,8 +191,7 @@ export function ProductFormSlim({
           </Card>
         ))}
         <Button type="button" variant="outline" size="sm" onClick={addProduct}>
-          <Plus className="w-4 h-4 mr-2" />
-          Adicionar Produto
+          <Plus className="w-4 h-4 mr-2" /> Adicionar Produto
         </Button>
       </div>
     </div>

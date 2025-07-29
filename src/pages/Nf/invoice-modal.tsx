@@ -1,5 +1,5 @@
 "use client";
-
+import type React from "react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -23,12 +23,10 @@ import { Upload, FileText, CalendarIcon, Plus } from "lucide-react";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { ProductForm } from "./product-form";
-import type { Product, Supplier, InvoiceTotals } from "./types";
-
-import { useInvoicesService } from "@/hooks/useInvoiceService";
-
-import { toast } from "sonner";
 import { ProductFormSlim } from "./product-form-slim";
+import { SupplierAutocomplete } from "./supplier-autocomplete";
+import type { Product, Supplier, InvoiceTotals } from "./types";
+import { useInvoicesService } from "@/hooks/useInvoiceService";
 
 interface InvoiceModalProps {
   isOpen: boolean;
@@ -62,7 +60,9 @@ export function InvoiceModal({ isOpen, onClose }: InvoiceModalProps) {
     },
   ]);
   const [selectedFileName, setSelectedFileName] = useState<string | null>(null);
-  const [tab, setTab] = useState<"upload" | "manual">("upload");
+  const [tab, setTab] = useState<"upload" | "manual" | "manual_plant">(
+    "upload"
+  );
 
   const { parseXml, saveInvoice } = useInvoicesService();
   const { mutate: parseXmlMutate } = parseXml;
@@ -112,7 +112,6 @@ export function InvoiceModal({ isOpen, onClose }: InvoiceModalProps) {
     e.preventDefault();
     e.stopPropagation();
     setDragActive(false);
-
     if (e.dataTransfer.files && e.dataTransfer.files[0]) {
       handleFiles(e.dataTransfer.files);
     }
@@ -120,7 +119,6 @@ export function InvoiceModal({ isOpen, onClose }: InvoiceModalProps) {
 
   const handleSaveNota = () => {
     const totals = calculateTotals();
-
     const nota = {
       fornecedor: {
         nome: supplier.name,
@@ -145,16 +143,15 @@ export function InvoiceModal({ isOpen, onClose }: InvoiceModalProps) {
 
     saveNota(nota, {
       onSuccess: () => {
-        toast.success("Nota salva com sucesso!", { id: "nota-save-success" });
+        alert("Nota salva com sucesso!");
         resetForm();
         onClose();
       },
       onError: (err: any) => {
-        toast.error("Erro ao salvar nota", {
-          description:
-            err?.response?.data?.error || "Verifique os dados enviados",
-          id: "nota-save-error",
-        });
+        alert(
+          "Erro ao salvar nota: " +
+            (err?.response?.data?.error || "Verifique os dados enviados")
+        );
       },
     });
   };
@@ -170,35 +167,34 @@ export function InvoiceModal({ isOpen, onClose }: InvoiceModalProps) {
     parseXmlMutate(file, {
       onSuccess: (parsed: any) => {
         const nota = parsed?.nfeProc?.NFe?.infNFe;
-
         setInvoiceNumber(nota?.ide?.nNF || "");
         setInvoiceKeyAccess(nota?.Id || "");
-
         setSupplier({
           name: nota?.emit?.xNome || "",
           cnpj: nota?.emit?.CNPJ || "",
           phone: nota?.emit?.enderEmit?.fone || "",
+          address:
+            nota?.emit?.enderEmit?.xLgr && nota?.emit?.enderEmit?.nro
+              ? `${nota.emit.enderEmit.xLgr}, ${nota.emit.enderEmit.nro}, ${nota.emit.enderEmit.xMun}, ${nota.emit.enderEmit.UF}`
+              : "",
         });
-
         setIssueDate(nota?.ide?.dhEmi ? new Date(nota.ide.dhEmi) : undefined);
-
         setProducts(
           (Array.isArray(nota?.det) ? nota.det : [nota.det]).map((p: any) => ({
             code: p?.prod?.cProd,
             name: p?.prod?.xProd,
             ean: p?.prod?.cEAN || "",
             ncm: p?.prod?.NCM || "",
-            quantity: parseFloat(p?.prod?.qCom),
-            unitValue: parseFloat(p?.prod?.vUnCom),
-            totalValue: parseFloat(p?.prod?.vProd),
-            icmsValue: parseFloat(
+            quantity: Number.parseFloat(p?.prod?.qCom),
+            unitValue: Number.parseFloat(p?.prod?.vUnCom),
+            totalValue: Number.parseFloat(p?.prod?.vProd),
+            icmsValue: Number.parseFloat(
               p?.imposto?.ICMS?.[Object.keys(p.imposto.ICMS || {})[0]]?.vICMS ||
                 0
             ),
-            ipiValue: parseFloat(p?.imposto?.IPI?.IPITrib?.vIPI || 0),
+            ipiValue: Number.parseFloat(p?.imposto?.IPI?.IPITrib?.vIPI || 0),
           }))
         );
-
         setTab("manual");
       },
     });
@@ -229,7 +225,7 @@ export function InvoiceModal({ isOpen, onClose }: InvoiceModalProps) {
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-6xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="max-w-6xl max-h-[90vh] overflow-y-auto ">
         <DialogHeader>
           <DialogTitle>Nova Nota Fiscal</DialogTitle>
           <DialogDescription>
@@ -240,32 +236,38 @@ export function InvoiceModal({ isOpen, onClose }: InvoiceModalProps) {
         <Tabs
           value={tab}
           onValueChange={(val) => setTab(val as any)}
-          className="space-y-4"
+          className="space-y-12 mt-5"
         >
-          <TabsList className="grid w-full grid-cols-3">
-            <TabsTrigger value="upload">Upload XML</TabsTrigger>
-            <TabsTrigger value="manual">Inserção Nf</TabsTrigger>
-            <TabsTrigger value="manual_plant">
+          <TabsList className="flex flex-col w-full md:grid md:grid-cols-3 ">
+            <TabsTrigger value="upload" className="w-full">
+              Upload XML
+            </TabsTrigger>
+            <TabsTrigger value="manual" className="w-full">
+              Inserção Nf
+            </TabsTrigger>
+            <TabsTrigger value="manual_plant" className="w-full">
               Inserção pedidos de plantas
             </TabsTrigger>
           </TabsList>
-          <TabsContent value="manual_plant" className="space-y-4">
+
+          {/* MANUAL PLANT TAB - Improved Responsiveness and Autocomplete */}
+          <TabsContent value="manual_plant" className="space-y-6 p-1 md:p-0">
             <div className="space-y-4">
               <h3 className="text-lg font-semibold">
                 Informações da Nota Fiscal
               </h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="invoice-number">Número da NF *</Label>
+                  <Label htmlFor="invoice-number-plant">Número da NF *</Label>
                   <Input
-                    id="invoice-number"
+                    id="invoice-number-plant"
                     value={invoiceNumber}
                     onChange={(e) => setInvoiceNumber(e.target.value)}
                     placeholder="000001"
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="issue-date">Data de Emissão *</Label>
+                  <Label htmlFor="issue-date-plant">Data de Emissão *</Label>
                   <Popover modal={true}>
                     <PopoverTrigger asChild>
                       <Button
@@ -278,7 +280,6 @@ export function InvoiceModal({ isOpen, onClose }: InvoiceModalProps) {
                           : "Selecionar data"}
                       </Button>
                     </PopoverTrigger>
-
                     <PopoverContent className="w-auto p-0">
                       <Calendar
                         mode="single"
@@ -297,51 +298,72 @@ export function InvoiceModal({ isOpen, onClose }: InvoiceModalProps) {
 
             <div className="space-y-4">
               <h3 className="text-lg font-semibold">Dados do Fornecedor</h3>
+              <div className="grid grid-cols-1 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="supplier-autocomplete">
+                    Selecionar Fornecedor *
+                  </Label>
+                  <SupplierAutocomplete
+                    value={supplier ?? null}
+                    onSelect={(selectedSupplier) => {
+                      setSupplier(selectedSupplier);
+                    }}
+                  />
+                </div>
+              </div>
+
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="supplier-name">Nome do Fornecedor *</Label>
+                  <Label htmlFor="supplier-name-plant">
+                    Nome do Fornecedor *
+                  </Label>
                   <Input
-                    id="supplier-name"
+                    id="supplier-name-plant"
                     placeholder="Nome do fornecedor"
                     value={supplier.name}
                     onChange={(e) =>
                       setSupplier({ ...supplier, name: e.target.value })
                     }
+                    disabled={!!supplier.name}
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="supplier-cnpj">CNPJ *</Label>
+                  <Label htmlFor="supplier-cnpj-plant">CNPJ *</Label>
                   <Input
-                    id="supplier-cnpj"
+                    id="supplier-cnpj-plant"
                     placeholder="00.000.000/0000-00"
                     value={supplier.cnpj}
                     onChange={(e) =>
                       setSupplier({ ...supplier, cnpj: e.target.value })
                     }
+                    disabled={!!supplier.cnpj}
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="supplier-phone">Telefone</Label>
+                  <Label htmlFor="supplier-phone-plant">Telefone</Label>
                   <Input
-                    id="supplier-phone"
+                    id="supplier-phone-plant"
                     placeholder="(00) 0000-0000"
                     value={supplier.phone || ""}
                     onChange={(e) =>
                       setSupplier({ ...supplier, phone: e.target.value })
                     }
+                    disabled={!!supplier.phone}
                   />
                 </div>
               </div>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+
+              <div className="grid grid-cols-1 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="supplier-address">Endereço</Label>
+                  <Label htmlFor="supplier-address-plant">Endereço</Label>
                   <Input
-                    id="supplier-address"
+                    id="supplier-address-plant"
                     placeholder="Av. joao 23 , nª 32, Londrina, PR"
                     value={supplier.address || ""}
                     onChange={(e) =>
                       setSupplier({ ...supplier, address: e.target.value })
                     }
+                    disabled={!!supplier.address}
                   />
                 </div>
               </div>
@@ -367,7 +389,6 @@ export function InvoiceModal({ isOpen, onClose }: InvoiceModalProps) {
                     className="bg-muted"
                   />
                 </div>
-
                 <div className="space-y-2">
                   <Label>Valor Total da Nota</Label>
                   <Input
@@ -383,7 +404,7 @@ export function InvoiceModal({ isOpen, onClose }: InvoiceModalProps) {
               </div>
             </div>
 
-            <div className="flex gap-2 pt-4">
+            <div className="flex flex-col sm:flex-row gap-2 pt-4">
               <Button
                 className="flex-1"
                 onClick={handleSaveNota}
@@ -392,12 +413,17 @@ export function InvoiceModal({ isOpen, onClose }: InvoiceModalProps) {
                 <Plus className="w-4 h-4 mr-2" />
                 {saving ? "Salvando..." : "Salvar Nota Fiscal"}
               </Button>
-              <Button variant="outline" onClick={onClose}>
+              <Button
+                variant="outline"
+                onClick={onClose}
+                className="flex-1 bg-transparent"
+              >
                 Cancelar
               </Button>
             </div>
           </TabsContent>
 
+          {/* UPLOAD TAB - Original content */}
           <TabsContent value="upload" className="space-y-4">
             <div
               className={`border-2 border-dashed rounded-lg p-8 text-center transition-colors ${
@@ -436,7 +462,6 @@ export function InvoiceModal({ isOpen, onClose }: InvoiceModalProps) {
                   </span>
                 </Button>
               </label>
-
               {selectedFileName && (
                 <p className="text-sm text-muted-foreground mt-2">
                   {selectedFileName}
@@ -448,6 +473,7 @@ export function InvoiceModal({ isOpen, onClose }: InvoiceModalProps) {
             </div>
           </TabsContent>
 
+          {/* MANUAL TAB - Original content */}
           <TabsContent value="manual" className="space-y-6">
             <div className="space-y-4">
               <h3 className="text-lg font-semibold">
@@ -477,7 +503,6 @@ export function InvoiceModal({ isOpen, onClose }: InvoiceModalProps) {
                           : "Selecionar data"}
                       </Button>
                     </PopoverTrigger>
-
                     <PopoverContent className="w-auto p-0">
                       <Calendar
                         mode="single"
@@ -600,7 +625,7 @@ export function InvoiceModal({ isOpen, onClose }: InvoiceModalProps) {
               />
             </div>
 
-            <div className="flex gap-2 pt-4">
+            <div className="flex flex-col sm:flex-row gap-2 pt-4">
               <Button
                 className="flex-1"
                 onClick={handleSaveNota}
@@ -609,7 +634,11 @@ export function InvoiceModal({ isOpen, onClose }: InvoiceModalProps) {
                 <Plus className="w-4 h-4 mr-2" />
                 {saving ? "Salvando..." : "Salvar Nota Fiscal"}
               </Button>
-              <Button variant="outline" onClick={onClose}>
+              <Button
+                variant="outline"
+                onClick={onClose}
+                className="flex-1 bg-transparent"
+              >
                 Cancelar
               </Button>
             </div>
