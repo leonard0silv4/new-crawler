@@ -109,8 +109,13 @@ export function useDashboardSalesData() {
     lastMonthQuery.isLoading;
 
   const dailyResults = dailyQueries
-    .map((q) => q.data?.summary ?? [])
-    .filter(Boolean);
+    .map((q, index) => {
+      const date = daysInMonth[index];
+      const key = getDayKey(date);
+      if (key === todayKey) return null;
+      return q.data?.summary ?? [];
+    })
+    .filter((item): item is SummaryItem[] => Boolean(item));
 
   function aggregateLojas(results: SummaryItem[][]) {
     const map: Record<string, { totalAmount: number; count: number }> = {};
