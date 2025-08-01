@@ -78,6 +78,11 @@ export default function Header({ handleAuthentication }: HeaderProps) {
       href: "/nf",
       condition: !production && can("view_nf"),
     },
+    {
+      title: "Produtos",
+      href: "/products-catalog",
+      condition: !production && can("manage_products_catalog"),
+    },
   ];
 
   const iconActions = [

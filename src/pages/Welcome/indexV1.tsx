@@ -11,6 +11,7 @@ import {
   Activity,
   Store,
   ArrowRight,
+  PackageSearch,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { usePermission } from "@/hooks/usePermissions";
@@ -78,6 +79,14 @@ export default function WelcomePage() {
       icon: <FileText className="h-8 w-8 text-teal-600" />,
       path: "/nf",
       show: !production && can("view_nf"),
+      color: "from-teal-500 to-cyan-500",
+    },
+    {
+      title: "Catálogo de produtos",
+      description: "Gestão catálogo",
+      icon: <PackageSearch className="h-8 w-8 text-teal-600" />,
+      path: "/products-catalog",
+      show: !production && can("manage_products_catalog"),
       color: "from-teal-500 to-cyan-500",
     },
     {

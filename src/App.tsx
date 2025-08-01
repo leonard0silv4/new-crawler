@@ -31,6 +31,7 @@ import WelcomePageNew from "./pages/Welcome/";
 
 import Nf from "./pages/Nf";
 import { usePermission } from "./hooks/usePermissions";
+import Products from "./pages/Products";
 
 const queryClient = new QueryClient();
 
@@ -90,6 +91,7 @@ function App() {
                 <Route element={<UsersPage />} path="/manage-users" />
                 <Route element={<ProductionForm />} path="/control-prod" />
                 <Route element={<Nf />} path="/nf" />
+                <Route element={<Products />} path="/products-catalog" />
                 <Route
                   element={<SellerProductsPage />}
                   path="/account/products"

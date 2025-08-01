@@ -91,7 +91,7 @@ export function useDashboardSalesData() {
   });
 
   const dailyQueries = useQueries({
-    queries: daysInMonth.map((day) => {
+    queries: daysInMonth.map((day: any) => {
       const key = getDayKey(day);
       return {
         queryKey: ["orders-summary", key],

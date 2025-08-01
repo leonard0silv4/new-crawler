@@ -16,6 +16,7 @@ import {
   Activity,
   Store,
   Loader2,
+  PackageSearch,
 } from "lucide-react";
 import instance from "@/config/axios";
 import { toast } from "sonner";
@@ -65,7 +66,7 @@ export default function WelcomePageNew() {
       show: !production && can("view_links"),
       status: "online",
       count: null,
-      label: "produtos",
+      label: "Produtos",
     },
     {
       title: "Shopee",
@@ -74,7 +75,7 @@ export default function WelcomePageNew() {
       show: !production && can("view_links"),
       status: "online",
       count: null,
-      label: "itens",
+      label: "Itens",
     },
     {
       title: "Estoque ML",
@@ -92,7 +93,7 @@ export default function WelcomePageNew() {
       show: canAny("manage_faccionistas", "view_production"),
       status: "online",
       count: null,
-      label: "ativos",
+      label: "Ativos",
     },
     {
       title: "Usuários",
@@ -101,7 +102,7 @@ export default function WelcomePageNew() {
       show: !production && can("control_users"),
       status: "online",
       count: null,
-      label: "usuários",
+      label: "Usuários",
     },
     {
       title: "Logs",
@@ -110,7 +111,7 @@ export default function WelcomePageNew() {
       show: !production && can("view_logs"),
       status: "info",
       count: null,
-      label: "hoje",
+      label: "Hoje",
     },
     {
       title: "Notas Fiscais",
@@ -120,6 +121,15 @@ export default function WelcomePageNew() {
       status: "online",
       count: null,
       label: "Disponíveis",
+    },
+    {
+      title: "Catálogo de produtos",
+      icon: <PackageSearch />,
+      path: "/products-catalog",
+      show: !production && can("manage_products_catalog"),
+      status: "online",
+      count: null,
+      label: "Catálogo",
     },
     {
       title: "Configurações",
