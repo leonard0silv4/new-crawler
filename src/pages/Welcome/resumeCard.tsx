@@ -11,6 +11,7 @@ const storeName: Record<string, string> = {
   melibr: "Mercado Livre",
   shopeebr: "Shopee",
   amazon: "Amazon",
+  shop: "SOMBRITELA.COM",
 };
 
 export function ResumeCard({
