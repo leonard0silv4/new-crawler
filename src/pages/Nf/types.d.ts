@@ -19,6 +19,7 @@ export interface Product {
     box?: number
     boxValue?: number
     qtdBox?: number
+    _id?: string
 
 }
 
