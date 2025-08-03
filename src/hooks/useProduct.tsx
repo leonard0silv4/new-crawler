@@ -60,12 +60,29 @@ export function useProductsService({
       const res = await instance.delete("/products");
       return res as any;
     },
+    onMutate: async () => {
+      await queryClient.cancelQueries({ queryKey: ["products"] });
+
+      const previousData = queryClient.getQueryData<any>(["products"]);
+
+      queryClient.setQueryData(["products"], {
+        pages: [],
+        pageParams: [],
+      });
+
+      return { previousData };
+    },
+    onError: (_err, _variables, context) => {
+      if (context?.previousData) {
+        queryClient.setQueryData(["products"], context.previousData);
+      }
+      toast.error("Erro ao deletar todos os produtos.");
+    },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["products"] });
       toast.success("Todos os produtos foram deletados com sucesso!");
     },
-    onError: () => {
-      toast.error("Erro ao deletar todos os produtos.");
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: ["products"] });
     },
   });
 
@@ -105,13 +122,11 @@ export function useProductsService({
         return { previousData: null };
       }
 
-      const newData = {
-        ...previousData,
-        pages: previousData.pages.map((page: any) => ({
-          ...page,
-          data: page.data.filter((p: any) => p._id !== id),
-        })),
-      };
+      const newData = structuredClone(previousData);
+      newData.pages = newData.pages.map((page: any) => ({
+        ...page,
+        data: page.data.filter((p: any) => p._id !== id),
+      }));
 
       queryClient.setQueryData(["products"], newData);
 
@@ -122,9 +137,7 @@ export function useProductsService({
       queryClient.setQueryData(["products"], context?.previousData);
       toast.error("Erro ao excluir produto.");
     },
-    onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: ["products"] });
-    },
+    onSettled: () => {},
   });
 
   const importProducts = useMutation({

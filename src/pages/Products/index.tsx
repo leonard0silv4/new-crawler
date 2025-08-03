@@ -35,6 +35,7 @@ export default function ProductManagement() {
   const [isModalDeleteOpen, setIsModalDeleteOpen] = useState(false);
   const { productsQuery, createProduct, updateProduct, deleteProduct } =
     useProductsService({ searchTerm });
+  const [hiddenIds, setHiddenIds] = useState<Set<string>>(new Set());
 
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage } =
     productsQuery;
@@ -87,6 +88,11 @@ export default function ProductManagement() {
     }
   };
 
+  const handleDelete = (id: string) => {
+    setHiddenIds((prev) => new Set(prev).add(id));
+    deleteProduct.mutate(id);
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br ">
       <div className="container mx-auto p-6 max-w-7xl space-y-8">
@@ -137,7 +143,6 @@ export default function ProductManagement() {
           </div>
         </div>
 
-        {/* Products Card */}
         <Card className="bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm border-slate-200 dark:border-slate-700 shadow-xl">
           <CardHeader className="border-b border-slate-200 dark:border-slate-700 bg-gradient-to-r from-slate-50 to-slate-100 dark:from-slate-800 dark:to-slate-700">
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
@@ -157,9 +162,9 @@ export default function ProductManagement() {
                     <TableHead className="font-semibold text-slate-700 dark:text-slate-300">
                       SKU
                     </TableHead>
-                    <TableHead className="font-semibold text-slate-700 dark:text-slate-300 hidden sm:table-cell">
+                    {/* <TableHead className="font-semibold text-slate-700 dark:text-slate-300 hidden sm:table-cell">
                       Descrição
-                    </TableHead>
+                    </TableHead> */}
                     <TableHead className="font-semibold text-slate-700 dark:text-slate-300">
                       Preço
                     </TableHead>
@@ -186,60 +191,61 @@ export default function ProductManagement() {
                       </TableCell>
                     </TableRow>
                   ) : (
-                    allProducts.map((product) => (
-                      <TableRow
-                        key={product._id || product.id}
-                        className="border-slate-200 dark:border-slate-700 hover:bg-slate-50/50 dark:hover:bg-slate-700/50 transition-colors"
-                      >
-                        <TableCell className="font-medium text-slate-900 dark:text-slate-100">
-                          {product.nome}
-                        </TableCell>
-                        <TableCell>
-                          <Badge
-                            variant="outline"
-                            className="bg-slate-100 text-slate-700 border-slate-300 dark:bg-slate-700 dark:text-slate-300 dark:border-slate-600"
-                          >
-                            {product.sku}
-                          </Badge>
-                        </TableCell>
-                        <TableCell className="max-w-xs truncate text-slate-600 dark:text-slate-400 hidden sm:table-cell">
-                          {product.descricao}
-                        </TableCell>
-                        <TableCell className="font-semibold text-green-600 dark:text-green-400">
-                          R$ {product.preco.toFixed(2).replace(".", ",")}
-                        </TableCell>
-                        <TableCell className="text-right">
-                          <div className="flex justify-end gap-1">
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => openEditForm(product)}
-                              className="h-8 w-8 p-0 hover:bg-blue-100 dark:hover:bg-blue-900/50 hover:text-blue-600 dark:hover:text-blue-400"
+                    allProducts
+                      .filter((product) => !hiddenIds.has(product._id))
+                      .map((product) => (
+                        <TableRow
+                          key={product._id || product.id}
+                          className="border-slate-200 dark:border-slate-700 hover:bg-slate-50/50 dark:hover:bg-slate-700/50 transition-colors"
+                        >
+                          <TableCell className="font-medium text-slate-900 dark:text-slate-100">
+                            {product.nome}
+                          </TableCell>
+                          <TableCell>
+                            <Badge
+                              variant="outline"
+                              className="bg-slate-100 text-slate-700 border-slate-300 dark:bg-slate-700 dark:text-slate-300 dark:border-slate-600"
                             >
-                              <Edit className="h-4 w-4" />
-                            </Button>
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => deleteProduct.mutate(product._id)}
-                              className="h-8 w-8 p-0 hover:bg-red-100 dark:hover:bg-red-900/50 hover:text-red-600 dark:hover:text-red-400"
-                            >
-                              <Trash2 className="h-4 w-4" />
-                            </Button>
-                          </div>
-                        </TableCell>
-                      </TableRow>
-                    ))
+                              {product.sku}
+                            </Badge>
+                          </TableCell>
+                          {/* <TableCell className="max-w-xs truncate text-slate-600 dark:text-slate-400 hidden sm:table-cell">
+                            {product.descricao}
+                          </TableCell> */}
+                          <TableCell className="font-semibold text-green-600 dark:text-green-400">
+                            R$ {product.preco.toFixed(2).replace(".", ",")}
+                          </TableCell>
+                          <TableCell className="text-right">
+                            <div className="flex justify-end gap-1">
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => openEditForm(product)}
+                                className="h-8 w-8 p-0 hover:bg-blue-100 dark:hover:bg-blue-900/50 hover:text-blue-600 dark:hover:text-blue-400"
+                              >
+                                <Edit className="h-4 w-4" />
+                              </Button>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => handleDelete(product._id)}
+                                className="h-8 w-8 p-0 hover:bg-red-100 dark:hover:bg-red-900/50 hover:text-red-600 dark:hover:text-red-400"
+                              >
+                                <Trash2 className="h-4 w-4" />
+                              </Button>
+                            </div>
+                          </TableCell>
+                        </TableRow>
+                      ))
                   )}
                 </TableBody>
               </Table>
-
-              <div ref={loadMoreRef} className="py-6 flex justify-center">
-                {isFetchingNextPage && <Loader2 className="animate-spin" />}
-              </div>
             </div>
           </CardContent>
         </Card>
+        <div ref={loadMoreRef} className="py-6 flex justify-center">
+          {isFetchingNextPage && <Loader2 className="animate-spin" />}
+        </div>
 
         <ProductForm
           isOpen={isFormOpen}

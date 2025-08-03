@@ -8,7 +8,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { useProductsService } from "@/hooks/useProduct"; // ajuste o path se necessário
+import { useProductsService } from "@/hooks/useProduct";
 import { useState } from "react";
 
 interface DeleteAllModalProps {
