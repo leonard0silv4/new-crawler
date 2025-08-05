@@ -117,7 +117,7 @@ export function useDashboardSalesData() {
     .map((q, index) => {
       const date = daysInMonth[index];
       const key = getDayKey(date);
-      if (key === todayKey) return null;
+      // if (key === todayKey) return null;
       return q.data?.summary ?? [];
     })
     .filter((item): item is SummaryItem[] => Boolean(item));
