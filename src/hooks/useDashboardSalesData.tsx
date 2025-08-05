@@ -114,9 +114,9 @@ export function useDashboardSalesData() {
     lastMonthQuery.isLoading;
 
   const dailyResults = dailyQueries
-    .map((q, index) => {
-      const date = daysInMonth[index];
-      const key = getDayKey(date);
+    .map((q /*index*/) => {
+      // const date = daysInMonth[index];
+      // const key = getDayKey(date);
       // if (key === todayKey) return null;
       return q.data?.summary ?? [];
     })
