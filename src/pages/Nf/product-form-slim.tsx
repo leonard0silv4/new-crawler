@@ -5,6 +5,7 @@ import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Plus, Minus } from "lucide-react";
+import { ProductAutocomplete } from "./subcomponents/product-autocomplete";
 import type { Product } from "./types";
 
 interface ProductFormProps {
@@ -44,7 +45,6 @@ export function ProductFormSlim({
     value: string | number
   ) => {
     const updatedProducts = [...products];
-
     const isNumericField: (keyof Product)[] = [
       "box",
       "quantity",
@@ -57,20 +57,31 @@ export function ProductFormSlim({
     updatedProducts[index] = {
       ...updatedProducts[index],
       [field]: isNumericField.includes(field)
-        ? parseFloat(value as string) || 0
+        ? Number.parseFloat(value as string) || 0
         : value,
     };
 
     const box = updatedProducts[index].box ?? 0;
     const boxValue = updatedProducts[index].boxValue ?? 0;
     const qtdBox = updatedProducts[index].qtdBox ?? 0;
-
     const unitValue = qtdBox > 0 ? boxValue / qtdBox : 0;
     const totalValue = box * boxValue;
 
-    updatedProducts[index].unitValue = parseFloat(unitValue.toFixed(2));
-    updatedProducts[index].totalValue = parseFloat(totalValue.toFixed(2));
+    updatedProducts[index].unitValue = Number.parseFloat(unitValue.toFixed(2));
+    updatedProducts[index].totalValue = Number.parseFloat(
+      totalValue.toFixed(2)
+    );
 
+    onProductsChange(updatedProducts);
+  };
+
+  const handleProductSelect = (index: number, name: string, sku?: string) => {
+    const updatedProducts = [...products];
+    updatedProducts[index] = {
+      ...updatedProducts[index],
+      name: name,
+      ...(sku && { code: sku }),
+    };
     onProductsChange(updatedProducts);
   };
 
@@ -78,27 +89,41 @@ export function ProductFormSlim({
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <Label className="text-base font-semibold">Produtos</Label>
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          onClick={addProduct}
+          className="flex items-center gap-2 bg-transparent"
+        >
+          <Plus className="h-4 w-4" />
+          Adicionar
+        </Button>
       </div>
 
       <div className="space-y-4">
         {products.map((product, index) => (
           <Card key={index} className="p-4">
-            <div className="grid grid-cols-1 md:grid-cols-7 gap-4 items-end">
+            <div className="grid grid-cols-1 md:grid-cols-10 gap-4 items-end">
               <div className="space-y-1">
                 <Label htmlFor={`product-code-${index}`}>SKU</Label>
                 <Input
                   id={`product-code-${index}`}
                   value={product.code}
                   onChange={(e) => updateProduct(index, "code", e.target.value)}
+                  placeholder="SKU"
                 />
               </div>
 
-              <div className="space-y-1">
+              <div className="space-y-1  md:col-span-4">
                 <Label htmlFor={`product-name-${index}`}>Nome</Label>
-                <Input
-                  id={`product-name-${index}`}
+                <ProductAutocomplete
                   value={product.name}
-                  onChange={(e) => updateProduct(index, "name", e.target.value)}
+                  onValueChange={(name) => handleProductSelect(index, name)}
+                  onSelect={(name, sku) =>
+                    handleProductSelect(index, name, sku)
+                  }
+                  placeholder="Digite ou selecione um produto..."
                 />
               </div>
 
@@ -107,20 +132,37 @@ export function ProductFormSlim({
                 <Input
                   id={`product-box-${index}`}
                   type="number"
-                  value={product.box ?? 0}
+                  min="0"
+                  step="1"
+                  value={product.box}
                   onChange={(e) => updateProduct(index, "box", e.target.value)}
                 />
               </div>
 
               <div className="space-y-1">
-                <Label htmlFor={`product-boxValue-${index}`}>
-                  Valor por Caixa
+                <Label htmlFor={`product-quantity-${index}`}>Quantidade</Label>
+                <Input
+                  id={`product-quantity-${index}`}
+                  type="number"
+                  min="0"
+                  step="1"
+                  value={product.quantity}
+                  onChange={(e) =>
+                    updateProduct(index, "quantity", e.target.value)
+                  }
+                />
+              </div>
+
+              <div className="space-y-1">
+                <Label htmlFor={`product-box-value-${index}`}>
+                  Valor Caixa
                 </Label>
                 <Input
-                  id={`product-boxValue-${index}`}
+                  id={`product-box-value-${index}`}
                   type="number"
+                  min="0"
                   step="0.01"
-                  value={product.boxValue ?? 0}
+                  value={product.boxValue}
                   onChange={(e) =>
                     updateProduct(index, "boxValue", e.target.value)
                   }
@@ -128,63 +170,49 @@ export function ProductFormSlim({
               </div>
 
               <div className="space-y-1">
-                <Label htmlFor={`product-qtdBox-${index}`}>Qtd por Caixa</Label>
+                <Label htmlFor={`product-qtd-box-${index}`}>Qtd/Caixa</Label>
                 <Input
-                  id={`product-qtdBox-${index}`}
+                  id={`product-qtd-box-${index}`}
                   type="number"
-                  value={product.qtdBox ?? 0}
+                  min="1"
+                  step="1"
+                  value={product.qtdBox}
                   onChange={(e) =>
                     updateProduct(index, "qtdBox", e.target.value)
                   }
                 />
               </div>
 
+              <div className="flex items-center gap-2">
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => removeProduct(index)}
+                  disabled={products.length <= 1}
+                  className="text-red-600 hover:text-red-700"
+                >
+                  <Minus className="h-4 w-4" />
+                </Button>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4 pt-4 border-t">
               <div className="space-y-1">
                 <Label>Valor Unitário</Label>
-                <Input
-                  type="text"
-                  value={new Intl.NumberFormat("pt-BR", {
-                    style: "currency",
-                    currency: "BRL",
-                  }).format(product.unitValue ?? 0)}
-                  disabled
-                  className="bg-muted"
-                />
+                <div className="text-sm font-medium text-muted-foreground">
+                  R$ {product.unitValue.toFixed(2)}
+                </div>
               </div>
-
               <div className="space-y-1">
                 <Label>Valor Total</Label>
-                <Input
-                  type="text"
-                  value={new Intl.NumberFormat("pt-BR", {
-                    style: "currency",
-                    currency: "BRL",
-                  }).format(product.totalValue ?? 0)}
-                  disabled
-                  className="bg-muted"
-                />
-              </div>
-
-              {products.length > 1 && (
-                <div className="mt-2">
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="icon"
-                    onClick={() => removeProduct(index)}
-                    className="text-destructive"
-                  >
-                    <Minus className="w-4 h-4" />
-                  </Button>
+                <div className="text-sm font-medium text-muted-foreground">
+                  R$ {product.totalValue.toFixed(2)}
                 </div>
-              )}
+              </div>
             </div>
           </Card>
         ))}
-        <Button type="button" variant="outline" size="sm" onClick={addProduct}>
-          <Plus className="w-4 h-4 mr-2" />
-          Adicionar Produto
-        </Button>
       </div>
     </div>
   );

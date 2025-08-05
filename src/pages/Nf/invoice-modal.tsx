@@ -242,7 +242,7 @@ export function InvoiceModal({ isOpen, onClose }: InvoiceModalProps) {
           onValueChange={(val) => setTab(val as any)}
           className="space-y-4"
         >
-          <TabsList className="grid w-full grid-cols-3">
+          <TabsList className="grid w-full grid-cols-1 md:grid-cols-3 gap-2 h-90">
             <TabsTrigger value="upload">Upload XML</TabsTrigger>
             <TabsTrigger value="manual">Inserção Nf</TabsTrigger>
             <TabsTrigger value="manual_plant">
