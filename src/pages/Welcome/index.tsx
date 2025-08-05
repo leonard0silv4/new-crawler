@@ -21,8 +21,8 @@ import {
 import instance from "@/config/axios";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
-import { ResumeCard } from "./resumeCard"; // Import the new ResumeCard component
-import { cn } from "@/lib/utils"; // Import cn for conditional class names
+import { ResumeCard } from "./resumeCard";
+import { cn } from "@/lib/utils";
 
 export default function WelcomePageNew() {
   const navigate = useNavigate();
@@ -150,7 +150,6 @@ export default function WelcomePageNew() {
     <div className="min-h-screen bg-gray-50 p-6">
       <div className="container mx-auto p-6 max-w-screen-2xl space-y-8">
         {" "}
-        {/* Increased max-width to accommodate more columns */}
         <div className="flex flex-col md:flex-row md:items-center md:justify-between pb-6 border-b border-gray-200">
           <div>
             <h1 className="text-3xl font-extrabold text-gray-900">Dashboard</h1>
@@ -174,9 +173,6 @@ export default function WelcomePageNew() {
           <h2 className="text-xl font-semibold text-gray-900">
             Resumo de Vendas
           </h2>
-          {/* {!isLoading && hourlySalesHoje.length > 0 && (
-            <HourlySalesChart data={hourlySalesHoje} />
-          )} */}
           {isLoading || isProcessing ? (
             <Skeleton className="h-32 w-full" />
           ) : (
@@ -185,7 +181,6 @@ export default function WelcomePageNew() {
               <div className="hidden">
                 <ResumeCard title="Hoje" data={hoje} showOrdersCount={true} />
               </div>
-              {/* Adjusted grid for 5 columns on xl screens */}
               <ResumeCard title="Ontem" data={ontem} showOrdersCount={true} />
               <ResumeCard
                 title="Anteontem"

@@ -84,9 +84,14 @@ export function useDashboardSalesData() {
     queryFn: () => fetchSummary(yesterday2Key),
   });
 
+  const startDateForDaily = (() => {
+    const startOfCurrentMonth = startOfMonth(today);
+    const sixDaysAgo = subDays(today, 6);
+    return sixDaysAgo < startOfCurrentMonth ? startOfCurrentMonth : sixDaysAgo;
+  })();
+
   const daysInMonth = eachDayOfInterval({
-    // start: startOfMonth(today),
-    start: subDays(today, 6),
+    start: startDateForDaily,
     end: endOfToday(),
   });
 
