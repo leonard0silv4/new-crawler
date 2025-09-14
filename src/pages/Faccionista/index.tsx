@@ -406,7 +406,7 @@ const ListFaccionista = () => {
                   <CardFooter className="flex flex-col my-3 gap-2">
                     <CircleCheck className="w-10 h-10 text-green-500" />
                     <p>{`Lote ${register.lote} `}</p>
-                    {`Pago  ${format(register.data, "PP HH:mm", {
+                    {`Pago  ${format(register.dataPgto, "PP HH:mm", {
                       locale: ptBR,
                     })}`}
                   </CardFooter>
