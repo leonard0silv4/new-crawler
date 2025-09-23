@@ -529,10 +529,11 @@ const Job = () => {
                 <div className="flex items-center text-md font-normal text-gray-900 dark:text-white mb-3">
                   Soma rolos selecionados:
                   <b className="ml-2">
-                    {displayedRegisters
-                      .filter((lt) => jobsSelectedRolls.includes(lt.lote))
-                      .reduce((total, item) => total + item.qtdRolo, 0)
-                      .toFixed(2)}
+                    {(
+                      displayedRegisters
+                        .filter((lt) => jobsSelectedRolls.includes(lt.lote))
+                        .reduce((total, item) => total + item.qtdRolo, 0) * 1.3
+                    )?.toFixed(2)}
                   </b>
                   <a
                     className="cursor-pointer ml-2"
