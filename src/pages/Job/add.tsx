@@ -16,7 +16,7 @@ import instance from "@/config/axios";
 import { useParams } from "react-router-dom";
 import { toast } from "sonner";
 
-const AddJob = ({ addJob, lastLote }: any) => {
+const AddJob = ({ addJob, lastLote, loadingLastLote }: any) => {
   const { user } = useParams();
 
   const initial: Record<string, any> = {
@@ -194,9 +194,9 @@ const AddJob = ({ addJob, lastLote }: any) => {
   return (
     <Dialog open={isOpen} onOpenChange={handleOpenChange}>
       <DialogTrigger asChild>
-        <Button>
+        <Button disabled={loadingLastLote}>
           <PlusCircle className="w-4 h-4 mr-2" />
-          Novo lote
+          {loadingLastLote ? "Carregando..." : "Novo lote"}
         </Button>
       </DialogTrigger>
       <DialogContent>

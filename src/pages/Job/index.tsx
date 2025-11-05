@@ -104,10 +104,11 @@ const Job = () => {
   const [isDialogJobOpen, setIsDialogJobOpen] = useState(false);
 
   const [lastLote, setLastLote] = useState("");
+  const [loadingLastLote, setLoadingLastLote] = useState(false);
 
   const [production] = useState(
     !!(window.localStorage !== undefined &&
-    localStorage.getItem("productionBrowser") == "yes"
+      localStorage.getItem("productionBrowser") == "yes"
       ? true
       : false)
   );
@@ -132,10 +133,23 @@ const Job = () => {
   }, [location]);
 
   useEffect(() => {
-    instance.get(`/factionistJob/${user}`).then((response: any) => {
-      setLastLote(response);
-    });
-  }, [registers]);
+    if (!user) {
+      return;
+    }
+
+    setLoadingLastLote(true);
+    instance
+      .get(`/factionistJob/${user}`)
+      .then((response: any) => {
+        setLastLote(response);
+      })
+      .catch((error: any) => {
+        console.error("Erro ao buscar lastLote:", error);
+      })
+      .finally(() => {
+        setLoadingLastLote(false);
+      });
+  }, [registers, user]);
 
   useSse({
     eventName: "jobUpdated",
@@ -219,9 +233,9 @@ const Job = () => {
       const matchesDateRange =
         filters.range && filters.range.from && filters.range.to
           ? isWithinInterval(new Date(register.data), {
-              start: startOfDay(filters.range.from),
-              end: endOfDay(filters.range.to),
-            })
+            start: startOfDay(filters.range.from),
+            end: endOfDay(filters.range.to),
+          })
           : true;
 
       return (
@@ -362,7 +376,7 @@ const Job = () => {
     if (valueNow != ev.currentTarget.textContent) {
       instance
         .put(`/jobs/sizes`, { id, field, value: ev.currentTarget.textContent })
-        .then(() => {});
+        .then(() => { });
     }
   };
 
@@ -466,7 +480,7 @@ const Job = () => {
           </div>
           {can("add_production") ? (
             <Suspense fallback={<>Carregando...</>}>
-              <AddJob lastLote={lastLote} addJob={addJob} />
+              <AddJob lastLote={lastLote} addJob={addJob} loadingLastLote={loadingLastLote} />
             </Suspense>
           ) : null}
         </div>
@@ -547,37 +561,37 @@ const Job = () => {
               {registers
                 .filter((item: any) => !item.pago)
                 .map((item: any) => item._id).length != 0 && (
-                <Button
-                  onClick={() => {
-                    const relevantRegisters = paymentBySelection
-                      ? displayedRegisters.filter(
+                  <Button
+                    onClick={() => {
+                      const relevantRegisters = paymentBySelection
+                        ? displayedRegisters.filter(
                           (item: any) => !item.pago && item.recebido
                         )
-                      : registers.filter(
+                        : registers.filter(
                           (item: any) => !item.pago && item.recebido
                         );
 
-                    handleOpenPixModal(
-                      faccionist?.pixKey,
-                      sumNotPayd(relevantRegisters),
-                      `${faccionist?.username} ${faccionist?.lastName}`,
-                      relevantRegisters.map((item: any) => item._id),
-                      faccionist.advanceMoney,
-                      faccionist._id
-                    );
-                  }}
-                  className={`${production && "hidden"} mt-2 bg-green-800`}
-                  disabled={
-                    paymentBySelection
-                      ? displayedRegisters.filter((item: any) => !item.pago)
+                      handleOpenPixModal(
+                        faccionist?.pixKey,
+                        sumNotPayd(relevantRegisters),
+                        `${faccionist?.username} ${faccionist?.lastName}`,
+                        relevantRegisters.map((item: any) => item._id),
+                        faccionist.advanceMoney,
+                        faccionist._id
+                      );
+                    }}
+                    className={`${production && "hidden"} mt-2 bg-green-800`}
+                    disabled={
+                      paymentBySelection
+                        ? displayedRegisters.filter((item: any) => !item.pago)
                           .length === 0
-                      : registers.filter((item: any) => !item.pago).length === 0
-                  }
-                >
-                  <HandCoins className="w-4 h-4 mr-2" />
-                  Pagar valor total
-                </Button>
-              )}
+                        : registers.filter((item: any) => !item.pago).length === 0
+                    }
+                  >
+                    <HandCoins className="w-4 h-4 mr-2" />
+                    Pagar valor total
+                  </Button>
+                )}
 
               <div className="flex items-center text-md space-x-2 mt-4 font-normal text-gray-900 dark:text-white mb-3 sm:absolute top-4 right-4">
                 <Checkbox
@@ -611,8 +625,8 @@ const Job = () => {
                 filters.showUnPaid === undefined
                   ? "undefined"
                   : filters.showUnPaid === true
-                  ? "true"
-                  : "false"
+                    ? "true"
+                    : "false"
               }
             >
               <SelectTrigger className="w-56">
@@ -642,8 +656,8 @@ const Job = () => {
                 filters.showRecebidoConferido === undefined
                   ? "undefined"
                   : filters.showRecebidoConferido === true
-                  ? "true"
-                  : "false"
+                    ? "true"
+                    : "false"
               }
             >
               <SelectTrigger className="w-56">
@@ -670,8 +684,8 @@ const Job = () => {
                 filters.showLotePronto === undefined
                   ? "undefined"
                   : filters.showLotePronto === true
-                  ? "true"
-                  : "false"
+                    ? "true"
+                    : "false"
               }
             >
               <SelectTrigger className="w-56">
@@ -698,8 +712,8 @@ const Job = () => {
                 filters.showNotRecebido === undefined
                   ? "undefined"
                   : filters.showNotRecebido === true
-                  ? "true"
-                  : "false"
+                    ? "true"
+                    : "false"
               }
             >
               <SelectTrigger className="w-56">
@@ -725,8 +739,8 @@ const Job = () => {
                 filters.showAprovado === undefined
                   ? "undefined"
                   : filters.showAprovado === true
-                  ? "true"
-                  : "false"
+                    ? "true"
+                    : "false"
               }
             >
               <SelectTrigger className="w-56">
@@ -745,9 +759,8 @@ const Job = () => {
               <PopoverTrigger asChild>
                 <Button
                   variant="outline"
-                  className={`w-[240px] pl-3 text-left font-medium text-gray-900 ${
-                    !filters.range ? "text-muted-foreground" : ""
-                  }`}
+                  className={`w-[240px] pl-3 text-left font-medium text-gray-900 ${!filters.range ? "text-muted-foreground" : ""
+                    }`}
                 >
                   {filters.range ? (
                     filters.range.from && filters.range.to ? (
@@ -938,21 +951,20 @@ const Job = () => {
                     <div>
                       <span className="flex items-center text-sm font-medium text-gray-900 dark:text-white me-3">
                         <span
-                          className={`${
-                            register.recebidoConferido
-                              ? "bg-teal-500"
-                              : "bg-red-500 "
-                          } flex w-2.5 h-2.5  rounded-full me-1.5 flex-shrink-0`}
+                          className={`${register.recebidoConferido
+                            ? "bg-teal-500"
+                            : "bg-red-500 "
+                            } flex w-2.5 h-2.5  rounded-full me-1.5 flex-shrink-0`}
                         ></span>
                         Recebido/Conferido:
                         <span className="px-1 inline-block ml-1">
                           {register.recebidoConferido ? "" : "Não"}{" "}
                           {register.dataRecebidoConferido &&
-                          register.recebidoConferido
+                            register.recebidoConferido
                             ? format(
-                                register.dataRecebidoConferido,
-                                "dd/MM/yyyy HH:mm"
-                              )
+                              register.dataRecebidoConferido,
+                              "dd/MM/yyyy HH:mm"
+                            )
                             : ""}
                         </span>
                         {register.recebidoConferido && (
@@ -973,18 +985,17 @@ const Job = () => {
                     <div>
                       <span className="flex items-center text-sm font-medium text-gray-900 dark:text-white me-3">
                         <span
-                          className={`${
-                            register.lotePronto ? "bg-teal-500" : "bg-red-500 "
-                          } flex w-2.5 h-2.5  rounded-full me-1.5 flex-shrink-0`}
+                          className={`${register.lotePronto ? "bg-teal-500" : "bg-red-500 "
+                            } flex w-2.5 h-2.5  rounded-full me-1.5 flex-shrink-0`}
                         ></span>
                         Lote Pronto:{" "}
                         <span className="px-1 inline-block ml-1">
                           {register.lotePronto ? "" : "Não"}{" "}
                           {register.dataLotePronto && register.lotePronto
                             ? format(
-                                register.dataLotePronto,
-                                "dd/MM/yyyy HH:mm"
-                              )
+                              register.dataLotePronto,
+                              "dd/MM/yyyy HH:mm"
+                            )
                             : ""}
                         </span>
                         {register.lotePronto && (
@@ -1002,18 +1013,17 @@ const Job = () => {
                     <div className="flex">
                       <span className="flex items-center text-sm font-medium text-gray-900 dark:text-white me-3">
                         <span
-                          className={`${
-                            register.recebido ? "bg-teal-500" : "bg-red-500 "
-                          } flex w-2.5 h-2.5  rounded-full me-1.5 flex-shrink-0`}
+                          className={`${register.recebido ? "bg-teal-500" : "bg-red-500 "
+                            } flex w-2.5 h-2.5  rounded-full me-1.5 flex-shrink-0`}
                         ></span>
                         Recebido:{" "}
                         <span className="px-1 inline-block ml-1">
                           {register.recebido
                             ? register.dataRecebido
                               ? format(
-                                  register.dataRecebido,
-                                  "dd/MM/yyyy HH:mm"
-                                )
+                                register.dataRecebido,
+                                "dd/MM/yyyy HH:mm"
+                              )
                               : "Sim"
                             : "Não"}{" "}
                         </span>
@@ -1036,9 +1046,8 @@ const Job = () => {
                     <div className="flex">
                       <span className="flex items-center text-sm font-medium text-gray-900 dark:text-white me-3">
                         <span
-                          className={`${
-                            register.emAnalise ? "bg-blue-500" : "bg-teal-500 "
-                          } flex w-2.5 h-2.5  rounded-full me-1.5 flex-shrink-0`}
+                          className={`${register.emAnalise ? "bg-blue-500" : "bg-teal-500 "
+                            } flex w-2.5 h-2.5  rounded-full me-1.5 flex-shrink-0`}
                         ></span>
                         Em análise:{" "}
                         <span className="px-1 inline-block ml-1">
@@ -1063,18 +1072,17 @@ const Job = () => {
                     <div className="flex">
                       <span className="flex items-center text-sm font-medium text-gray-900 dark:text-white me-3">
                         <span
-                          className={`${
-                            register.aprovado ? "bg-teal-500" : "bg-red-500 "
-                          } flex w-2.5 h-2.5  rounded-full me-1.5 flex-shrink-0`}
+                          className={`${register.aprovado ? "bg-teal-500" : "bg-red-500 "
+                            } flex w-2.5 h-2.5  rounded-full me-1.5 flex-shrink-0`}
                         ></span>
                         Aprovado:{" "}
                         <span className="px-1 inline-block ml-1">
                           {register.aprovado
                             ? register.dataAprovado
                               ? format(
-                                  register.dataAprovado,
-                                  "dd/MM/yyyy HH:mm"
-                                )
+                                register.dataAprovado,
+                                "dd/MM/yyyy HH:mm"
+                              )
                               : "Sim"
                             : "Não"}{" "}
                         </span>
@@ -1113,8 +1121,8 @@ const Job = () => {
                       ) : (
                         <>
                           {!register.pago &&
-                          register.recebido &&
-                          !production ? (
+                            register.recebido &&
+                            !production ? (
                             <Button
                               onClick={() =>
                                 handleOpenPixModal(
@@ -1124,9 +1132,8 @@ const Job = () => {
                                   [register._id]
                                 )
                               }
-                              className={`${
-                                production ? "hidden" : ""
-                              } bg-green-800 flex items-center`}
+                              className={`${production ? "hidden" : ""
+                                } bg-green-800 flex items-center`}
                             >
                               <HandCoins className="w-4 h-4 mr-2" />
                               Pagar este lote
@@ -1145,7 +1152,7 @@ const Job = () => {
                         </div>
                       ) : null}
                       {register.advancedMoneyPayment &&
-                      register.advancedMoneyPayment != 0 ? (
+                        register.advancedMoneyPayment != 0 ? (
                         <p className="text-red-700 text-sm my-2">
                           Desconto de adiantamento R$
                           {register.advancedMoneyPayment.toFixed(2)}
