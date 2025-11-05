@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import instance from "@/config/axios";
 import { Input } from "@/components/ui/input";
-import { Search, Loader } from "lucide-react";
+import { Search, Loader, TriangleAlert } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -256,7 +256,8 @@ const ListFaccionista = () => {
               ?
             </b>
             <b className="text-red-600 dark:text-red-400 block mt-3 text-sm">
-              ⚠️ Após a confirmação esta ação não poderá ser desfeita.
+              <TriangleAlert className="inline-flex mr-3" /> Após a confirmação
+              esta ação não poderá ser desfeita.
             </b>
           </DialogDescription>
           <DialogFooter>

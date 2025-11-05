@@ -27,16 +27,13 @@ export function LoteCard({
     <div
       className={`rounded-lg p-4 shadow-md hover:shadow-lg transition-shadow ${cardBg}`}
     >
-      {/* LOTE NUMBER - Big and prominent */}
       <div className="mb-5 pb-3 border-b-2 border-gray-300 dark:border-gray-600">
         <h2 className="text-3xl font-bold text-gray-900 dark:text-white">
           LOTE {register.lote}
         </h2>
       </div>
 
-      {/* SPECIFICATIONS - Clear sections */}
       <div className="space-y-3 mb-5">
-        {/* Quantity and dimensions */}
         <div className="bg-white/70 dark:bg-gray-800/70 p-3 rounded-lg border border-gray-200 dark:border-gray-700">
           <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">
             Especificação
@@ -47,7 +44,6 @@ export function LoteCard({
           </p>
         </div>
 
-        {/* Has amendment */}
         {register.emenda && (
           <div className="bg-yellow-100 dark:bg-yellow-900/40 p-2 rounded-lg flex items-center gap-2 border border-yellow-300 dark:border-yellow-800">
             <AlertCircle className="w-5 h-5 text-yellow-600 dark:text-yellow-400" />
@@ -57,7 +53,6 @@ export function LoteCard({
           </div>
         )}
 
-        {/* Reception status */}
         <div className="bg-white/70 dark:bg-gray-800/70 p-3 rounded-lg border border-gray-200 dark:border-gray-700">
           <div className="flex items-center justify-between mb-2">
             <p className="text-xs text-gray-500 dark:text-gray-400">Recebido</p>
@@ -101,7 +96,6 @@ export function LoteCard({
           </div>
         </div>
 
-        {/* Ready status */}
         <div className="bg-white/70 dark:bg-gray-800/70 p-3 rounded-lg border border-gray-200 dark:border-gray-700">
           <div className="flex items-center justify-between mb-2">
             <p className="text-xs text-gray-500 dark:text-gray-400">Pronto</p>
@@ -138,7 +132,6 @@ export function LoteCard({
         </div>
       </div>
 
-      {/* QUANTITY AND VALUE */}
       <div className="bg-white/70 dark:bg-gray-800/70 p-3 rounded-lg border border-gray-200 dark:border-gray-700 mb-4">
         <p className="text-xs text-gray-500 dark:text-gray-400 mb-2">
           Resumo do Lote
@@ -153,7 +146,6 @@ export function LoteCard({
         </div>
       </div>
 
-      {/* PAYMENT STATUS - Footer */}
       <div className="pt-3 border-t-2 border-gray-300 dark:border-gray-600">
         {isPago ? (
           <div className="flex items-center gap-3 bg-emerald-100 dark:bg-emerald-900/40 text-emerald-700 dark:text-emerald-300 p-3 rounded-lg border border-emerald-300 dark:border-emerald-900/50">
