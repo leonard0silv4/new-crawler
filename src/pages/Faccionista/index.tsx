@@ -14,15 +14,35 @@ import {
 import { DialogClose, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { LoteCard } from "./lote-card";
-import { startOfWeek, endOfWeek, isWithinInterval } from "date-fns";
+
+// Função para formatar metros quadrados
+const formatMetros = (value: number): string => {
+  return new Intl.NumberFormat("pt-BR", {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  }).format(value);
+};
 
 const ListFaccionista = () => {
   const [registers, setRegisters] = useState<any[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [factionistUser, setFactionistUser] = useState<any[]>([]);
-  const [showNotConf, setShowNotConf] = useState(false);
   const [load, setLoad] = useState(true);
-  const [showNotReady, setShowNotReady] = useState(false);
+  const [filters, setFilters] = useState<{
+    pago: boolean;
+    naoPago: boolean;
+    pronto: boolean;
+    entregue: boolean;
+    naoPronto: boolean;
+    naoEntregue: boolean;
+  }>({
+    pago: false,
+    naoPago: false,
+    pronto: false,
+    entregue: false,
+    naoPronto: false,
+    naoEntregue: false,
+  });
   const [confirmationModal, setConfirmationModal] = useState<{
     open: boolean;
     _id: string | null;
@@ -91,19 +111,56 @@ const ListFaccionista = () => {
     setConfirmationModal({ open: false, lote: null, _id: null, field: null });
   };
 
+  const toggleFilter = (filterKey: keyof typeof filters) => {
+    setFilters((prev) => ({
+      ...prev,
+      [filterKey]: !prev[filterKey],
+    }));
+  };
+
   const applyFilters = (registers: any) => {
     return registers?.filter((register: any) => {
       const matchesSearchTerm = Object.values(register).some((value) =>
         value?.toString().toLowerCase().includes(searchTerm.toLowerCase())
       );
 
-      const matchesRecebidoConferido = showNotConf
-        ? !register.recebidoConferido
-        : true;
+      // Aplicar filtros múltiplos
+      // Filtros de pagamento: se ambos opostos estiverem ativos, não filtrar
+      const bothPagoFiltersActive = filters.pago && filters.naoPago;
+      const matchesPagoFilter = bothPagoFiltersActive
+        ? true
+        : filters.pago
+          ? register.pago === true
+          : filters.naoPago
+            ? register.pago === false
+            : true;
 
-      const matchesLotePronto = showNotReady ? !register.lotePronto : true;
+      // Filtros de pronto: se ambos opostos estiverem ativos, não filtrar
+      const bothProntoFiltersActive = filters.pronto && filters.naoPronto;
+      const matchesProntoFilter = bothProntoFiltersActive
+        ? true
+        : filters.pronto
+          ? register.lotePronto === true
+          : filters.naoPronto
+            ? register.lotePronto === false
+            : true;
 
-      return matchesSearchTerm && matchesRecebidoConferido && matchesLotePronto;
+      // Filtros de entregue: se ambos opostos estiverem ativos, não filtrar
+      const bothEntregueFiltersActive = filters.entregue && filters.naoEntregue;
+      const matchesEntregueFilter = bothEntregueFiltersActive
+        ? true
+        : filters.entregue
+          ? register.recebido === true
+          : filters.naoEntregue
+            ? register.recebido === false
+            : true;
+
+      return (
+        matchesSearchTerm &&
+        matchesPagoFilter &&
+        matchesProntoFilter &&
+        matchesEntregueFilter
+      );
     });
   };
 
@@ -135,44 +192,25 @@ const ListFaccionista = () => {
       .reduce((sum: number, item: any) => sum + item.totMetros, 0);
   };
 
-  // Função para verificar se uma data está na semana corrente
-  const isCurrentWeek = (date: Date | string | any) => {
-    if (!date) return false;
-    
-    const now = new Date();
-    const weekStart = startOfWeek(now, { weekStartsOn: 1 }); // Segunda-feira como início da semana
-    const weekEnd = endOfWeek(now, { weekStartsOn: 1 });
-    
-    // Lidar com formato MongoDB Extended JSON: {"$date": "..."}
-    let itemDate: Date;
-    if (typeof date === "object" && date.$date) {
-      itemDate = new Date(date.$date);
-    } else if (typeof date === "string") {
-      itemDate = new Date(date);
-    } else if (date instanceof Date) {
-      itemDate = date;
-    } else {
-      return false;
-    }
-    
-    // Verificar se a data é válida
-    if (isNaN(itemDate.getTime())) return false;
-    
-    return isWithinInterval(itemDate, { start: weekStart, end: weekEnd });
-  };
-
-  // Calcular metragem da semana corrente
-  const weekMetragem = useMemo(() => {
+  // Card 1: lotePronto = true E recebido = true E pago = false
+  const metrosProntosNaoPagosEntregues = useMemo(() => {
     return registers
-      .filter((item: any) => item.data && isCurrentWeek(item.data))
+      .filter((item: any) => item.lotePronto && item.recebido && !item.pago)
       .reduce((sum: number, item: any) => sum + (item.totMetros || 0), 0);
   }, [registers]);
 
-  // Calcular valor da semana corrente
-  const weekValor = useMemo(() => {
+  // Card 2: lotePronto = true E recebido = false E pago = false
+  const metrosProntosNaoPagos = useMemo(() => {
     return registers
-      .filter((item: any) => item.data && isCurrentWeek(item.data))
-      .reduce((sum: number, item: any) => sum + (item.orcamento || 0), 0);
+      .filter((item: any) => item.lotePronto && !item.recebido && !item.pago)
+      .reduce((sum: number, item: any) => sum + (item.totMetros || 0), 0);
+  }, [registers]);
+
+  // Card 3: a fazer (!lotePronto)
+  const metrosAFazer = useMemo(() => {
+    return registers
+      .filter((item: any) => !item.lotePronto)
+      .reduce((sum: number, item: any) => sum + (item.totMetros || 0), 0);
   }, [registers]);
 
   if (load) return <Loader className="w-10 h-10 animate-spin m-auto my-10" />;
@@ -192,19 +230,47 @@ const ListFaccionista = () => {
             <Search className="absolute left-3 top-2.5 h-5 w-5 text-gray-400" />
           </div>
 
-          <div className="flex gap-2 align-middle justify-center flex-col lg:flex-row">
+          <div className="flex gap-2 align-middle justify-center flex-col lg:flex-row flex-wrap">
             <Button
-              onClick={() => setShowNotConf(!showNotConf)}
-              variant={`${showNotConf ? "default" : "outline"}`}
+              onClick={() => toggleFilter("pago")}
+              variant={filters.pago ? "default" : "outline"}
             >
-              Não conferidos
+              {filters.pago ? "✓ " : ""}Pagos
             </Button>
 
             <Button
-              onClick={() => setShowNotReady(!showNotReady)}
-              variant={`${showNotReady ? "default" : "outline"}`}
+              onClick={() => toggleFilter("naoPago")}
+              variant={filters.naoPago ? "default" : "outline"}
             >
-              Não prontos
+              {filters.naoPago ? "✓ " : ""}Não Pagos
+            </Button>
+
+            <Button
+              onClick={() => toggleFilter("pronto")}
+              variant={filters.pronto ? "default" : "outline"}
+            >
+              {filters.pronto ? "✓ " : ""}Prontos
+            </Button>
+
+            <Button
+              onClick={() => toggleFilter("naoPronto")}
+              variant={filters.naoPronto ? "default" : "outline"}
+            >
+              {filters.naoPronto ? "✓ " : ""}Não Prontos
+            </Button>
+
+            <Button
+              onClick={() => toggleFilter("entregue")}
+              variant={filters.entregue ? "default" : "outline"}
+            >
+              {filters.entregue ? "✓ " : ""}Coletados
+            </Button>
+
+            <Button
+              onClick={() => toggleFilter("naoEntregue")}
+              variant={filters.naoEntregue ? "default" : "outline"}
+            >
+              {filters.naoEntregue ? "✓ " : ""}Aguardando Coleta
             </Button>
           </div>
 
@@ -222,28 +288,31 @@ const ListFaccionista = () => {
             </CardHeader>
 
             <CardContent>
-              <hr className="mb-4 dark:border-gray-700" />
-
-              {/* Informações da Semana Corrente */}
-              <div className="mb-4 pb-4 border-b border-gray-200 dark:border-gray-700">
-                <p className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">
-                  Semana Corrente
-                </p>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="bg-purple-50 dark:bg-purple-950/20 p-3 rounded-lg border border-purple-200 dark:border-purple-900/30">
+              {/* Informações de Metragem */}
+              <div className="mb-4 pb-4">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div className="bg-emerald-50 dark:bg-emerald-950/20 p-3 rounded-lg border border-emerald-200 dark:border-emerald-900/30">
                     <p className="text-xs text-gray-600 dark:text-gray-400 mb-1">
-                      Metragem da Semana
+                      Pronto, Não Pago, Coletado
                     </p>
-                    <p className="text-lg font-bold text-purple-600 dark:text-purple-400">
-                      {weekMetragem.toFixed(2)} m²
+                    <p className="text-lg font-bold text-emerald-600 dark:text-emerald-400">
+                      {formatMetros(metrosProntosNaoPagosEntregues)} m²
                     </p>
                   </div>
                   <div className="bg-indigo-50 dark:bg-indigo-950/20 p-3 rounded-lg border border-indigo-200 dark:border-indigo-900/30">
                     <p className="text-xs text-gray-600 dark:text-gray-400 mb-1">
-                      Valor da Semana
+                      Pronto, Aguardando Coleta, Não Pago
                     </p>
                     <p className="text-lg font-bold text-indigo-600 dark:text-indigo-400">
-                      R$ {weekValor.toFixed(2)}
+                      {formatMetros(metrosProntosNaoPagos)} m²
+                    </p>
+                  </div>
+                  <div className="bg-orange-50 dark:bg-orange-950/20 p-3 rounded-lg border border-orange-200 dark:border-orange-900/30">
+                    <p className="text-xs text-gray-600 dark:text-gray-400 mb-1">
+                      Metros a Fazer
+                    </p>
+                    <p className="text-lg font-bold text-orange-600 dark:text-orange-400">
+                      {formatMetros(metrosAFazer)} m²
                     </p>
                   </div>
                 </div>
@@ -252,12 +321,12 @@ const ListFaccionista = () => {
               {/* Resumo reorganizado em grid colorido */}
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                 {factionistUser[0]?.advanceMoney &&
-                factionistUser[0]?.advanceMoney != 0 ? (
-                  <div className="bg-orange-50 dark:bg-orange-950/20 p-3 rounded-lg border border-orange-200 dark:border-orange-900/30">
+                  factionistUser[0]?.advanceMoney != 0 ? (
+                  <div className="bg-orange-50 dark:bg-orange-950/20 p-3 rounded-lg border border-red-200 dark:border-red-900/30">
                     <p className="text-xs text-gray-600 dark:text-gray-400 mb-1">
                       Adiantamentos
                     </p>
-                    <p className="text-lg font-bold text-orange-600 dark:text-orange-400">
+                    <p className="text-lg font-bold text-red-600 dark:text-orange-400">
                       R${factionistUser[0]?.advanceMoney.toFixed(2)}
                     </p>
                   </div>
@@ -277,7 +346,7 @@ const ListFaccionista = () => {
                     Metros Entregues
                   </p>
                   <p className="text-lg font-bold text-teal-600 dark:text-teal-400">
-                    {sumMetr(registers).toFixed(2)} m²
+                    {formatMetros(sumMetr(registers))} m²
                   </p>
                 </div>
 

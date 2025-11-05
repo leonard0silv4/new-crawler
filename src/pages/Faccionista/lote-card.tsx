@@ -1,7 +1,23 @@
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
-import { CheckCircle2, AlertCircle, Package, CreditCard } from "lucide-react";
+import { CheckCircle2, AlertCircle, Package, CreditCard, Clock } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
+
+// Função para formatar metros quadrados
+const formatMetros = (value: number): string => {
+  return new Intl.NumberFormat("pt-BR", {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  }).format(value);
+};
+
+// Função para formatar medidas (largura e comprimento) sempre com 2 casas decimais
+const formatMedida = (value: number): string => {
+  return new Intl.NumberFormat("pt-BR", {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  }).format(value);
+};
 
 interface LoteCardProps {
   register: any;
@@ -39,8 +55,8 @@ export function LoteCard({
             Especificação
           </p>
           <p className="text-lg font-semibold text-gray-900 dark:text-white">
-            {register.qtd} Tela{register.qtd > 1 ? "s" : ""} - {register.larg} x{" "}
-            {register.compr}
+            {register.qtd} Tela{register.qtd > 1 ? "s" : ""} de {formatMedida(register.larg || 0)} m x{" "}
+            {formatMedida(register.compr || 0)} m
           </p>
         </div>
 
@@ -63,10 +79,10 @@ export function LoteCard({
           <p className="text-sm font-semibold text-gray-900 dark:text-white">
             {register.recebidoConferido && register.dataRecebidoConferido
               ? format(
-                  new Date(register.dataRecebidoConferido),
-                  "dd/MM/yyyy HH:mm",
-                  { locale: ptBR }
-                )
+                new Date(register.dataRecebidoConferido),
+                "dd/MM/yyyy HH:mm",
+                { locale: ptBR }
+              )
               : "Não conferido"}
           </p>
           <div className="flex items-center gap-2 mt-2 pt-2 border-t border-gray-300 dark:border-gray-600">
@@ -83,11 +99,10 @@ export function LoteCard({
               aria-label="Marcar como recebido"
             />
             <span
-              className={`text-xs ${
-                register.recebidoConferido
-                  ? "text-gray-400 dark:text-gray-500"
-                  : "text-gray-600 dark:text-gray-400"
-              }`}
+              className={`text-xs ${register.recebidoConferido
+                ? "text-gray-400 dark:text-gray-500"
+                : "text-gray-600 dark:text-gray-400"
+                }`}
             >
               {register.recebidoConferido
                 ? "Conferido ✓"
@@ -106,8 +121,8 @@ export function LoteCard({
           <p className="text-sm font-semibold text-gray-900 dark:text-white">
             {register.lotePronto && register.dataLotePronto
               ? format(new Date(register.dataLotePronto), "dd/MM/yyyy HH:mm", {
-                  locale: ptBR,
-                })
+                locale: ptBR,
+              })
               : "Não pronto"}
           </p>
           <div className="flex items-center gap-2 mt-2 pt-2 border-t border-gray-300 dark:border-gray-600">
@@ -120,11 +135,10 @@ export function LoteCard({
               aria-label="Marcar como pronto"
             />
             <span
-              className={`text-xs ${
-                register.lotePronto
-                  ? "text-gray-400 dark:text-gray-500"
-                  : "text-gray-600 dark:text-gray-400"
-              }`}
+              className={`text-xs ${register.lotePronto
+                ? "text-gray-400 dark:text-gray-500"
+                : "text-gray-600 dark:text-gray-400"
+                }`}
             >
               {register.lotePronto ? "Pronto ✓" : "Marcar como pronto"}
             </span>
@@ -138,7 +152,7 @@ export function LoteCard({
         </p>
         <div className="flex justify-between items-baseline">
           <p className="text-sm text-gray-700 dark:text-gray-300">
-            Lote com {register.totMetros?.toFixed(2) || 0} m²
+            Lote com {formatMetros(register.totMetros || 0)} m²
           </p>
           <p className="text-xl font-bold text-gray-900 dark:text-white">
             R$ {register.orcamento?.toFixed(2) || "0.00"}
@@ -147,7 +161,6 @@ export function LoteCard({
       </div>
 
       <div className="pt-3 border-t-2 border-gray-300 dark:border-gray-600 mt-auto">
-
         {isPago ? (
           <div className="flex items-center gap-3 bg-emerald-100 dark:bg-emerald-900/40 text-emerald-700 dark:text-emerald-300 p-3 rounded-lg border border-emerald-300 dark:border-emerald-900/50 min-h-[70px]">
             <CheckCircle2 className="w-5 h-5 flex-shrink-0" />
@@ -164,14 +177,18 @@ export function LoteCard({
           <div className="flex items-center gap-3 bg-orange-100 dark:bg-orange-900/40 text-orange-700 dark:text-orange-300 p-3 rounded-lg border border-orange-300 dark:border-orange-900/50 min-h-[70px]">
             <CreditCard className="w-5 h-5 flex-shrink-0" />
             <p className="text-sm font-semibold">Aguardando Pagamento</p>
-            
           </div>
         ) : register.lotePronto && register.recebidoConferido ? (
           <div className="flex items-center gap-3 bg-blue-100 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300 p-3 rounded-lg border border-blue-300 dark:border-blue-900/50 min-h-[70px]">
             <Package className="w-5 h-5 flex-shrink-0" />
             <p className="text-sm font-semibold">Aguardando Coleta</p>
           </div>
-        ) : null}
+        ) : (
+          <div className="flex items-center gap-3 bg-gray-100 dark:bg-gray-900/40 text-gray-700 dark:text-gray-300 p-3 rounded-lg border border-gray-300 dark:border-gray-900/50 min-h-[70px]">
+            <Clock className="w-5 h-5 flex-shrink-0" />
+            <p className="text-sm font-semibold">A Fazer</p>
+          </div>
+        )}
       </div>
     </div>
   );
