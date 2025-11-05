@@ -14,6 +14,7 @@ import {
 import { DialogClose, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { LoteCard } from "./lote-card";
+import { startOfWeek, endOfWeek, isWithinInterval } from "date-fns";
 
 const ListFaccionista = () => {
   const [registers, setRegisters] = useState<any[]>([]);
@@ -134,6 +135,46 @@ const ListFaccionista = () => {
       .reduce((sum: number, item: any) => sum + item.totMetros, 0);
   };
 
+  // Função para verificar se uma data está na semana corrente
+  const isCurrentWeek = (date: Date | string | any) => {
+    if (!date) return false;
+    
+    const now = new Date();
+    const weekStart = startOfWeek(now, { weekStartsOn: 1 }); // Segunda-feira como início da semana
+    const weekEnd = endOfWeek(now, { weekStartsOn: 1 });
+    
+    // Lidar com formato MongoDB Extended JSON: {"$date": "..."}
+    let itemDate: Date;
+    if (typeof date === "object" && date.$date) {
+      itemDate = new Date(date.$date);
+    } else if (typeof date === "string") {
+      itemDate = new Date(date);
+    } else if (date instanceof Date) {
+      itemDate = date;
+    } else {
+      return false;
+    }
+    
+    // Verificar se a data é válida
+    if (isNaN(itemDate.getTime())) return false;
+    
+    return isWithinInterval(itemDate, { start: weekStart, end: weekEnd });
+  };
+
+  // Calcular metragem da semana corrente
+  const weekMetragem = useMemo(() => {
+    return registers
+      .filter((item: any) => item.data && isCurrentWeek(item.data))
+      .reduce((sum: number, item: any) => sum + (item.totMetros || 0), 0);
+  }, [registers]);
+
+  // Calcular valor da semana corrente
+  const weekValor = useMemo(() => {
+    return registers
+      .filter((item: any) => item.data && isCurrentWeek(item.data))
+      .reduce((sum: number, item: any) => sum + (item.orcamento || 0), 0);
+  }, [registers]);
+
   if (load) return <Loader className="w-10 h-10 animate-spin m-auto my-10" />;
 
   return (
@@ -182,6 +223,31 @@ const ListFaccionista = () => {
 
             <CardContent>
               <hr className="mb-4 dark:border-gray-700" />
+
+              {/* Informações da Semana Corrente */}
+              <div className="mb-4 pb-4 border-b border-gray-200 dark:border-gray-700">
+                <p className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">
+                  Semana Corrente
+                </p>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="bg-purple-50 dark:bg-purple-950/20 p-3 rounded-lg border border-purple-200 dark:border-purple-900/30">
+                    <p className="text-xs text-gray-600 dark:text-gray-400 mb-1">
+                      Metragem da Semana
+                    </p>
+                    <p className="text-lg font-bold text-purple-600 dark:text-purple-400">
+                      {weekMetragem.toFixed(2)} m²
+                    </p>
+                  </div>
+                  <div className="bg-indigo-50 dark:bg-indigo-950/20 p-3 rounded-lg border border-indigo-200 dark:border-indigo-900/30">
+                    <p className="text-xs text-gray-600 dark:text-gray-400 mb-1">
+                      Valor da Semana
+                    </p>
+                    <p className="text-lg font-bold text-indigo-600 dark:text-indigo-400">
+                      R$ {weekValor.toFixed(2)}
+                    </p>
+                  </div>
+                </div>
+              </div>
 
               {/* Resumo reorganizado em grid colorido */}
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
