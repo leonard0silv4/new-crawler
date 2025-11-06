@@ -202,7 +202,7 @@ const ListFaccionista = () => {
   // Card 2: lotePronto = true E recebido = false E pago = false
   const metrosProntosNaoPagos = useMemo(() => {
     return registers
-      .filter((item: any) => item.lotePronto && !item.recebido && !item.pago)
+      .filter((item: any) => item.lotePronto && !item.pago)
       .reduce((sum: number, item: any) => sum + (item.totMetros || 0), 0);
   }, [registers]);
 
@@ -301,7 +301,7 @@ const ListFaccionista = () => {
                   </div>
                   <div className="bg-indigo-50 dark:bg-indigo-950/20 p-3 rounded-lg border border-indigo-200 dark:border-indigo-900/30">
                     <p className="text-xs text-gray-600 dark:text-gray-400 mb-1">
-                      Pronto, Aguardando Coleta, Não Pago
+                      Pronto, Não Pago
                     </p>
                     <p className="text-lg font-bold text-indigo-600 dark:text-indigo-400">
                       {formatMetros(metrosProntosNaoPagos)} metros
