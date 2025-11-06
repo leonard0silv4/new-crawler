@@ -346,7 +346,7 @@ const ListFaccionista = () => {
                     Metros Entregues
                   </p>
                   <p className="text-lg font-bold text-teal-600 dark:text-teal-400">
-                    {formatMetros(sumMetr(registers))} m²
+                    {formatMetros(sumMetr(registers))} metros
                   </p>
                 </div>
 
