@@ -152,7 +152,7 @@ export function LoteCard({
         </p>
         <div className="flex justify-between items-baseline">
           <p className="text-sm text-gray-700 dark:text-gray-300">
-            Lote com {formatMetros(register.totMetros || 0)} m²
+            Lote com {formatMetros(register.totMetros || 0)} metros
           </p>
           <p className="text-xl font-bold text-gray-900 dark:text-white">
             R$ {register.orcamento?.toFixed(2) || "0.00"}

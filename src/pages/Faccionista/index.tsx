@@ -296,7 +296,7 @@ const ListFaccionista = () => {
                       Pronto, Não Pago, Coletado
                     </p>
                     <p className="text-lg font-bold text-emerald-600 dark:text-emerald-400">
-                      {formatMetros(metrosProntosNaoPagosEntregues)} m²
+                      {formatMetros(metrosProntosNaoPagosEntregues)} metros
                     </p>
                   </div>
                   <div className="bg-indigo-50 dark:bg-indigo-950/20 p-3 rounded-lg border border-indigo-200 dark:border-indigo-900/30">
@@ -304,7 +304,7 @@ const ListFaccionista = () => {
                       Pronto, Aguardando Coleta, Não Pago
                     </p>
                     <p className="text-lg font-bold text-indigo-600 dark:text-indigo-400">
-                      {formatMetros(metrosProntosNaoPagos)} m²
+                      {formatMetros(metrosProntosNaoPagos)} metros
                     </p>
                   </div>
                   <div className="bg-orange-50 dark:bg-orange-950/20 p-3 rounded-lg border border-orange-200 dark:border-orange-900/30">
@@ -312,7 +312,7 @@ const ListFaccionista = () => {
                       Metros a Fazer
                     </p>
                     <p className="text-lg font-bold text-orange-600 dark:text-orange-400">
-                      {formatMetros(metrosAFazer)} m²
+                      {formatMetros(metrosAFazer)} metros
                     </p>
                   </div>
                 </div>
