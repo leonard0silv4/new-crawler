@@ -29,6 +29,8 @@ import {
   DollarSign,
   Package,
   TrendingUp,
+  Printer,
+  QrCode,
 } from "lucide-react";
 import { useLocation, useParams, NavLink } from "react-router-dom";
 import { AnimatePresence, motion } from "motion/react";
@@ -70,6 +72,7 @@ import {
 import { SelectValue } from "@radix-ui/react-select";
 import { Badge as BadgeComponent } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
+import { printLabel } from "./utils/printLabel";
 
 const Job = () => {
   const { user } = useParams();
@@ -84,7 +87,7 @@ const Job = () => {
   const [load, setLoad] = useState(true);
   const [paymentBySelection, setPaymentBySelection] = useState(false);
   const [jobsSelectedRolls, setJobsSelectedRolls] = useState<number[]>([]);
-  const [showFilters, setShowFilters] = useState(false);
+  const [showFilters, setShowFilters] = useState(true);
 
   const handleCheckboxSelectedJobs = (id: number) => {
     setJobsSelectedRolls((prevSelected: number[]) => {
@@ -108,9 +111,10 @@ const Job = () => {
   const [selectedJob, setSelectedJob] = useState<string | null>(null);
   const [isDialogJobOpen, setIsDialogJobOpen] = useState(false);
   const [lastLote, setLastLote] = useState("");
+  const [loadingLastLote, setLoadingLastLote] = useState(false);
   const [production] = useState(
     !!(window.localStorage !== undefined &&
-    localStorage.getItem("productionBrowser") == "yes"
+      localStorage.getItem("productionBrowser") == "yes"
       ? true
       : false)
   );
@@ -134,10 +138,23 @@ const Job = () => {
   }, [location]);
 
   useEffect(() => {
-    instance.get(`/factionistJob/${user}`).then((response: any) => {
-      setLastLote(response);
-    });
-  }, [registers]);
+    if (!user) {
+      return;
+    }
+
+    setLoadingLastLote(true);
+    instance
+      .get(`/factionistJob/${user}`)
+      .then((response: any) => {
+        setLastLote(response);
+      })
+      .catch((error: any) => {
+        console.error("Erro ao buscar lastLote:", error);
+      })
+      .finally(() => {
+        setLoadingLastLote(false);
+      });
+  }, [registers, user]);
 
   useSse({
     eventName: "jobUpdated",
@@ -216,9 +233,9 @@ const Job = () => {
       const matchesDateRange =
         filters.range && filters.range.from && filters.range.to
           ? isWithinInterval(new Date(register.data), {
-              start: startOfDay(filters.range.from),
-              end: endOfDay(filters.range.to),
-            })
+            start: startOfDay(filters.range.from),
+            end: endOfDay(filters.range.to),
+          })
           : true;
 
       return (
@@ -256,6 +273,19 @@ const Job = () => {
     const relevantJobs = paymentBySelection ? displayedRegisters : registers;
     return sumTotM(relevantJobs);
   }, [displayedRegisters, registers, paymentBySelection]);
+
+  // Cálculos adicionais baseados nos registros
+  const metrosAFazer = useMemo(() => {
+    return registers
+      .filter((item: any) => !item.lotePronto && !item.pago)
+      .reduce((sum: number, item: any) => sum + (item.totMetros || 0), 0);
+  }, [registers]);
+
+  const metrosProntosNaoPagos = useMemo(() => {
+    return registers
+      .filter((item: any) => item.lotePronto && !item.pago)
+      .reduce((sum: number, item: any) => sum + (item.totMetros || 0), 0);
+  }, [registers]);
 
   const handleOpenPixModal = (
     key: string,
@@ -354,7 +384,7 @@ const Job = () => {
     if (valueNow != ev.currentTarget.textContent) {
       instance
         .put(`/jobs/sizes`, { id, field, value: ev.currentTarget.textContent })
-        .then(() => {});
+        .then(() => { });
     }
   };
 
@@ -428,6 +458,29 @@ const Job = () => {
     }
   };
 
+  const handlePrintLabel = async (register: any) => {
+    try {
+      const idFaccionista = user || faccionist?._id || "";
+      const idLote = register._id;
+      // Usar a URL do frontend (window.location.origin)
+      const frontendUrl = window.location.origin;
+      const qrCodeUrl = `${frontendUrl}/confirm/${idFaccionista}/${idLote}`;
+      const faccionistaNome = `${faccionist?.username || ""} ${faccionist?.lastName || ""}`.trim() || "N/A";
+      await printLabel({
+        lote: register.lote || "N/A",
+        faccionistaNome,
+        quantidade: register.qtd ?? "N/A",
+        largura: register.larg ?? "N/A",
+        comprimento: register.compr ?? "N/A",
+        emenda: register.emenda || false,
+        totalMetros: register.totMetros ?? 0,
+        qrCodeUrl,
+      });
+    } catch (error: any) {
+      toast.error(error.message || "Erro ao imprimir etiqueta");
+    }
+  };
+
   const itemVariants = {
     hidden: { opacity: 0, y: -10 },
     visible: { opacity: 1, y: 0 },
@@ -466,7 +519,7 @@ const Job = () => {
 
             {can("add_production") && (
               <Suspense fallback={<Button disabled>Carregando...</Button>}>
-                <AddJob lastLote={lastLote} addJob={addJob} />
+                <AddJob lastLote={lastLote} addJob={addJob} loadingLastLote={loadingLastLote} />
               </Suspense>
             )}
           </div>
@@ -566,20 +619,32 @@ const Job = () => {
             <Separator className="my-4" />
 
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-              <div className="flex items-center gap-6 text-sm text-gray-600 dark:text-gray-400">
-                <span>
-                  Metros a pagar: <strong>{totalMetros}m</strong>
-                </span>
+              <div className="flex items-center w-full">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 flex-1 text-sm text-gray-600 dark:text-gray-400">
+                  <div className="flex flex-col items-center justify-center p-4 bg-blue-50 dark:bg-blue-950/30 rounded-lg border border-blue-200 dark:border-blue-800">
+                    <span className="text-xs text-gray-600 dark:text-gray-400 mb-1">Metros a pagar</span>
+                    <strong className="text-xl text-blue-700 dark:text-blue-400 font-semibold">{totalMetros.toFixed(2)}m</strong>
+                  </div>
+                  <div className="flex flex-col items-center justify-center p-4 bg-orange-50 dark:bg-orange-950/30 rounded-lg border border-orange-200 dark:border-orange-800">
+                    <span className="text-xs text-gray-600 dark:text-gray-400 mb-1">Metros a fazer</span>
+                    <strong className="text-xl text-orange-700 dark:text-orange-400 font-semibold">{metrosAFazer.toFixed(2)}m</strong>
+                  </div>
+                  <div className="flex flex-col items-center justify-center p-4 bg-purple-50 dark:bg-purple-950/30 rounded-lg border border-purple-200 dark:border-purple-800">
+                    <span className="text-xs text-gray-600 dark:text-gray-400 mb-1">Prontos não pagos</span>
+                    <strong className="text-xl text-purple-700 dark:text-purple-400 font-semibold">{metrosProntosNaoPagos.toFixed(2)}m</strong>
+                  </div>
+                </div>
 
                 {jobsSelectedRolls.length > 0 && (
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-2 ml-4 text-sm text-gray-600 dark:text-gray-400">
                     <span>
                       Rolos selecionados:{" "}
                       <strong>
-                        {displayedRegisters
-                          .filter((lt) => jobsSelectedRolls.includes(lt.lote))
-                          .reduce((total, item) => total + item.qtdRolo, 0)
-                          .toFixed(2)}
+                        {(
+                          displayedRegisters
+                            .filter((lt) => jobsSelectedRolls.includes(lt.lote))
+                            .reduce((total, item) => total + item.qtdRolo, 0) * 1.3
+                        ).toFixed(2)}
                       </strong>
                     </span>
                     <Button
@@ -599,11 +664,11 @@ const Job = () => {
                     onClick={() => {
                       const relevantRegisters = paymentBySelection
                         ? displayedRegisters.filter(
-                            (item: any) => !item.pago && item.recebido
-                          )
+                          (item: any) => !item.pago && item.recebido
+                        )
                         : registers.filter(
-                            (item: any) => !item.pago && item.recebido
-                          );
+                          (item: any) => !item.pago && item.recebido
+                        );
                       handleOpenPixModal(
                         faccionist?.pixKey,
                         sumNotPayd(relevantRegisters),
@@ -617,9 +682,9 @@ const Job = () => {
                     disabled={
                       paymentBySelection
                         ? displayedRegisters.filter((item: any) => !item.pago)
-                            .length === 0
+                          .length === 0
                         : registers.filter((item: any) => !item.pago).length ===
-                          0
+                        0
                     }
                   >
                     <HandCoins className="w-4 h-4 mr-2" />
@@ -658,8 +723,8 @@ const Job = () => {
                       filters.showUnPaid === undefined
                         ? "undefined"
                         : filters.showUnPaid === true
-                        ? "true"
-                        : "false"
+                          ? "true"
+                          : "false"
                     }
                   >
                     <SelectTrigger>
@@ -685,8 +750,8 @@ const Job = () => {
                       filters.showRecebidoConferido === undefined
                         ? "undefined"
                         : filters.showRecebidoConferido === true
-                        ? "true"
-                        : "false"
+                          ? "true"
+                          : "false"
                     }
                   >
                     <SelectTrigger>
@@ -712,8 +777,8 @@ const Job = () => {
                       filters.showLotePronto === undefined
                         ? "undefined"
                         : filters.showLotePronto === true
-                        ? "true"
-                        : "false"
+                          ? "true"
+                          : "false"
                     }
                   >
                     <SelectTrigger>
@@ -739,8 +804,8 @@ const Job = () => {
                       filters.showNotRecebido === undefined
                         ? "undefined"
                         : filters.showNotRecebido === true
-                        ? "true"
-                        : "false"
+                          ? "true"
+                          : "false"
                     }
                   >
                     <SelectTrigger>
@@ -766,8 +831,8 @@ const Job = () => {
                       filters.showAprovado === undefined
                         ? "undefined"
                         : filters.showAprovado === true
-                        ? "true"
-                        : "false"
+                          ? "true"
+                          : "false"
                     }
                   >
                     <SelectTrigger>
@@ -789,9 +854,8 @@ const Job = () => {
                     <PopoverTrigger asChild>
                       <Button
                         variant="outline"
-                        className={`w-full justify-start text-left font-normal ${
-                          !filters.range ? "text-muted-foreground" : ""
-                        }`}
+                        className={`w-full justify-start text-left font-normal ${!filters.range ? "text-muted-foreground" : ""
+                          }`}
                       >
                         {filters.range ? (
                           filters.range.from && filters.range.to ? (
@@ -858,7 +922,7 @@ const Job = () => {
               >
                 <Card className="h-full flex flex-col hover:shadow-lg transition-shadow duration-200">
                   <CardHeader className="pb-3">
-                    <CardTitle className="flex items-center justify-between text-base">
+                    <div className="flex items-center justify-between gap-2">
                       <div className="flex items-center gap-2">
                         <Checkbox
                           onClick={() =>
@@ -866,7 +930,16 @@ const Job = () => {
                           }
                           checked={jobsSelectedRolls?.includes(register.lote)}
                         />
-                        <span>LOTE: {register.lote}</span>
+                        <span className="font-bold text-base">LOTE: {register.lote}</span>
+                        {register.receivedCheckedByQrCode && (
+                          <div className="flex items-center gap-1" title="Confirmado por QR Code">
+                            <QrCode className="w-4 h-4 text-green-600 dark:text-green-400" />
+                          </div>
+                        )}
+                      </div>
+
+                      <div className="text-sm text-gray-500">
+                        {format(register.data, "dd/MM/yy HH:mm")}
                       </div>
 
                       <div className="flex items-center gap-2">
@@ -877,9 +950,9 @@ const Job = () => {
                           }
                         >
                           {register.rateLote ? (
-                            <div className="relative">
-                              <Badge className="text-yellow-400 w-6 h-6" />
-                              <span className="absolute inset-0 flex items-center justify-center text-[10px] text-white font-bold">
+                            <div className="relative inline-flex">
+                              <Badge className="text-yellow-400 w-7 h-7" />
+                              <span className="absolute inset-0 flex items-center justify-center text-xs text-gray-900 dark:text-white font-bold z-10">
                                 {register.rateLote}
                               </span>
                             </div>
@@ -894,66 +967,72 @@ const Job = () => {
                         >
                           <ArchiveRestore className="w-5 h-5" />
                         </button>
+
+                        <button
+                          className="text-green-500 hover:text-green-700 transition-colors"
+                          onClick={() => handlePrintLabel(register)}
+                          title="Imprimir etiqueta"
+                        >
+                          <Printer className="w-5 h-5" />
+                        </button>
                       </div>
-                    </CardTitle>
+                    </div>
                   </CardHeader>
 
-                  <CardContent className="space-y-3 text-sm flex-1">
-                    <div className="text-sm text-gray-500">
-                      {format(register.data, "dd/MM/yy HH:mm")}
-                    </div>
+                  <CardContent className="space-y-2 text-sm flex-1 py-3">
+                    <div className="space-y-1.5">
+                      <div className="flex items-center gap-3 text-sm">
+                        <div className="whitespace-nowrap">
+                          <span className="text-gray-500">Qtd:</span>
+                          <span
+                            className="ml-1 cursor-pointer hover:bg-gray-100 px-1 rounded font-medium"
+                            onBlur={(e) =>
+                              singleUpdate(e, "qtd", register._id, register.qtd)
+                            }
+                            contentEditable
+                            suppressContentEditableWarning={true}
+                          >
+                            {register.qtd}
+                          </span>
+                        </div>
 
-                    <div className="grid grid-cols-2 gap-2 text-sm">
-                      <div>
-                        <span className="text-gray-500">Qtd:</span>
-                        <span
-                          className="ml-1 cursor-pointer hover:bg-gray-100 px-1 rounded"
-                          onBlur={(e) =>
-                            singleUpdate(e, "qtd", register._id, register.qtd)
-                          }
-                          contentEditable
-                          suppressContentEditableWarning={true}
-                        >
-                          {register.qtd}
-                        </span>
+                        <div className="whitespace-nowrap">
+                          <span className="text-gray-500">Larg:</span>
+                          <span
+                            className="ml-1 cursor-pointer hover:bg-gray-100 px-1 rounded font-medium"
+                            onBlur={(e) =>
+                              singleUpdate(e, "larg", register._id, register.larg)
+                            }
+                            contentEditable
+                            suppressContentEditableWarning={true}
+                          >
+                            {register.larg}
+                          </span>
+                        </div>
+
+                        <div className="whitespace-nowrap">
+                          <span className="text-gray-500">Compr:</span>
+                          <span
+                            className="ml-1 cursor-pointer hover:bg-gray-100 px-1 rounded font-medium"
+                            onBlur={(e) =>
+                              singleUpdate(
+                                e,
+                                "compr",
+                                register._id,
+                                register.compr
+                              )
+                            }
+                            contentEditable
+                            suppressContentEditableWarning={true}
+                          >
+                            {register.compr}
+                          </span>
+                        </div>
                       </div>
 
-                      <div>
-                        <span className="text-gray-500">Larg:</span>
-                        <span
-                          className="ml-1 cursor-pointer hover:bg-gray-100 px-1 rounded"
-                          onBlur={(e) =>
-                            singleUpdate(e, "larg", register._id, register.larg)
-                          }
-                          contentEditable
-                          suppressContentEditableWarning={true}
-                        >
-                          {register.larg}
-                        </span>
-                      </div>
-
-                      <div>
-                        <span className="text-gray-500">Compr:</span>
-                        <span
-                          className="ml-1 cursor-pointer hover:bg-gray-100 px-1 rounded"
-                          onBlur={(e) =>
-                            singleUpdate(
-                              e,
-                              "compr",
-                              register._id,
-                              register.compr
-                            )
-                          }
-                          contentEditable
-                          suppressContentEditableWarning={true}
-                        >
-                          {register.compr}
-                        </span>
-                      </div>
-
-                      <div className="flex items-center gap-1">
+                      <div className="flex items-center gap-1 text-sm">
                         <span className="text-gray-500">Emenda:</span>
-                        <span className="text-sm">
+                        <span className="font-medium">
                           {register.emenda ? "Sim" : "Não"}
                         </span>
                         <button
@@ -967,22 +1046,22 @@ const Job = () => {
                       </div>
                     </div>
 
-                    <Separator />
+                    <Separator className="my-1.5" />
 
-                    <div className="space-y-2 text-sm">
-                      <div className="flex justify-between">
+                    <div className="grid grid-cols-2 gap-x-3 gap-y-1.5 text-sm">
+                      <div className="flex items-center gap-1">
                         <span className="text-gray-500">Total Metros:</span>
                         <span className="font-medium">
                           {register.totMetros}m
                         </span>
                       </div>
 
-                      <div className="flex justify-between">
+                      <div className="flex items-center gap-1">
                         <span className="text-gray-500">Qtd Rolos:</span>
                         <span className="font-medium">{register.qtdRolo}</span>
                       </div>
 
-                      <div className="flex justify-between">
+                      <div className="flex items-center gap-1 col-span-2">
                         <span className="text-gray-500">Orçamento:</span>
                         <span className="font-bold text-green-600">
                           R$ {register.orcamento.toFixed(2)}
@@ -990,9 +1069,9 @@ const Job = () => {
                       </div>
                     </div>
 
-                    <Separator />
+                    <Separator className="my-1.5" />
 
-                    <div className="space-y-2">
+                    <div className="space-y-1.5">
                       {[
                         {
                           key: "recebidoConferido",
@@ -1029,24 +1108,23 @@ const Job = () => {
                           key={item.key}
                           className="flex items-center justify-between text-sm"
                         >
-                          <div className="flex items-center gap-2">
+                          <div className="flex items-center gap-1.5">
                             <div
-                              className={`w-2 h-2 rounded-full ${
-                                item.status
-                                  ? item.key === "emAnalise"
-                                    ? "bg-blue-500"
-                                    : "bg-green-500"
-                                  : "bg-red-500"
-                              }`}
+                              className={`w-2 h-2 rounded-full ${item.status
+                                ? item.key === "emAnalise"
+                                  ? "bg-blue-500"
+                                  : "bg-green-500"
+                                : "bg-red-500"
+                                }`}
                             />
                             <span className="text-gray-600">{item.label}:</span>
-                            <span className="text-sm">
+                            <span>
                               {item.status
                                 ? item.date
                                   ? format(
-                                      new Date(item.date),
-                                      "dd/MM/yy HH:mm"
-                                    )
+                                    new Date(item.date),
+                                    "dd/MM/yy HH:mm"
+                                  )
                                   : "Sim"
                                 : "Não"}
                             </span>
@@ -1075,7 +1153,7 @@ const Job = () => {
                     </div>
                   </CardContent>
 
-                  <CardFooter className="pt-4">
+                  <CardFooter className="pt-2 pb-3">
                     <motion.div
                       key={register.pago ? "paid" : "unpaid"}
                       initial={{ opacity: 0, scale: 0.8 }}
@@ -1085,21 +1163,21 @@ const Job = () => {
                       className="w-full"
                     >
                       {register.pago ? (
-                        <div className="text-center space-y-2">
-                          <CircleCheck className="w-8 h-8 text-green-500 mx-auto" />
-                          {register.dataPgto && (
-                            <div className="text-sm text-gray-500">
-                              Pago em:{" "}
-                              {format(new Date(register.dataPgto), "dd/MM/yy")}
-                            </div>
-                          )}
-                          {register.advancedMoneyPayment &&
-                            register.advancedMoneyPayment !== 0 && (
-                              <div className="text-sm text-red-600">
-                                Desconto: R${" "}
-                                {register.advancedMoneyPayment.toFixed(2)}
-                              </div>
+                        <div className="flex items-center justify-center gap-2 text-sm bg-green-50 dark:bg-green-950/30 p-2.5 rounded border border-green-200 dark:border-green-800">
+                          <CircleCheck className="w-5 h-5 text-green-500" />
+                          <div className="flex flex-col">
+                            {register.dataPgto && (
+                              <span className="text-gray-600 dark:text-gray-400">
+                                Pago: {format(new Date(register.dataPgto), "dd/MM/yy")}
+                              </span>
                             )}
+                            {register.advancedMoneyPayment &&
+                              register.advancedMoneyPayment !== 0 && (
+                                <span className="text-red-600">
+                                  Desc: R$ {register.advancedMoneyPayment.toFixed(2)}
+                                </span>
+                              )}
+                          </div>
                         </div>
                       ) : (
                         <>

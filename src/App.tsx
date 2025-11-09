@@ -17,6 +17,7 @@ import Shopee from "./pages/Shopee";
 import Header from "./components/Header";
 import MinimalHeader from "./components/Header/MinimalHeader";
 import Job from "./pages/Job/index";
+import JobV2 from "./pages/Job/indexV2";
 import { ModalProvider } from "./context/ModalContext";
 import { NotifyProvider } from "./context/NotifyContext";
 import NavUser from "./pages/Job/navUser";
@@ -32,6 +33,7 @@ import WelcomePageNew from "./pages/Welcome/";
 import Nf from "./pages/Nf";
 import { usePermission } from "./hooks/usePermissions";
 import Products from "./pages/Products";
+import ConfirmLote from "./pages/Job/ConfirmLote";
 
 const queryClient = new QueryClient();
 
@@ -56,16 +58,18 @@ function App() {
   const enableLinks =
     isAuthenticated && localStorage.getItem("role") != "faccionista";
 
+  const isConfirmRoute = location.pathname.startsWith("/confirm/");
+
   return (
     <QueryClientProvider client={queryClient}>
       {/* {JSON.stringify(roles)} */}
       <NotifyProvider>
         <ModalProvider>
           <Toaster />
-          {isAuthenticated && enableLinks && (
+          {!isConfirmRoute && isAuthenticated && enableLinks && (
             <Header handleAuthentication={setIsAuthenticated} />
           )}
-          {isAuthenticated && !enableLinks && (
+          {!isConfirmRoute && isAuthenticated && !enableLinks && (
             <MinimalHeader handleAuthentication={setIsAuthenticated} />
           )}
           <Routes>
@@ -106,6 +110,15 @@ function App() {
                     </>
                   }
                 />
+                <Route
+                  path="/job-v2/:user"
+                  element={
+                    <>
+                      <JobV2 />
+                      <NavUser />
+                    </>
+                  }
+                />
               </Route>
             )}
 
@@ -117,6 +130,11 @@ function App() {
             <Route
               element={<Login handleAuthentication={setIsAuthenticated} />}
               path="/login"
+            />
+            {/* Rota desprotegida para confirmação de lote via QR code */}
+            <Route
+              element={<ConfirmLote />}
+              path="/confirm/:idFaccionista/:idLote"
             />
           </Routes>
         </ModalProvider>
