@@ -465,6 +465,7 @@ const Job = () => {
       // Usar a URL do frontend (window.location.origin)
       const frontendUrl = window.location.origin;
       const qrCodeUrl = `${frontendUrl}/confirm/${idFaccionista}/${idLote}`;
+      console.log(qrCodeUrl);
       const faccionistaNome = `${faccionist?.username || ""} ${faccionist?.lastName || ""}`.trim() || "N/A";
       await printLabel({
         lote: register.lote || "N/A",
