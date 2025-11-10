@@ -30,7 +30,8 @@ export const printLabel = (data: LabelData) => {
   const root = createRoot(tempContainer)
 
   const qtyNumber = Number(quantidade)
-  const totalSmallLabels = Number.isFinite(qtyNumber) && qtyNumber > 0 ? Math.ceil(qtyNumber) : 1
+  // Adiciona simplesmente +2 à quantidade
+  const totalSmallLabels = Number.isFinite(qtyNumber) && qtyNumber > 0 ? qtyNumber + 2 : 2
 
   return new Promise<void>((resolve, reject) => {
     root.render(
@@ -75,33 +76,35 @@ export const printLabel = (data: LabelData) => {
           totalMetros,
           qrCodeUrl,
         }),
-        React.createElement(
-          "div",
-          {
-            key: "small-page",
-            className: "small-labels-page",
-            style: {
-              display: "flex",
-              flexWrap: "wrap",
-              columnGap: "2mm",
-              rowGap: "2mm",
-              justifyContent: "space-between",
-              marginTop: "6mm",
-              padding: "2mm 1.5mm",
-              pageBreakBefore: "always",
+        // Cria páginas de 18 etiquetas cada (3 colunas x 6 linhas)
+        Array.from({ length: Math.ceil(totalSmallLabels / 18) }).map((_, pageIndex) => {
+          const startIndex = pageIndex * 18
+          const endIndex = Math.min(startIndex + 18, totalSmallLabels)
+          const labelsInPage = endIndex - startIndex
+
+          return React.createElement(
+            "div",
+            {
+              key: `small-page-${pageIndex}`,
+              className: "small-labels-page",
+              style: {
+                marginTop: pageIndex === 0 ? "6mm" : "0",
+                pageBreakBefore: pageIndex === 0 ? "always" : "always",
+              },
             },
-          },
-          Array.from({ length: totalSmallLabels }).map((_, index) =>
-            React.createElement(LabelPrintSmall, {
-              key: `small-label-${index}`,
-              lote,
-              faccionistaNome,
-              largura,
-              comprimento,
-              qrCodeUrl,
+            Array.from({ length: labelsInPage }).map((_, labelIndex) => {
+              const globalIndex = startIndex + labelIndex
+              return React.createElement(LabelPrintSmall, {
+                key: `small-label-${globalIndex}`,
+                lote,
+                faccionistaNome,
+                largura,
+                comprimento,
+                qrCodeUrl,
+              })
             })
           )
-        )
+        })
       )
     )
 
@@ -140,12 +143,16 @@ export const printLabel = (data: LabelData) => {
                     width: 210mm;
                     min-height: 297mm;
                   }
-                  .label-print,
+                  .label-print {
+                    page-break-inside: avoid;
+                    break-inside: avoid;
+                  }
                   .label-print-small {
                     page-break-inside: avoid;
                     break-inside: avoid;
-                    orphans: 3;
-                    widows: 3;
+                    width: 61mm !important;
+                    height: 46mm !important;
+                    flex: 0 0 61mm !important;
                   }
                   svg {
                     page-break-inside: avoid;
@@ -153,6 +160,9 @@ export const printLabel = (data: LabelData) => {
                   }
                   .small-labels-page {
                     page-break-before: always;
+                    display: flex !important;
+                    flex-wrap: wrap !important;
+                    gap: 2mm !important;
                   }
                 }
 
@@ -185,17 +195,22 @@ export const printLabel = (data: LabelData) => {
 
                 .small-labels-page {
                   display: flex;
+                  flex-direction: row;
                   flex-wrap: wrap;
-                  row-gap: 2mm;
-                  column-gap: 2mm;
+                  gap: 2mm;
                   width: 190mm;
                   margin: 0 auto;
-                  padding: 2mm 0;
-                  justify-content: space-between;
+                  padding: 1mm;
+                  align-content: flex-start;
+                  min-height: 285mm;
+                  box-sizing: border-box;
                 }
 
                 .label-print-small {
-                  flex: 0 0 calc(50% - 1mm);
+                  width: 61mm;
+                  height: 46mm;
+                  flex: 0 0 61mm;
+                  box-sizing: border-box;
                 }
               </style>
             </head>
