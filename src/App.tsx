@@ -16,7 +16,7 @@ import UsersPage from "./pages/ManagerUsers/ManageUsers";
 import Shopee from "./pages/Shopee";
 import Header from "./components/Header";
 import MinimalHeader from "./components/Header/MinimalHeader";
-import Job from "./pages/Job/index";
+// import Job from "./pages/Job/index";
 import JobV2 from "./pages/Job/indexV2";
 import { ModalProvider } from "./context/ModalContext";
 import { NotifyProvider } from "./context/NotifyContext";
@@ -105,20 +105,12 @@ function App() {
                   path="/job/:user"
                   element={
                     <>
-                      <Job />
-                      <NavUser />
-                    </>
-                  }
-                />
-                <Route
-                  path="/job-v2/:user"
-                  element={
-                    <>
                       <JobV2 />
                       <NavUser />
                     </>
                   }
                 />
+
               </Route>
             )}
 
