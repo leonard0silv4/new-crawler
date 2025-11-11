@@ -1,7 +1,16 @@
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
-import { CheckCircle2, AlertCircle, Package, CreditCard, Clock } from "lucide-react";
+import { CheckCircle2, AlertCircle, Package, CreditCard, Clock, FileText } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
+import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { useState } from "react";
 
 // Função para formatar metros quadrados
 const formatMetros = (value: number): string => {
@@ -39,14 +48,27 @@ export function LoteCard({
     ? "bg-emerald-50 dark:bg-emerald-950/30 border-l-4 border-emerald-500"
     : "bg-blue-50 dark:bg-blue-950/30 border-l-4 border-blue-500";
 
+  const [isViewObservacaoOpen, setIsViewObservacaoOpen] = useState(false);
+
   return (
     <div
       className={`rounded-lg p-4 shadow-md hover:shadow-lg transition-shadow flex flex-col h-full ${cardBg}`}
     >
       <div className="mb-5 pb-3 border-b-2 border-gray-300 dark:border-gray-600">
-        <h2 className="text-3xl font-bold text-gray-900 dark:text-white">
-          LOTE {register.lote}
-        </h2>
+        <div className="flex justify-between items-center">
+          <h2 className="text-3xl font-bold text-gray-900 dark:text-white">
+            LOTE {register.lote}
+          </h2>
+          {register.observacao && (
+            <button
+              onClick={() => setIsViewObservacaoOpen(true)}
+              className="flex items-center justify-center hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors p-2"
+              title="Ver observação"
+            >
+              <FileText className="!h-6 !w-6 text-blue-600 dark:text-blue-400" />
+            </button>
+          )}
+        </div>
       </div>
 
       <div className="space-y-3 mb-5 flex-grow">
@@ -190,6 +212,27 @@ export function LoteCard({
           </div>
         )}
       </div>
+
+      {/* Modal para visualizar observação */}
+      <Dialog open={isViewObservacaoOpen} onOpenChange={setIsViewObservacaoOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Observação - Lote {register.lote}</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div className="bg-gray-50 dark:bg-gray-800 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
+              <p className="text-sm text-gray-900 dark:text-white whitespace-pre-wrap">
+                {register.observacao || "Nenhuma observação registrada."}
+              </p>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button onClick={() => setIsViewObservacaoOpen(false)}>
+              Fechar
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

@@ -11,6 +11,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Textarea } from "@/components/ui/textarea";
 import { PlusCircle } from "lucide-react";
 import instance from "@/config/axios";
 import { useParams } from "react-router-dom";
@@ -36,6 +37,7 @@ const AddJob = ({ addJob, lastLote, loadingLastLote }: any) => {
     qtdRolo: "",
     faccionistaId: user,
     ownerId: "",
+    observacao: "",
   };
 
   const friendlyFieldNames: Record<keyof typeof formData, string> = {
@@ -55,6 +57,7 @@ const AddJob = ({ addJob, lastLote, loadingLastLote }: any) => {
     qtdRolo: "Quantidade Rolos",
     faccionistaId: "Faccionista",
     ownerId: "Proprietário",
+    observacao: "Observação",
   };
 
   const [formData, setFormData] = useState(initial);
@@ -356,6 +359,25 @@ const AddJob = ({ addJob, lastLote, loadingLastLote }: any) => {
                 onChange={handleChange}
               />
             </div>
+          </div>
+
+          <div className="col-span-2">
+            <label
+              htmlFor="observacao"
+              className="block text-sm font-medium text-gray-700"
+            >
+              Observação
+            </label>
+            <Textarea
+              id="observacao"
+              name="observacao"
+              placeholder="Digite uma observação sobre este lote (opcional)"
+              value={formData.observacao}
+              onChange={(e) =>
+                setFormData({ ...formData, observacao: e.target.value })
+              }
+              className="min-h-[80px]"
+            />
           </div>
         </form>
 

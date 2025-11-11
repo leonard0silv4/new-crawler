@@ -31,6 +31,8 @@ import {
   TrendingUp,
   Printer,
   QrCode,
+  Edit,
+  FileText,
 } from "lucide-react";
 import { useLocation, useParams, NavLink } from "react-router-dom";
 import { AnimatePresence, motion } from "motion/react";
@@ -73,6 +75,7 @@ import { SelectValue } from "@radix-ui/react-select";
 import { Badge as BadgeComponent } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { printLabel } from "./utils/printLabel";
+import { Textarea } from "@/components/ui/textarea";
 
 const Job = () => {
   const { user } = useParams();
@@ -119,9 +122,57 @@ const Job = () => {
       : false)
   );
 
+  // Estados para modal de observação
+  const [isObservacaoModalOpen, setIsObservacaoModalOpen] = useState(false);
+  const [isViewObservacaoModalOpen, setIsViewObservacaoModalOpen] = useState(false);
+  const [selectedJobForObservacao, setSelectedJobForObservacao] = useState<any>(null);
+  const [observacaoText, setObservacaoText] = useState("");
+  const [isSavingObservacao, setIsSavingObservacao] = useState(false);
+
   const openDialog = (id: string) => {
     setSelectedJob(id);
     setIsDialogJobOpen(true);
+  };
+
+  const openObservacaoModal = (register: any) => {
+    setSelectedJobForObservacao(register);
+    setObservacaoText(register.observacao || "");
+    setIsObservacaoModalOpen(true);
+  };
+
+  const openViewObservacaoModal = (register: any) => {
+    setSelectedJobForObservacao(register);
+    setIsViewObservacaoModalOpen(true);
+  };
+
+  const handleSaveObservacao = async () => {
+    if (!selectedJobForObservacao) return;
+
+    setIsSavingObservacao(true);
+    try {
+      await instance.put("/jobs/observacao", {
+        id: selectedJobForObservacao._id,
+        value: observacaoText,
+      });
+
+      // Atualizar o estado local
+      setRegisters((prevRegisters) =>
+        prevRegisters.map((register) =>
+          register._id === selectedJobForObservacao._id
+            ? { ...register, observacao: observacaoText }
+            : register
+        )
+      );
+
+      toast.success("Observação atualizada com sucesso!");
+      setIsObservacaoModalOpen(false);
+      setSelectedJobForObservacao(null);
+    } catch (error) {
+      console.error("Erro ao salvar observação:", error);
+      toast.error("Erro ao salvar observação!");
+    } finally {
+      setIsSavingObservacao(false);
+    }
   };
 
   useEffect(() => {
@@ -923,24 +974,25 @@ const Job = () => {
               >
                 <Card className="h-full flex flex-col hover:shadow-lg transition-shadow duration-200">
                   <CardHeader className="pb-3">
-                    <div className="flex items-center justify-between gap-2">
-                      <div className="flex items-center gap-2">
-                        <Checkbox
-                          onClick={() =>
-                            handleCheckboxSelectedJobs(register.lote)
-                          }
-                          checked={jobsSelectedRolls?.includes(register.lote)}
-                        />
-                        <span className="font-bold text-base">LOTE: {register.lote}</span>
-                        {register.receivedCheckedByQrCode && (
-                          <div className="flex items-center gap-1" title="Confirmado por QR Code">
-                            <QrCode className="w-4 h-4 text-green-600 dark:text-green-400" />
-                          </div>
-                        )}
-                      </div>
-
-                      <div className="text-sm text-gray-500">
-                        {format(register.data, "dd/MM/yy HH:mm")}
+                    <div className="flex items-start justify-between gap-2">
+                      <div className="flex flex-col gap-1">
+                        <div className="flex items-center gap-2">
+                          <Checkbox
+                            onClick={() =>
+                              handleCheckboxSelectedJobs(register.lote)
+                            }
+                            checked={jobsSelectedRolls?.includes(register.lote)}
+                          />
+                          <span className="font-bold text-base">LOTE: {register.lote}</span>
+                          {register.receivedCheckedByQrCode && (
+                            <div className="flex items-center gap-1" title="Confirmado por QR Code">
+                              <QrCode className="w-4 h-4 text-green-600 dark:text-green-400" />
+                            </div>
+                          )}
+                        </div>
+                        <div className="text-sm text-gray-500">
+                          {format(register.data, "dd/MM/yy HH:mm")}
+                        </div>
                       </div>
 
                       <div className="flex items-center gap-2">
@@ -960,6 +1012,24 @@ const Job = () => {
                           ) : (
                             <Star className="text-yellow-400 w-5 h-5" />
                           )}
+                        </button>
+
+                        {register.observacao && (
+                          <button
+                            className="text-purple-500 hover:text-purple-700 transition-colors"
+                            onClick={() => openViewObservacaoModal(register)}
+                            title="Ver observação"
+                          >
+                            <FileText className="w-5 h-5" />
+                          </button>
+                        )}
+
+                        <button
+                          className="text-indigo-500 hover:text-indigo-700 transition-colors"
+                          onClick={() => openObservacaoModal(register)}
+                          title="Editar observação"
+                        >
+                          <Edit className="w-5 h-5" />
                         </button>
 
                         <button
@@ -1244,6 +1314,65 @@ const Job = () => {
               }}
             >
               Confirmar
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Modal para editar observação */}
+      <Dialog open={isObservacaoModalOpen} onOpenChange={setIsObservacaoModalOpen}>
+        <DialogContent>
+          <DialogTitle>
+            Editar Observação - Lote {selectedJobForObservacao?.lote}
+          </DialogTitle>
+          <DialogDescription>
+            Adicione ou edite a observação deste lote.
+          </DialogDescription>
+          <div className="space-y-4 mt-4">
+            <Textarea
+              placeholder="Digite a observação..."
+              value={observacaoText}
+              onChange={(e) => setObservacaoText(e.target.value)}
+              className="min-h-[120px]"
+            />
+          </div>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => {
+                setIsObservacaoModalOpen(false);
+                setSelectedJobForObservacao(null);
+              }}
+              disabled={isSavingObservacao}
+            >
+              Cancelar
+            </Button>
+            <Button onClick={handleSaveObservacao} disabled={isSavingObservacao}>
+              {isSavingObservacao ? "Salvando..." : "Salvar"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Modal para visualizar observação */}
+      <Dialog open={isViewObservacaoModalOpen} onOpenChange={setIsViewObservacaoModalOpen}>
+        <DialogContent>
+          <DialogTitle>
+            Observação - Lote {selectedJobForObservacao?.lote}
+          </DialogTitle>
+          <div className="space-y-4 mt-4">
+            <div className="bg-gray-50 dark:bg-gray-800 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
+              <p className="text-sm text-gray-900 dark:text-white whitespace-pre-wrap">
+                {selectedJobForObservacao?.observacao || "Nenhuma observação registrada."}
+              </p>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button onClick={() => {
+              setIsViewObservacaoModalOpen(false);
+              setSelectedJobForObservacao(null);
+            }}>
+              Fechar
             </Button>
           </DialogFooter>
         </DialogContent>
