@@ -129,6 +129,12 @@ const Job = () => {
   const [observacaoText, setObservacaoText] = useState("");
   const [isSavingObservacao, setIsSavingObservacao] = useState(false);
 
+  // Estados para modal de notas do faccionista
+  const [isNotesModalOpen, setIsNotesModalOpen] = useState(false);
+  const [isViewNotesModalOpen, setIsViewNotesModalOpen] = useState(false);
+  const [notesText, setNotesText] = useState("");
+  const [isSavingNotes, setIsSavingNotes] = useState(false);
+
   const openDialog = (id: string) => {
     setSelectedJob(id);
     setIsDialogJobOpen(true);
@@ -172,6 +178,40 @@ const Job = () => {
       toast.error("Erro ao salvar observação!");
     } finally {
       setIsSavingObservacao(false);
+    }
+  };
+
+  const openNotesModal = () => {
+    setNotesText(faccionist?.notes || "");
+    setIsNotesModalOpen(true);
+  };
+
+  const openViewNotesModal = () => {
+    setIsViewNotesModalOpen(true);
+  };
+
+  const handleSaveNotes = async () => {
+    if (!faccionist?._id) return;
+
+    setIsSavingNotes(true);
+    try {
+      await instance.put(`/factionist/${faccionist._id}`, {
+        notes: notesText,
+      });
+
+      // Atualizar o estado local
+      setFaccionist((prevFaccionist: any) => ({
+        ...prevFaccionist,
+        notes: notesText,
+      }));
+
+      toast.success("Notas atualizadas com sucesso!");
+      setIsNotesModalOpen(false);
+    } catch (error) {
+      console.error("Erro ao salvar notas:", error);
+      toast.error("Erro ao salvar notas!");
+    } finally {
+      setIsSavingNotes(false);
     }
   };
 
@@ -580,15 +620,37 @@ const Job = () => {
         <Card className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-gray-800 dark:to-gray-700 border-0 shadow-lg">
           <CardHeader>
             <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
-              <div>
-                <CardTitle className="text-xl capitalize text-gray-900 dark:text-white">
-                  {faccionist?.username} {faccionist?.lastName}
-                </CardTitle>
-                {faccionist?.evaluationScore && (
-                  <BadgeComponent variant="secondary" className="mt-2">
-                    QoS: {faccionist.evaluationScore}
-                  </BadgeComponent>
-                )}
+              <div className="flex items-start gap-3">
+                <div>
+                  <div className="flex items-center gap-2">
+                    <CardTitle className="text-xl capitalize text-gray-900 dark:text-white">
+                      {faccionist?.username} {faccionist?.lastName}
+                    </CardTitle>
+                    <div className="flex gap-1">
+                      {faccionist?.notes && (
+                        <button
+                          onClick={openViewNotesModal}
+                          className="flex items-center justify-center hover:bg-white/50 dark:hover:bg-gray-700/50 rounded-lg transition-colors p-1.5"
+                          title="Ver notas do faccionista"
+                        >
+                          <FileText className="h-4 w-4 text-purple-600 dark:text-purple-400" />
+                        </button>
+                      )}
+                      <button
+                        onClick={openNotesModal}
+                        className="flex items-center justify-center hover:bg-white/50 dark:hover:bg-gray-700/50 rounded-lg transition-colors p-1.5"
+                        title="Editar notas do faccionista"
+                      >
+                        <Edit className="h-4 w-4 text-indigo-600 dark:text-indigo-400" />
+                      </button>
+                    </div>
+                  </div>
+                  {faccionist?.evaluationScore && (
+                    <BadgeComponent variant="secondary" className="mt-2">
+                      QoS: {faccionist.evaluationScore}
+                    </BadgeComponent>
+                  )}
+                </div>
               </div>
 
               <div className="flex items-center gap-2">
@@ -1372,6 +1434,59 @@ const Job = () => {
               setIsViewObservacaoModalOpen(false);
               setSelectedJobForObservacao(null);
             }}>
+              Fechar
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Modal para editar notas do faccionista */}
+      <Dialog open={isNotesModalOpen} onOpenChange={setIsNotesModalOpen}>
+        <DialogContent>
+          <DialogTitle>
+            Editar Notas - {faccionist?.username} {faccionist?.lastName}
+          </DialogTitle>
+          <DialogDescription>
+            Adicione ou edite as notas deste faccionista.
+          </DialogDescription>
+          <div className="space-y-4 mt-4">
+            <Textarea
+              placeholder="Digite as notas..."
+              value={notesText}
+              onChange={(e) => setNotesText(e.target.value)}
+              className="min-h-[120px]"
+            />
+          </div>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => setIsNotesModalOpen(false)}
+              disabled={isSavingNotes}
+            >
+              Cancelar
+            </Button>
+            <Button onClick={handleSaveNotes} disabled={isSavingNotes}>
+              {isSavingNotes ? "Salvando..." : "Salvar"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Modal para visualizar notas do faccionista */}
+      <Dialog open={isViewNotesModalOpen} onOpenChange={setIsViewNotesModalOpen}>
+        <DialogContent>
+          <DialogTitle>
+            Notas - {faccionist?.username} {faccionist?.lastName}
+          </DialogTitle>
+          <div className="space-y-4 mt-4">
+            <div className="bg-gray-50 dark:bg-gray-800 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
+              <p className="text-sm text-gray-900 dark:text-white whitespace-pre-wrap">
+                {faccionist?.notes || "Nenhuma nota registrada."}
+              </p>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button onClick={() => setIsViewNotesModalOpen(false)}>
               Fechar
             </Button>
           </DialogFooter>
