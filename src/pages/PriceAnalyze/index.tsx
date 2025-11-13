@@ -43,24 +43,34 @@ export default function PriceAnalyze() {
 
     if (loading) {
         return (
-            <div className="flex items-center justify-center min-h-screen bg-white">
+            <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
                 <div className="text-center">
-                    <Loader className="w-12 h-12 animate-spin mx-auto mb-4 text-blue-600" />
-                    <p className="text-gray-600">Carregando dados...</p>
+                    <div className="w-12 h-12 border-4 border-slate-200 border-t-blue-600 rounded-full animate-spin mx-auto mb-4"></div>
+                    <p className="text-slate-600 font-medium">Carregando dados...</p>
+                    <p className="text-slate-500 text-sm mt-1">Analisando produtos e preços</p>
                 </div>
             </div>
-        );
+        )
     }
 
     if (error) {
         return (
-            <div className="flex items-center justify-center min-h-screen bg-white">
-                <div className="text-center">
-                    <p className="text-red-600 font-medium mb-2">Erro ao carregar dados</p>
-                    <p className="text-gray-600 text-sm">{error}</p>
+            <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
+                <div className="text-center max-w-md">
+                    <div className="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <span className="text-2xl">❌</span>
+                    </div>
+                    <p className="text-red-600 font-bold mb-2">Erro ao carregar dados</p>
+                    <p className="text-slate-600 text-sm mb-4">{error}</p>
+                    <button
+                        onClick={() => window.location.reload()}
+                        className="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors"
+                    >
+                        Tentar novamente
+                    </button>
                 </div>
             </div>
-        );
+        )
     }
 
     return <PriceAnalyzer productGroups={productGroups} extractionDate={extractionDate} />;

@@ -9,6 +9,7 @@ export interface Product {
     preco: number;
     vendedor: string;
     url: string;
+    urlOriginal: string;
     isMyStore: boolean;
     grupo: string;
 }
@@ -49,7 +50,8 @@ export function parseXML(xmlContent: string): ParseXMLResult {
         const preco = Number.parseFloat(el.getElementsByTagName("preco")[0]?.textContent || "0");
         const vendedor = el.getElementsByTagName("vendedor")[0]?.textContent || "";
         const id_produto = el.getElementsByTagName("id_produto")[0]?.textContent || "";
-        const url = el.getElementsByTagName("url_original")[0]?.textContent || "";
+        const url = el.getElementsByTagName("url")[0]?.textContent || "";
+        const urlOriginal = el.getElementsByTagName("url_original")[0]?.textContent || "";
         const grupo = el.getAttribute("grupo") || "";
 
         products.push({
@@ -58,6 +60,7 @@ export function parseXML(xmlContent: string): ParseXMLResult {
             preco,
             vendedor,
             url,
+            urlOriginal,
             isMyStore: MY_STORES.includes(vendedor.toUpperCase()),
             grupo,
         });
