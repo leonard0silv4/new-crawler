@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import instance from "@/config/axios";
 import { Input } from "@/components/ui/input";
-import { Search, Loader, TriangleAlert } from "lucide-react";
+import { Search, Loader, TriangleAlert, FileText } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -54,6 +54,9 @@ const ListFaccionista = () => {
     lote: null,
     field: null,
   });
+
+  // Estado para modal de visualização de notas do gestor
+  const [isViewNotesModalOpen, setIsViewNotesModalOpen] = useState(false);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -109,6 +112,10 @@ const ListFaccionista = () => {
 
   const handleCancel = () => {
     setConfirmationModal({ open: false, lote: null, _id: null, field: null });
+  };
+
+  const openViewNotesModal = () => {
+    setIsViewNotesModalOpen(true);
   };
 
   const toggleFilter = (filterKey: keyof typeof filters) => {
@@ -276,15 +283,28 @@ const ListFaccionista = () => {
 
           <Card className="relative block w-full p-6 bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700">
             <CardHeader>
-              <CardTitle className="capitalize">
-                {factionistUser[0]?.username}
-              </CardTitle>
-              {(factionistUser as any)?.evaluationScore != 0 && (
-                <p className="text-sm text-gray-600 dark:text-gray-400 mt-2">
-                  <b>Pontuação QoS:</b>{" "}
-                  {(factionistUser as any)?.evaluationScore}
-                </p>
-              )}
+              <div className="flex items-start justify-between">
+                <div>
+                  <CardTitle className="capitalize">
+                    {factionistUser[0]?.username}
+                  </CardTitle>
+                  {(factionistUser as any)?.evaluationScore != 0 && (
+                    <p className="text-sm text-gray-600 dark:text-gray-400 mt-2">
+                      <b>Pontuação QoS:</b>{" "}
+                      {(factionistUser as any)?.evaluationScore}
+                    </p>
+                  )}
+                </div>
+                {factionistUser[0]?.notes && (
+                  <button
+                    onClick={openViewNotesModal}
+                    className="flex items-center justify-center hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors p-2"
+                    title="Ver notas do gestor"
+                  >
+                    <FileText className="h-5 w-5 text-purple-600 dark:text-purple-400" />
+                  </button>
+                )}
+              </div>
             </CardHeader>
 
             <CardContent>
@@ -400,6 +420,30 @@ const ListFaccionista = () => {
               <Button variant="ghost">Cancelar</Button>
             </DialogClose>
             <Button onClick={handleConfirm}>Confirmar</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Modal para visualizar notas do gestor */}
+      <Dialog open={isViewNotesModalOpen} onOpenChange={setIsViewNotesModalOpen}>
+        <DialogContent>
+          <DialogTitle>
+            Notas do Gestor
+          </DialogTitle>
+          <DialogDescription>
+            Informações e observações adicionadas pela gestão.
+          </DialogDescription>
+          <div className="space-y-4 mt-4">
+            <div className="bg-purple-50 dark:bg-purple-950/30 p-4 rounded-lg border border-purple-200 dark:border-purple-800">
+              <p className="text-sm text-gray-900 dark:text-white whitespace-pre-wrap">
+                {factionistUser[0]?.notes || "Nenhuma nota registrada."}
+              </p>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button onClick={() => setIsViewNotesModalOpen(false)}>
+              Fechar
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

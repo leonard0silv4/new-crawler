@@ -34,6 +34,7 @@ import Nf from "./pages/Nf";
 import { usePermission } from "./hooks/usePermissions";
 import Products from "./pages/Products";
 import ConfirmLote from "./pages/Job/ConfirmLote";
+import PriceAnalyze from "./pages/PriceAnalyze";
 
 const queryClient = new QueryClient();
 
@@ -101,6 +102,7 @@ function App() {
                   path="/account/products"
                 />
                 <Route element={<LogsPage />} path="/logs" />
+                <Route element={<PriceAnalyze />} path="/price-analyze" />
                 <Route
                   path="/job/:user"
                   element={
