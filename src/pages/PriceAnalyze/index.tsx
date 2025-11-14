@@ -4,7 +4,6 @@ import { useEffect, useState } from "react";
 import { PriceAnalyzer } from "./PriceAnalyzer";
 import { parseXML, type ProductGroup } from "@/lib/xml-parser";
 import instance from "@/config/axios";
-import { Loader } from "lucide-react";
 
 export default function PriceAnalyze() {
     const [productGroups, setProductGroups] = useState<ProductGroup[]>([]);
@@ -18,11 +17,8 @@ export default function PriceAnalyze() {
                 setLoading(true);
                 setError(null);
 
-                // Usar a API da env ao invés do XML_URL hardcoded
                 const apiEndpoint = import.meta.env.VITE_APP_XML_API_URL || "/xml/download";
 
-                // O axios retorna response.data automaticamente devido ao interceptor
-                // Para responseType: "text", o interceptor retorna response.data que já é a string
                 const xmlText: string = await instance.get(apiEndpoint, {
                     responseType: "text",
                 });

@@ -37,7 +37,6 @@ export function parseXML(xmlContent: string): ParseXMLResult {
         throw new Error("Erro ao fazer parse do XML");
     }
 
-    // Extrair data de extração do elemento raiz
     const produtosElement = xmlDoc.getElementsByTagName("produtos")[0];
     const extractionDate = produtosElement?.getAttribute("data_extracao") || null;
 
