@@ -2,7 +2,8 @@
 
 import type { ProductGroup } from "@/lib/xml-parser";
 import { MY_STORES, PRICE_DIFF_THRESHOLD } from "@/lib/xml-parser";
-import { ExternalLink, TrendingUp, TrendingDown, AlertCircle, Trophy, Eye, X } from "lucide-react";
+import { ExternalLink, AlertCircle, Trophy, Eye, X } from "lucide-react";
+// import { ExternalLink, TrendingUp, TrendingDown, AlertCircle, Trophy, Eye, X } from "lucide-react";
 import {
     Dialog,
     DialogContent,
