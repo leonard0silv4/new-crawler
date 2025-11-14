@@ -4,6 +4,9 @@ import { useEffect, useState } from "react";
 import { PriceAnalyzer } from "./PriceAnalyzer";
 import { parseXML, type ProductGroup } from "@/lib/xml-parser";
 import instance from "@/config/axios";
+import { X } from "lucide-react";
+import { Button } from "@/components/ui/button";
+
 
 export default function PriceAnalyze() {
     const [productGroups, setProductGroups] = useState<ProductGroup[]>([]);
@@ -41,7 +44,7 @@ export default function PriceAnalyze() {
         return (
             <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
                 <div className="text-center">
-                    <div className="w-12 h-12 border-4 border-slate-200 border-t-blue-600 rounded-full animate-spin mx-auto mb-4"></div>
+                    <div className="w-12 h-12 border-4 border-slate-200 border-t-slate-900 rounded-full animate-spin mx-auto mb-4"></div>
                     <p className="text-slate-600 font-medium">Carregando dados...</p>
                     <p className="text-slate-500 text-sm mt-1">Analisando produtos e preços</p>
                 </div>
@@ -54,16 +57,12 @@ export default function PriceAnalyze() {
             <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
                 <div className="text-center max-w-md">
                     <div className="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                        <span className="text-2xl">❌</span>
+                        <span className="text-2xl"><X className="text-red-600" /></span>
                     </div>
                     <p className="text-red-600 font-bold mb-2">Erro ao carregar dados</p>
                     <p className="text-slate-600 text-sm mb-4">{error}</p>
-                    <button
-                        onClick={() => window.location.reload()}
-                        className="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors"
-                    >
-                        Tentar novamente
-                    </button>
+                    <Button variant="outline" onClick={() => window.location.reload()}>Tentar novamente</Button>
+
                 </div>
             </div>
         )

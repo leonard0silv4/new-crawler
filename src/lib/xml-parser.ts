@@ -96,14 +96,27 @@ export function parseXML(xmlContent: string): ParseXMLResult {
 
         if (myPrices.length > 0 && competitorPrices.length > 0) {
             const avgMyPrice = myPrices.reduce((a, b) => a + b, 0) / myPrices.length;
-            const avgCompetitorPrice = competitorPrices.reduce((a, b) => a + b, 0) / competitorPrices.length;
-            const priceDiff = ((avgMyPrice - avgCompetitorPrice) / avgCompetitorPrice) * 100;
+            const bestCompetitorPriceOnly = Math.min(...competitorPrices); // Melhor preço apenas dos concorrentes
+            const minMyPrice = Math.min(...myPrices); // Melhor preço dos meus produtos
 
-            if (Math.abs(priceDiff) > PRICE_DIFF_THRESHOLD) {
-                if (priceDiff > 0) {
-                    recommendation = `Preço ${priceDiff.toFixed(1)}% acima do mercado. Considere reduzir.`;
-                } else {
-                    recommendation = `Preço ${Math.abs(priceDiff).toFixed(1)}% abaixo do mercado. Você está competitivo!`;
+            // Comparar com o melhor preço do mercado (se for de concorrente)
+            if (bestCompetitorPriceOnly < minMyPrice) {
+                // Sempre mostrar alerta se concorrente tem melhor preço
+                const priceDiff = ((avgMyPrice - bestCompetitorPriceOnly) / bestCompetitorPriceOnly) * 100;
+                recommendation = `Preço ${priceDiff.toFixed(1)}% acima do melhor concorrente (R$ ${bestCompetitorPriceOnly.toFixed(2)}). Considere reduzir.`;
+            } else if (bestCompetitorPriceOnly < avgMyPrice) {
+                // Concorrente tem preço melhor que minha média, mas não melhor que meu melhor preço
+                const priceDiff = ((avgMyPrice - bestCompetitorPriceOnly) / bestCompetitorPriceOnly) * 100;
+                if (priceDiff > PRICE_DIFF_THRESHOLD) {
+                    recommendation = `Preço ${priceDiff.toFixed(1)}% acima do melhor concorrente. Considere reduzir.`;
+                }
+            } else {
+                // Se meu preço é o melhor, verificar se está muito abaixo da média
+                const avgCompetitorPrice = competitorPrices.reduce((a, b) => a + b, 0) / competitorPrices.length;
+                const priceDiff = ((avgMyPrice - avgCompetitorPrice) / avgCompetitorPrice) * 100;
+
+                if (Math.abs(priceDiff) > PRICE_DIFF_THRESHOLD && priceDiff < 0) {
+                    recommendation = `Preço ${Math.abs(priceDiff).toFixed(1)}% abaixo da média. Você está competitivo!`;
                 }
             }
         }

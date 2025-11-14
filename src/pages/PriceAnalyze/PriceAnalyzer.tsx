@@ -4,7 +4,7 @@ import { useState, useMemo } from "react";
 import { Badge } from "@/components/ui/badge";
 import type { ProductGroup } from "@/lib/xml-parser";
 import { MY_STORES } from "@/lib/xml-parser";
-import { ChevronDown, ExternalLink, Filter, X, AlertCircle, TrendingUp } from "lucide-react";
+import { ChevronDown, ExternalLink, Filter, X, AlertCircle, TrendingUp, TriangleAlert, Trophy } from "lucide-react";
 import { ProductDetailsModal } from "./ProductDetailsModal";
 
 interface PriceAnalyzerProps {
@@ -292,12 +292,12 @@ export function PriceAnalyzer({ productGroups, extractionDate }: PriceAnalyzerPr
                                                         <div className="flex items-center gap-2 mb-2 flex-wrap">
                                                             {!hasCompetitors && (
                                                                 <Badge className="bg-gradient-to-r from-purple-100 to-purple-200 text-purple-800 border border-purple-300 text-xs font-semibold">
-                                                                    🏆 Sem concorrentes
+                                                                    <Trophy className="w-4 h-4 mr-2 !text-yellow-500" />  Sem concorrentes
                                                                 </Badge>
                                                             )}
                                                             {group.recommendation && (
                                                                 <Badge className="bg-gradient-to-r from-amber-100 to-amber-200 text-amber-800 border border-amber-300 text-xs font-semibold">
-                                                                    ⚠️ Alerta
+                                                                    <TriangleAlert className="w-4 h-4 mr-2 !text-orange-600" /> Alerta
                                                                 </Badge>
                                                             )}
                                                         </div>

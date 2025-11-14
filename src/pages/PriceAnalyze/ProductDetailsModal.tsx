@@ -93,7 +93,7 @@ export function ProductDetailsModal({ product, onClose }: ProductDetailsModalPro
                         </div>
 
                         {/* Contagem de anúncios */}
-                        <div className="flex gap-2">
+                        <div className="flex gap-2 ">
                             <Badge variant="secondary" className="bg-blue-50 text-blue-700 px-3 py-1.5">
                                 Total de anúncios: {sortedProducts.length}
                             </Badge>
@@ -105,8 +105,8 @@ export function ProductDetailsModal({ product, onClose }: ProductDetailsModalPro
                         </div>
 
                         {/* Seus Anúncios */}
-                        {myProducts.length > 0 && (
-                            <div className="space-y-3">
+                        {/* {myProducts.length > 0 && (
+                            <div className="space-y-3 ">
                                 <div className="flex items-center gap-2">
                                     <div className="w-1 h-6 bg-green-600 rounded"></div>
                                     <h3 className="text-lg font-bold">Seus Anúncios</h3>
@@ -165,7 +165,7 @@ export function ProductDetailsModal({ product, onClose }: ProductDetailsModalPro
                                     })}
                                 </div>
                             </div>
-                        )}
+                        )} */}
 
                         {/* Análise de Concorrentes */}
                         <div className="space-y-3">
@@ -205,7 +205,7 @@ export function ProductDetailsModal({ product, onClose }: ProductDetailsModalPro
                                                             )}
                                                         </div>
                                                         <a
-                                                            href={isMyStore ? (p.urlOriginal || p.url) : p.url}
+                                                            href={p.url}
                                                             target="_blank"
                                                             rel="noopener noreferrer"
                                                             className="text-xs text-blue-600 hover:text-blue-800 font-medium flex items-center gap-1"
