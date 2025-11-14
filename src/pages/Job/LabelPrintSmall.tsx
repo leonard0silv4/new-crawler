@@ -37,7 +37,7 @@ export function LabelPrintSmall({ lote, faccionistaNome, largura, comprimento, q
             >
                 <div
                     style={{
-                        fontSize: "16px",
+                        fontSize: "24px",
                         fontWeight: 900,
                         color: "#111",
                         letterSpacing: "0.3px",
@@ -49,7 +49,7 @@ export function LabelPrintSmall({ lote, faccionistaNome, largura, comprimento, q
 
                 <div
                     style={{
-                        fontSize: "14px",
+                        fontSize: "20px",
                         color: "#111",
                         lineHeight: 1.3,
                         fontWeight: 700,
@@ -62,7 +62,7 @@ export function LabelPrintSmall({ lote, faccionistaNome, largura, comprimento, q
 
                 <div
                     style={{
-                        fontSize: "18px",
+                        fontSize: "26px",
                         fontWeight: 900,
                         color: "#000",
                         letterSpacing: "0.3px",
