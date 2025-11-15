@@ -38,27 +38,34 @@ export default function SellerProductsPage() {
   const [orderDirection, setOrderDirection] = useState<"asc" | "desc">("desc");
   const [filterIsFull, setFilterIsFull] = useState<null | boolean>(null);
 
-  const { data: accounts = [], isLoading: loadingAccounts } = useQuery<any>({
+  const { data: accountsData, isLoading: loadingAccounts } = useQuery<any>({
     queryKey: ["accounts"],
-    queryFn: () => instance.get("accounts"),
+    queryFn: async () => {
+      const res = await instance.get("accounts");
+      return res.data || res;
+    },
   });
+
+  const accounts = accountsData || [];
 
   useEffect(() => {
     if (accounts.length > 0 && !selectedUserId) {
       setSelectedUserId(accounts[0].user_id.toString());
     }
-  }, [accounts]);
+  }, [accounts, selectedUserId]);
 
-  const { data: products = [], isLoading } = useQuery<any>({
+  const { data: productsData, isLoading } = useQuery<any>({
     queryKey: ["products", selectedUserId],
     enabled: !!selectedUserId,
     queryFn: async () => {
       const res = await instance.get("accounts/products", {
         params: { user_id: selectedUserId },
       });
-      return res;
+      return res.data || res;
     },
   });
+
+  const products = productsData || [];
 
   const modalidadeMap: Record<string, string> = {
     gold_pro: "Premium",
@@ -67,7 +74,12 @@ export default function SellerProductsPage() {
   };
 
   const sortedFilteredProducts = useMemo(() => {
+    if (!Array.isArray(products) || products.length === 0) {
+      return [];
+    }
+
     let processed = products.map((p: any) => {
+      if (!p) return null;
       const estoqueHistory = [...(p.historySell || [])];
 
       const today = {
@@ -101,7 +113,7 @@ export default function SellerProductsPage() {
         estoqueTotal,
         modalidade: modalidadeMap[p.listingTypeId] || p.listingTypeId,
       };
-    });
+    }).filter(Boolean);
 
     if (filterIsFull !== null) {
       processed = processed.filter((p: any) => p.isFull === filterIsFull);
@@ -278,6 +290,10 @@ export default function SellerProductsPage() {
               {({ index, style }: any) => {
                 const product = sortedFilteredProducts[index];
 
+                if (!product) {
+                  return null;
+                }
+
                 return (
                   <div
                     style={style}
@@ -286,7 +302,7 @@ export default function SellerProductsPage() {
                   >
                     <div className="flex justify-center items-center align-middle flex-col">
                       {product.alertRuptura &&
-                      product.alertRuptura !==
+                        product.alertRuptura !==
                         "Dados insuficientes para previsão" ? (
                         <TooltipProvider>
                           <Tooltip>
@@ -341,24 +357,24 @@ export default function SellerProductsPage() {
                       </p>
 
                       <p className="text-sm font-medium truncate">
-                        Modalidade: {product.modalidade}
+                        Modalidade: {product.modalidade || "-"}
                       </p>
-                      {product.variations.length > 0
+                      {product.variations && product.variations.length > 0
                         ? product.variations.map((v: any, idx: number) => {
-                            const atributos = v.attributes
-                              ?.map((attr: any) => attr.value_name)
-                              .filter(Boolean)
-                              .join(", ");
+                          const atributos = v.attributes
+                            ?.map((attr: any) => attr.value_name)
+                            .filter(Boolean)
+                            .join(", ");
 
-                            return (
-                              <p
-                                key={idx}
-                                className="text-sm font-medium truncate"
-                              >
-                                {atributos} : {v.available_quantity}
-                              </p>
-                            );
-                          })
+                          return (
+                            <p
+                              key={idx}
+                              className="text-sm font-medium truncate"
+                            >
+                              {atributos} : {v.available_quantity}
+                            </p>
+                          );
+                        })
                         : null}
                     </div>
                     <div

@@ -22,7 +22,7 @@ export default function Header({ handleAuthentication }: HeaderProps) {
   const { can, isOwner, canAny } = usePermission();
   const [production] = useState(
     typeof window !== "undefined" &&
-      localStorage.getItem("productionBrowser") === "yes"
+    localStorage.getItem("productionBrowser") === "yes"
   );
   const navigate = useNavigate();
   const location = useLocation();
@@ -83,6 +83,11 @@ export default function Header({ handleAuthentication }: HeaderProps) {
       href: "/products-catalog",
       condition: !production && can("manage_products_catalog"),
     },
+    {
+      title: "Análise de Preços",
+      href: "/price-analyze",
+      condition: !production && (isOwner || can("view_links") || can("view_nf")),
+    },
   ];
 
   const iconActions = [
@@ -133,12 +138,10 @@ export default function Header({ handleAuthentication }: HeaderProps) {
                               key={item.title}
                               to={item.href}
                               className={({ isActive }) =>
-                                `-mx-3 block rounded-lg px-3 py-2 text-base font-semibold leading-7 text-gray-900 hover:bg-gray-50 cursor-pointer ${
-                                  isActive ? "underline" : ""
-                                } ${
-                                  item.isIconLink
-                                    ? "flex items-center gap-x-2"
-                                    : ""
+                                `-mx-3 block rounded-lg px-3 py-2 text-base font-semibold leading-7 text-gray-900 hover:bg-gray-50 cursor-pointer ${isActive ? "underline" : ""
+                                } ${item.isIconLink
+                                  ? "flex items-center gap-x-2"
+                                  : ""
                                 }`
                               }
                               onClick={() => setIsSheetOpen(false)}
@@ -157,8 +160,7 @@ export default function Header({ handleAuthentication }: HeaderProps) {
                               key={action.title}
                               to={action.href}
                               className={({ isActive }) =>
-                                `-mx-3 block rounded-lg px-3 py-2 text-base font-semibold leading-7 text-gray-900 hover:bg-gray-50 cursor-pointer ${
-                                  isActive ? "underline" : ""
+                                `-mx-3 block rounded-lg px-3 py-2 text-base font-semibold leading-7 text-gray-900 hover:bg-gray-50 cursor-pointer ${isActive ? "underline" : ""
                                 }`
                               }
                               onClick={() => setIsSheetOpen(false)}
@@ -182,7 +184,7 @@ export default function Header({ handleAuthentication }: HeaderProps) {
             </Sheet>
           </div>
 
-          <div className="hidden lg:flex lg:gap-x-12">
+          <div className="hidden lg:flex lg:gap-x-8 lg:flex-nowrap lg:items-center">
             {navItems.map(
               (item) =>
                 item.condition && (
@@ -190,8 +192,7 @@ export default function Header({ handleAuthentication }: HeaderProps) {
                     key={item.title}
                     to={item.href}
                     className={({ isActive }) =>
-                      `text-sm font-semibold leading-6 text-zinc-200 cursor-pointer ${
-                        isActive ? "underline" : ""
+                      `text-sm font-semibold leading-6 text-zinc-200 cursor-pointer whitespace-nowrap transition-colors duration-200 hover:text-white hover:opacity-90 ${isActive ? "underline" : ""
                       } ${item.isIconLink ? "flex items-center gap-x-1" : ""}`
                     }
                   >
@@ -210,7 +211,7 @@ export default function Header({ handleAuthentication }: HeaderProps) {
                 action.condition && (
                   <Tooltip key={action.title}>
                     <TooltipTrigger asChild>
-                      <NavLink to={action.href} className="text-zinc-200">
+                      <NavLink to={action.href} className="text-zinc-200 transition-colors duration-200 hover:text-white hover:opacity-90">
                         <action.icon className="h-6 w-6" />
                         <span className="sr-only">{action.title}</span>
                       </NavLink>
@@ -224,7 +225,7 @@ export default function Header({ handleAuthentication }: HeaderProps) {
 
             <Tooltip>
               <TooltipTrigger asChild>
-                <a className="text-zinc-200 cursor-pointer" onClick={logout}>
+                <a className="text-zinc-200 cursor-pointer transition-colors duration-200 hover:text-white hover:opacity-90" onClick={logout}>
                   <LogOut className="h-6 w-6" />
                   <span className="sr-only">Sair</span>
                 </a>
