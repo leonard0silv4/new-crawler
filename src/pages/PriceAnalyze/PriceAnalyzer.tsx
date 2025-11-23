@@ -62,12 +62,11 @@ export function PriceAnalyzer({ productGroups, extractionDate }: PriceAnalyzerPr
     const filteredGroups = useMemo(() => {
         let filtered = productGroups;
 
-        // Apply store filter
+        // Apply store filter - apenas filtra grupos que contêm o vendedor, mantendo todos os produtos do grupo
         if (selectedStore) {
-            filtered = filtered.map((group) => ({
-                ...group,
-                products: group.products.filter((p) => p.vendedor.toUpperCase().includes(selectedStore.toUpperCase())),
-            })).filter((group) => group.products.length > 0);
+            filtered = filtered.filter((group) =>
+                group.products.some((p) => p.vendedor.toUpperCase().includes(selectedStore.toUpperCase()))
+            );
         }
 
         // Apply other filters
