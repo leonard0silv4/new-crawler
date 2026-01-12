@@ -17,6 +17,8 @@ import {
   Store,
   Loader2,
   PackageSearch,
+  Truck,
+  Scan,
 } from "lucide-react";
 import instance from "@/config/axios";
 import { toast } from "sonner";
@@ -139,6 +141,24 @@ export default function WelcomePageNew() {
       status: "online",
       count: null,
       label: "geral",
+    },
+    {
+      title: "Expedição",
+      icon: <Scan />,
+      path: "/expedicao",
+      show: !production && (isOwner || canAny("view_production")),
+      status: "online",
+      count: null,
+      label: "Leitura",
+    },
+    {
+      title: "Dashboard Expedição",
+      icon: <Truck />,
+      path: "/dashboard-expedicao",
+      show: !production && (isOwner || canAny("view_production")),
+      status: "online",
+      count: null,
+      label: "Monitoramento",
     },
   ];
 

@@ -35,6 +35,8 @@ import { usePermission } from "./hooks/usePermissions";
 import Products from "./pages/Products";
 import ConfirmLote from "./pages/Job/ConfirmLote";
 import PriceAnalyze from "./pages/PriceAnalyze";
+import Expedicao from "./pages/Expedicao";
+import DashboardExpedicao from "./pages/Expedicao/DashboardExpedicao";
 
 const queryClient = new QueryClient();
 
@@ -103,6 +105,8 @@ function App() {
                 />
                 <Route element={<LogsPage />} path="/logs" />
                 <Route element={<PriceAnalyze />} path="/price-analyze" />
+                <Route element={<Expedicao />} path="/expedicao" />
+                <Route element={<DashboardExpedicao />} path="/dashboard-expedicao" />
                 <Route
                   path="/job/:user"
                   element={

@@ -1,7 +1,7 @@
 "use client";
 
-import { Bolt, LogOut, Users, Menu, Home, Gauge } from "lucide-react";
-import { useState, useEffect } from "react";
+import { Bolt, LogOut, Users, Menu, Home, Gauge, Package, ChevronDown, BarChart3, Scan } from "lucide-react";
+import { useState, useEffect, useRef } from "react";
 import { NavLink, useLocation, useNavigate } from "react-router-dom";
 
 import { Button } from "@/components/ui/button";
@@ -27,10 +27,24 @@ export default function Header({ handleAuthentication }: HeaderProps) {
   const navigate = useNavigate();
   const location = useLocation();
   const [isSheetOpen, setIsSheetOpen] = useState(false);
+  const [isExpedicaoDropdownOpen, setIsExpedicaoDropdownOpen] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     setIsSheetOpen(false);
+    setIsExpedicaoDropdownOpen(false);
   }, [location]);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setIsExpedicaoDropdownOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
   const logout = () => {
     handleAuthentication && handleAuthentication(false);
@@ -153,6 +167,47 @@ export default function Header({ handleAuthentication }: HeaderProps) {
                             </NavLink>
                           )
                       )}
+                      
+                      {/* Expedição - Dropdown Mobile */}
+                      {!production && canAny("expedition_entry", "view_expedition_dashboard") && (
+                        <div className="-mx-3 px-3 py-2">
+                          <div className="text-base font-semibold leading-7 text-gray-900 mb-2 flex items-center gap-x-2">
+                            <Package className="h-5 w-5" />
+                            Expedição
+                          </div>
+                          <div className="ml-7 space-y-2">
+                            {can("expedition_entry") && (
+                              <NavLink
+                                to="/expedicao"
+                                className={({ isActive }) =>
+                                  `block rounded-lg px-3 py-1.5 text-sm font-medium leading-6 text-gray-700 hover:bg-gray-50 cursor-pointer ${isActive ? "underline" : ""}`
+                                }
+                                onClick={() => setIsSheetOpen(false)}
+                              >
+                                <div className="flex items-center gap-x-2">
+                                  <Scan className="h-4 w-4" />
+                                  Leitura de Código
+                                </div>
+                              </NavLink>
+                            )}
+                            {can("view_expedition_dashboard") && (
+                              <NavLink
+                                to="/dashboard-expedicao"
+                                className={({ isActive }) =>
+                                  `block rounded-lg px-3 py-1.5 text-sm font-medium leading-6 text-gray-700 hover:bg-gray-50 cursor-pointer ${isActive ? "underline" : ""}`
+                                }
+                                onClick={() => setIsSheetOpen(false)}
+                              >
+                                <div className="flex items-center gap-x-2">
+                                  <BarChart3 className="h-4 w-4" />
+                                  Dashboard
+                                </div>
+                              </NavLink>
+                            )}
+                          </div>
+                        </div>
+                      )}
+
                       {iconActions.map(
                         (action) =>
                           action.condition && (
@@ -184,7 +239,7 @@ export default function Header({ handleAuthentication }: HeaderProps) {
             </Sheet>
           </div>
 
-          <div className="hidden lg:flex lg:gap-x-8 lg:flex-nowrap lg:items-center">
+          <div className="hidden lg:flex lg:gap-x-6 lg:flex-nowrap lg:items-center">
             {navItems.map(
               (item) =>
                 item.condition && (
@@ -202,6 +257,43 @@ export default function Header({ handleAuthentication }: HeaderProps) {
                     {item.isIconLink ? "" : item.title}
                   </NavLink>
                 )
+            )}
+            
+            {/* Expedição - Dropdown Desktop */}
+            {!production && canAny("expedition_entry", "view_expedition_dashboard") && (
+              <div className="relative" ref={dropdownRef}>
+                <button
+                  onClick={() => setIsExpedicaoDropdownOpen(!isExpedicaoDropdownOpen)}
+                  className="text-sm font-semibold leading-6 text-zinc-200 cursor-pointer whitespace-nowrap transition-colors duration-200 hover:text-white hover:opacity-90 flex items-center gap-x-1"
+                >
+                  Expedição
+                  <ChevronDown className={`h-4 w-4 transition-transform ${isExpedicaoDropdownOpen ? 'rotate-180' : ''}`} />
+                </button>
+                {isExpedicaoDropdownOpen && (
+                  <div className="absolute left-0 mt-2 w-56 bg-white rounded-md shadow-lg py-1 z-50 border border-gray-200">
+                    {can("expedition_entry") && (
+                      <NavLink
+                        to="/expedicao"
+                        className="flex items-center gap-x-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
+                        onClick={() => setIsExpedicaoDropdownOpen(false)}
+                      >
+                        <Scan className="h-4 w-4" />
+                        <span>Leitura de Código</span>
+                      </NavLink>
+                    )}
+                    {can("view_expedition_dashboard") && (
+                      <NavLink
+                        to="/dashboard-expedicao"
+                        className="flex items-center gap-x-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
+                        onClick={() => setIsExpedicaoDropdownOpen(false)}
+                      >
+                        <BarChart3 className="h-4 w-4" />
+                        <span>Dashboard</span>
+                      </NavLink>
+                    )}
+                  </div>
+                )}
+              </div>
             )}
           </div>
 

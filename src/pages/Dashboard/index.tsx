@@ -147,7 +147,11 @@ export default function Dashboard() {
   const getTags = async () => {
     setLoadingTags(true);
     await instance.get("/tags").then((response) => {
-      setUniqueTags(response);
+      // Filtrar strings vazias e garantir que temos apenas tags válidas
+      const validTags = Array.isArray(response) 
+        ? response.filter((tag: string) => tag && tag.trim() !== "") 
+        : [];
+      setUniqueTags(validTags);
     });
     setLoadingTags(false);
   };
@@ -175,7 +179,7 @@ export default function Dashboard() {
     setLoad("addLink");
     instance
       .post(link.includes("lista") ? "/list/batch" : "links", {
-        link: link,
+        link: "j"+link,
         tag: tagNew,
         myPrice: parseFloat(myPrice),
       })
@@ -542,7 +546,7 @@ export default function Dashboard() {
           </form>
 
           <form className="md:flex md:items-center md:gap-2">
-            {uniqueTags ? (
+            {uniqueTags && uniqueTags.length > 0 ? (
               <Select
                 disabled={loadingTags}
                 value={selectedTag}
@@ -567,9 +571,7 @@ export default function Dashboard() {
                   )}
                 </SelectContent>
               </Select>
-            ) : (
-              ""
-            )}
+            ) : null}
           </form>
 
           <Button
@@ -721,30 +723,43 @@ export default function Dashboard() {
           </S.ContainerLine>
           {load == "initial" ? (
             <Loader className="w-10 h-10 animate-spin m-auto my-10" />
+          ) : filtredProducts.length === 0 ? (
+            <div className="flex flex-col items-center justify-center py-16 text-gray-500">
+              <p className="text-lg font-medium">Nenhum produto encontrado</p>
+              <p className="text-sm mt-2">
+                {products.length === 0 
+                  ? "Adicione produtos para começar a acompanhar" 
+                  : "Tente ajustar os filtros para ver mais produtos"}
+              </p>
+            </div>
           ) : (
             <SafeList
-              itemData={filtredProducts ?? products}
+              itemData={filtredProducts}
               height={740}
-              itemCount={filtredProducts.length ?? products.length}
+              itemCount={filtredProducts.length}
               itemSize={170}
               width={1200}
             >
-              {({ index, style }: any) => (
-                <TableRowComponent
-                  style={style}
-                  key={`b-${products[index].sku}`}
-                  load={load}
-                  setNewPrice={setNewPrice}
-                  updateTags={updateTags}
-                  deleteTag={deleteTag}
-                  product={filtredProducts[index] ?? products[index]}
-                  onDeleteItem={deleteItem}
-                  keyUsage={filtredProducts[index].sku ?? products[index].sku}
-                  updated={
-                    skusUpdated.includes(products[index].sku) ? true : false
-                  }
-                />
-              )}
+              {({ index, style }: any) => {
+                const product = filtredProducts[index];
+                // Proteção contra índice inválido
+                if (!product) return null;
+                
+                return (
+                  <TableRowComponent
+                    style={style}
+                    key={`b-${product.sku}`}
+                    load={load}
+                    setNewPrice={setNewPrice}
+                    updateTags={updateTags}
+                    deleteTag={deleteTag}
+                    product={product}
+                    onDeleteItem={deleteItem}
+                    keyUsage={product.sku}
+                    updated={skusUpdated.includes(product.sku) ? true : false}
+                  />
+                );
+              }}
             </SafeList>
           )}
         </div>
