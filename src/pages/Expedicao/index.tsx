@@ -47,8 +47,13 @@ const identificarSeller = (codigo: string): { seller: string | null; isValid: bo
     return { seller: "shopee", isValid: true }
   }
 
-  // Padrão Amazon: AMZB + 9 dígitos + 2 letras minúsculas (total 15 caracteres)
+  // Padrão Amazon AMZB: AMZB + 9 dígitos + 2 letras minúsculas (total 15 caracteres)
   if (/^AMZB\d{9}[a-z]{2}$/.test(codigoLimpo)) {
+    return { seller: "amazon", isValid: true }
+  }
+
+  // Padrão Amazon TBR: TBR + 9 dígitos (total 12 caracteres - ex: TBR289334260)
+  if (/^TBR\d{9}$/.test(codigoLimpo)) {
     return { seller: "amazon", isValid: true }
   }
 
@@ -552,6 +557,14 @@ export default function Expedicao() {
                     <li>• O sistema verificará automaticamente se é duplicado</li>
                     <li>• Após verificação, selecione a mesa (M1, M2, M3 ou M4)</li>
                   </ul>
+                  <div className="mt-3 pt-3 border-t border-gray-200">
+                    <p className="text-xs font-medium text-gray-700 mb-1">Padrões aceitos:</p>
+                    <ul className="text-xs text-gray-500 space-y-0.5">
+                      <li>• Mercado Livre: 11 dígitos</li>
+                      <li>• Shopee: BR + 12 dígitos + 1 letra</li>
+                      <li>• Amazon: AMZB + 9 dígitos + 2 letras ou TBR + 9 dígitos</li>
+                    </ul>
+                  </div>
                 </div>
               </div>
             </div>
