@@ -57,11 +57,16 @@ const identificarSeller = (codigo: string): { seller: string | null; isValid: bo
     return { seller: "amazon", isValid: true }
   }
 
+  // Padrão BLO: BLO + : + 8 dígitos (total 12 caracteres - ex: BLO:24471127)
+  if (/^BLO:\d{8}$/.test(codigoLimpo)) {
+    return { seller: "outros", isValid: true }
+  }
+
   // Código não corresponde a nenhum padrão conhecido
   return {
     seller: null,
     isValid: false,
-    error: "Código não corresponde a nenhum padrão válido (Mercado Livre, Shopee ou Amazon)",
+    error: "Código não corresponde a nenhum padrão válido (Mercado Livre, Shopee, Amazon ou BLO)",
   }
 }
 
@@ -557,12 +562,13 @@ export default function Expedicao() {
                     <li>• O sistema verificará automaticamente se é duplicado</li>
                     <li>• Após verificação, selecione a mesa (M1, M2, M3 ou M4)</li>
                   </ul>
-                  <div className="mt-3 pt-3 border-t border-gray-200">
+                  <div className="mt-3 pt-3 border-t border-gray-200 hidden">
                     <p className="text-xs font-medium text-gray-700 mb-1">Padrões aceitos:</p>
                     <ul className="text-xs text-gray-500 space-y-0.5">
                       <li>• Mercado Livre: 11 dígitos</li>
                       <li>• Shopee: BR + 12 dígitos + 1 letra</li>
                       <li>• Amazon: AMZB + 9 dígitos + 2 letras ou TBR + 9 dígitos</li>
+                      <li>• Outros: BLO: + 8 dígitos</li>
                     </ul>
                   </div>
                 </div>
@@ -650,9 +656,8 @@ export default function Expedicao() {
                 ))}
               </div>
             </div>
-
             {sellerSelecionado && (
-              <div className="bg-green-50 border border-green-200 rounded-lg p-3">
+              <div className="bg-green-50 border border-green-200 rounded-lg p-3 hidden">
                 <div className="flex items-center gap-2 text-green-700">
                   <CheckCircle2 className="h-5 w-5" />
                   <div>
