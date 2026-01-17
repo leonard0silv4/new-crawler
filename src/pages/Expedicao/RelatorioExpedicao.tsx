@@ -243,8 +243,8 @@ export default function RelatorioExpedicao() {
         </Card>
 
         {/* Aviso de Dia Encerrado */}
-        {/* {diaEncerrado && (
-          <Alert className="border-amber-300 bg-amber-50">
+        {diaEncerrado && (
+          <Alert className="border-amber-300 bg-amber-50 hidden ">
             <Info className="h-5 w-5 text-amber-600" />
             <AlertDescription className="text-amber-800 font-medium">
               <div className="flex items-center justify-between">
@@ -256,7 +256,7 @@ export default function RelatorioExpedicao() {
               </div>
             </AlertDescription>
           </Alert>
-        )} */}
+        )}
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Horários de Coleta - DESTAQUE MÁXIMO */}
