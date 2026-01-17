@@ -1,6 +1,6 @@
 "use client";
 
-import { Bolt, LogOut, Users, Menu, Home, Gauge, Package, ChevronDown, BarChart3, Scan } from "lucide-react";
+import { Bolt, LogOut, Users, Menu, Home, Gauge, Package, ChevronDown, BarChart3, Scan, FileText } from "lucide-react";
 import { useState, useEffect, useRef } from "react";
 import { NavLink, useLocation, useNavigate } from "react-router-dom";
 
@@ -169,7 +169,7 @@ export default function Header({ handleAuthentication }: HeaderProps) {
                       )}
                       
                       {/* Expedição - Dropdown Mobile */}
-                      {!production && canAny("expedition_entry", "view_expedition_dashboard") && (
+                      {!production && canAny("expedition_entry", "view_expedition_dashboard", "expedition_report") && (
                         <div className="-mx-3 px-3 py-2">
                           <div className="text-base font-semibold leading-7 text-gray-900 mb-2 flex items-center gap-x-2">
                             <Package className="h-5 w-5" />
@@ -201,6 +201,20 @@ export default function Header({ handleAuthentication }: HeaderProps) {
                                 <div className="flex items-center gap-x-2">
                                   <BarChart3 className="h-4 w-4" />
                                   Dashboard
+                                </div>
+                              </NavLink>
+                            )}
+                            {can("expedition_report") && (
+                              <NavLink
+                                to="/relatorio-expedicao"
+                                className={({ isActive }) =>
+                                  `block rounded-lg px-3 py-1.5 text-sm font-medium leading-6 text-gray-700 hover:bg-gray-50 cursor-pointer ${isActive ? "underline" : ""}`
+                                }
+                                onClick={() => setIsSheetOpen(false)}
+                              >
+                                <div className="flex items-center gap-x-2">
+                                  <FileText className="h-4 w-4" />
+                                  Relatório
                                 </div>
                               </NavLink>
                             )}
@@ -260,7 +274,7 @@ export default function Header({ handleAuthentication }: HeaderProps) {
             )}
             
             {/* Expedição - Dropdown Desktop */}
-            {!production && canAny("expedition_entry", "view_expedition_dashboard") && (
+            {!production && canAny("expedition_entry", "view_expedition_dashboard", "expedition_report") && (
               <div className="relative" ref={dropdownRef}>
                 <button
                   onClick={() => setIsExpedicaoDropdownOpen(!isExpedicaoDropdownOpen)}
@@ -289,6 +303,16 @@ export default function Header({ handleAuthentication }: HeaderProps) {
                       >
                         <BarChart3 className="h-4 w-4" />
                         <span>Dashboard</span>
+                      </NavLink>
+                    )}
+                    {can("expedition_report") && (
+                      <NavLink
+                        to="/relatorio-expedicao"
+                        className="flex items-center gap-x-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
+                        onClick={() => setIsExpedicaoDropdownOpen(false)}
+                      >
+                        <FileText className="h-4 w-4" />
+                        <span>Relatório</span>
                       </NavLink>
                     )}
                   </div>

@@ -37,6 +37,7 @@ import ConfirmLote from "./pages/Job/ConfirmLote";
 import PriceAnalyze from "./pages/PriceAnalyze";
 import Expedicao from "./pages/Expedicao";
 import DashboardExpedicao from "./pages/Expedicao/DashboardExpedicao";
+import RelatorioExpedicao from "./pages/Expedicao/RelatorioExpedicao";
 
 const queryClient = new QueryClient();
 
@@ -107,6 +108,7 @@ function App() {
                 <Route element={<PriceAnalyze />} path="/price-analyze" />
                 <Route element={<Expedicao />} path="/expedicao" />
                 <Route element={<DashboardExpedicao />} path="/dashboard-expedicao" />
+                <Route element={<RelatorioExpedicao />} path="/relatorio-expedicao" />
                 <Route
                   path="/job/:user"
                   element={
