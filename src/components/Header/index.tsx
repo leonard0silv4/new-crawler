@@ -140,7 +140,7 @@ export default function Header({ handleAuthentication }: HeaderProps) {
               </SheetTrigger>
               <SheetContent
                 side="left"
-                className="w-full sm:max-w-xs bg-white p-6"
+                className="w-full sm:max-w-xs bg-white p-6 overflow-y-auto"
               >
                 <div className="mt-6 flow-root">
                   <div className="-my-6 divide-y divide-gray-500/10">

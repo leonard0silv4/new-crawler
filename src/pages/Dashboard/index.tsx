@@ -179,7 +179,7 @@ export default function Dashboard() {
     setLoad("addLink");
     instance
       .post(link.includes("lista") ? "/list/batch" : "links", {
-        link: "j"+link,
+        link: link,
         tag: tagNew,
         myPrice: parseFloat(myPrice),
       })
