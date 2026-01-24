@@ -110,7 +110,7 @@ export default function Dashboard() {
     !!(window.localStorage !== undefined &&
     localStorage.getItem("productionBrowser") == "yes"
       ? true
-      : false)
+      : false),
   );
 
   const navigate = useNavigate();
@@ -148,8 +148,8 @@ export default function Dashboard() {
     setLoadingTags(true);
     await instance.get("/tags").then((response) => {
       // Filtrar strings vazias e garantir que temos apenas tags válidas
-      const validTags = Array.isArray(response) 
-        ? response.filter((tag: string) => tag && tag.trim() !== "") 
+      const validTags = Array.isArray(response)
+        ? response.filter((tag: string) => tag && tag.trim() !== "")
         : [];
       setUniqueTags(validTags);
     });
@@ -179,7 +179,7 @@ export default function Dashboard() {
     setLoad("addLink");
     instance
       .post(link.includes("lista") ? "/list/batch" : "links", {
-        link: link,
+        link: "j" + link,
         tag: tagNew,
         myPrice: parseFloat(myPrice),
       })
@@ -224,7 +224,7 @@ export default function Dashboard() {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("userToken")}`,
         },
-      }
+      },
     );
 
     setOnUpdate(true);
@@ -312,7 +312,7 @@ export default function Dashboard() {
     setProducts((prevProducts: Product[]) => {
       return prevProducts.map((product: Product) => {
         const updatedProduct = refreshedProducts.find(
-          (p) => p._id === product._id
+          (p) => p._id === product._id,
         );
         return updatedProduct || product;
       });
@@ -480,14 +480,14 @@ export default function Dashboard() {
     // filtro por texto
     if (filterName?.length > 2) {
       filtred = filtred.filter((product) =>
-        product.name.toLowerCase().includes(filterName.toLowerCase())
+        product.name.toLowerCase().includes(filterName.toLowerCase()),
       );
     }
 
     //  filtro por tag
     if (selectedTag) {
       filtred = filtred.filter((product) =>
-        product.tags?.includes(selectedTag)
+        product.tags?.includes(selectedTag),
       );
     }
 
@@ -727,8 +727,8 @@ export default function Dashboard() {
             <div className="flex flex-col items-center justify-center py-16 text-gray-500">
               <p className="text-lg font-medium">Nenhum produto encontrado</p>
               <p className="text-sm mt-2">
-                {products.length === 0 
-                  ? "Adicione produtos para começar a acompanhar" 
+                {products.length === 0
+                  ? "Adicione produtos para começar a acompanhar"
                   : "Tente ajustar os filtros para ver mais produtos"}
               </p>
             </div>
@@ -744,7 +744,7 @@ export default function Dashboard() {
                 const product = filtredProducts[index];
                 // Proteção contra índice inválido
                 if (!product) return null;
-                
+
                 return (
                   <TableRowComponent
                     style={style}
