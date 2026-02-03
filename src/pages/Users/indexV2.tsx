@@ -44,6 +44,7 @@ import { AuthContext } from "@/context/AuthContext";
 import { useNavigate } from "react-router-dom";
 import instance from "@/config/axios";
 import { useSse } from "@/hooks/useSse";
+import { usePermission } from "@/hooks/usePermissions";
 
 interface Faccionista {
   _id: string;
@@ -58,12 +59,14 @@ const FaccionistaCard = ({
   onDelete,
   onViewJobs,
   hasPermissions,
+  canViewJobs = false,
 }: {
   register: Faccionista;
   onEdit: (user: Faccionista) => void;
   onDelete: (id: string) => void;
   onViewJobs: (id: string) => void;
   hasPermissions: boolean;
+  canViewJobs?: boolean;
 }) => {
   return (
     <motion.div
@@ -121,14 +124,16 @@ const FaccionistaCard = ({
         </CardContent>
 
         <CardFooter className="pt-4 gap-2">
-          <Button
-            onClick={() => onViewJobs(register._id)}
-            variant="outline"
-            className="flex-1 h-9"
-          >
-            <Briefcase className="h-4 w-4 mr-2" />
-            Fila de trabalho
-          </Button>
+          {canViewJobs && (
+            <Button
+              onClick={() => onViewJobs(register._id)}
+              variant="outline"
+              className="flex-1 h-9"
+            >
+              <Briefcase className="h-4 w-4 mr-2" />
+              Fila de trabalho
+            </Button>
+          )}
         </CardFooter>
       </Card>
     </motion.div>
@@ -185,6 +190,7 @@ export default function Faccionistas() {
   const navigate = useNavigate();
   const { toast } = useToast();
   const { permissions }: any = useContext(AuthContext);
+  const { can } = usePermission();
 
   const hasManagePermissions = permissions?.includes("manage_faccionistas");
 
@@ -407,6 +413,7 @@ export default function Faccionistas() {
                 onDelete={openDeleteDialog}
                 onViewJobs={(id) => navigate(`/job/${id}`)}
                 hasPermissions={hasManagePermissions}
+                canViewJobs={can("expedition_discharge")}
               />
             ))}
           </motion.div>

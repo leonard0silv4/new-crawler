@@ -1,6 +1,6 @@
 "use client";
 
-import { Bolt, LogOut, Users, Menu, Home, Gauge, Package, ChevronDown, BarChart3, Scan, FileText } from "lucide-react";
+import { Bolt, LogOut, Users, Menu, Home, Gauge, Package, ChevronDown, BarChart3, Scan, FileText, PackageOpen } from "lucide-react";
 import { useState, useEffect, useRef } from "react";
 import { NavLink, useLocation, useNavigate } from "react-router-dom";
 
@@ -28,17 +28,23 @@ export default function Header({ handleAuthentication }: HeaderProps) {
   const location = useLocation();
   const [isSheetOpen, setIsSheetOpen] = useState(false);
   const [isExpedicaoDropdownOpen, setIsExpedicaoDropdownOpen] = useState(false);
+  const [isFaccionistasDropdownOpen, setIsFaccionistasDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const faccionistasDropdownRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     setIsSheetOpen(false);
     setIsExpedicaoDropdownOpen(false);
+    setIsFaccionistasDropdownOpen(false);
   }, [location]);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
         setIsExpedicaoDropdownOpen(false);
+      }
+      if (faccionistasDropdownRef.current && !faccionistasDropdownRef.current.contains(event.target as Node)) {
+        setIsFaccionistasDropdownOpen(false);
       }
     };
 
@@ -106,18 +112,14 @@ export default function Header({ handleAuthentication }: HeaderProps) {
 
   const iconActions = [
     {
-      title: "Faccionistas",
-      href: "/users",
-      icon: Users,
-      condition: canAny("manage_faccionistas", "view_production"),
-    },
-    {
       title: "Configurações",
       href: "/config",
       icon: Bolt,
       condition: !production && isOwner,
     },
   ];
+
+  const showFaccionistasMenu = canAny("manage_faccionistas", "view_production", "expedition_discharge");
 
   return (
     <TooltipProvider>
@@ -215,6 +217,46 @@ export default function Header({ handleAuthentication }: HeaderProps) {
                                 <div className="flex items-center gap-x-2">
                                   <FileText className="h-4 w-4" />
                                   Relatório
+                                </div>
+                              </NavLink>
+                            )}
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Faccionistas - Dropdown Mobile */}
+                      {showFaccionistasMenu && (
+                        <div className="-mx-3 px-3 py-2">
+                          <div className="text-base font-semibold leading-7 text-gray-900 mb-2 flex items-center gap-x-2">
+                            <Users className="h-5 w-5" />
+                            Faccionistas
+                          </div>
+                          <div className="ml-7 space-y-2">
+                            {(can("manage_faccionistas") || can("view_production")) && (
+                              <NavLink
+                                to="/users"
+                                className={({ isActive }) =>
+                                  `block rounded-lg px-3 py-1.5 text-sm font-medium leading-6 text-gray-700 hover:bg-gray-50 cursor-pointer ${isActive ? "underline" : ""}`
+                                }
+                                onClick={() => setIsSheetOpen(false)}
+                              >
+                                <div className="flex items-center gap-x-2">
+                                  <Users className="h-4 w-4" />
+                                  Faccionistas
+                                </div>
+                              </NavLink>
+                            )}
+                            {can("expedition_discharge") && (
+                              <NavLink
+                                to="/descarregamento-lotes"
+                                className={({ isActive }) =>
+                                  `block rounded-lg px-3 py-1.5 text-sm font-medium leading-6 text-gray-700 hover:bg-gray-50 cursor-pointer ${isActive ? "underline" : ""}`
+                                }
+                                onClick={() => setIsSheetOpen(false)}
+                              >
+                                <div className="flex items-center gap-x-2">
+                                  <PackageOpen className="h-4 w-4" />
+                                  Descarregamento lotes
                                 </div>
                               </NavLink>
                             )}
@@ -322,6 +364,51 @@ export default function Header({ handleAuthentication }: HeaderProps) {
           </div>
 
           <div className="hidden lg:flex lg:flex-3 lg:justify-end items-center gap-6">
+            {/* Faccionistas - Dropdown Desktop */}
+            {showFaccionistasMenu && (
+              <div className="relative" ref={faccionistasDropdownRef}>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <button
+                      onClick={() => setIsFaccionistasDropdownOpen(!isFaccionistasDropdownOpen)}
+                      className="text-zinc-200 transition-colors duration-200 hover:text-white hover:opacity-90 flex items-center"
+                    >
+                      <Users className="h-6 w-6" />
+                      <ChevronDown className={`h-4 w-4 ml-0.5 transition-transform ${isFaccionistasDropdownOpen ? "rotate-180" : ""}`} />
+                      <span className="sr-only">Faccionistas</span>
+                    </button>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>Faccionistas</p>
+                  </TooltipContent>
+                </Tooltip>
+                {isFaccionistasDropdownOpen && (
+                  <div className="absolute right-0 mt-2 w-56 bg-white rounded-md shadow-lg py-1 z-50 border border-gray-200">
+                    {(can("manage_faccionistas") || can("view_production")) && (
+                      <NavLink
+                        to="/users"
+                        className="flex items-center gap-x-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
+                        onClick={() => setIsFaccionistasDropdownOpen(false)}
+                      >
+                        <Users className="h-4 w-4" />
+                        <span>Faccionistas</span>
+                      </NavLink>
+                    )}
+                    {can("expedition_discharge") && (
+                      <NavLink
+                        to="/descarregamento-lotes"
+                        className="flex items-center gap-x-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
+                        onClick={() => setIsFaccionistasDropdownOpen(false)}
+                      >
+                        <PackageOpen className="h-4 w-4" />
+                        <span>Descarregamento lotes</span>
+                      </NavLink>
+                    )}
+                  </div>
+                )}
+              </div>
+            )}
+
             {iconActions.map(
               (action) =>
                 action.condition && (

@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import "../app/globals.css";
 
-import { Routes, Route, useLocation } from "react-router-dom";
+import { Routes, Route, useLocation, Navigate } from "react-router-dom";
 import PrivateRoutes from "./utils";
 
 import Dashboard from "./pages/Dashboard";
@@ -38,6 +38,7 @@ import PriceAnalyze from "./pages/PriceAnalyze";
 import Expedicao from "./pages/Expedicao";
 import DashboardExpedicao from "./pages/Expedicao/DashboardExpedicao";
 import RelatorioExpedicao from "./pages/Expedicao/RelatorioExpedicao";
+import DescarregamentoLotes from "./pages/DescarregamentoLotes";
 
 const queryClient = new QueryClient();
 
@@ -110,12 +111,26 @@ function App() {
                 <Route element={<DashboardExpedicao />} path="/dashboard-expedicao" />
                 <Route element={<RelatorioExpedicao />} path="/relatorio-expedicao" />
                 <Route
+                  path="/descarregamento-lotes"
+                  element={
+                    can("expedition_discharge") ? (
+                      <DescarregamentoLotes />
+                    ) : (
+                      <Navigate to="/users" replace />
+                    )
+                  }
+                />
+                <Route
                   path="/job/:user"
                   element={
-                    <>
-                      <JobV2 />
-                      <NavUser />
-                    </>
+                    can("expedition_discharge") ? (
+                      <>
+                        <JobV2 />
+                        <NavUser />
+                      </>
+                    ) : (
+                      <Navigate to="/users" replace />
+                    )
                   }
                 />
 

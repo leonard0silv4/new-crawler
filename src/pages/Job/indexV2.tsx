@@ -489,7 +489,8 @@ const Job = () => {
       | "recebido"
       | "emenda"
       | "emAnalise"
-      | "isArchived",
+      | "isArchived"
+      | "dischargedByQrCode",
     acValue?: boolean
   ) => {
     if (field == "emenda" && !can("edit_production")) {
@@ -1225,6 +1226,12 @@ const Job = () => {
                           date: register.dataRecebido,
                         },
                         {
+                          key: "dischargedByQrCode",
+                          label: "Descarregado",
+                          status: register.dischargedByQrCode ?? (register as any).descarregado,
+                          date: register.dataDischargedByQrCode ?? (register as any).dataDischargedByQrCode,
+                        },
+                        {
                           key: "emAnalise",
                           label: "Em Análise",
                           status: register.emAnalise,
@@ -1236,6 +1243,7 @@ const Job = () => {
                           status: register.aprovado,
                           date: register.dataAprovado,
                         },
+                   
                       ].map((item) => (
                         <div
                           key={item.key}
