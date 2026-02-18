@@ -108,6 +108,11 @@ export default function Header({ handleAuthentication }: HeaderProps) {
       href: "/price-analyze",
       condition: !production && (isOwner || can("view_links") || can("view_nf")),
     },
+    // {
+    //   title: "Seller Monitor",
+    //   href: "/seller-monitor",
+    //   condition: !production && can("view_links"),
+    // },
   ];
 
   const iconActions = [

@@ -1,4 +1,4 @@
-export const MY_STORES = ["NETVASOSJARDINAGEM", "LYRIAFLORES", "JARDINOGARDEN", "SOMBRITELA"];
+export const MY_STORES = ["NETVASOSJARDINAGEM", "LYRIAFLORES", "JARDINOGARDEN", "SOMBRITELA", "SOMBRETELA"];
 
 // Threshold de diferença de preço para mostrar sugestões (-10% a +10%)
 export const PRICE_DIFF_THRESHOLD = 10;
