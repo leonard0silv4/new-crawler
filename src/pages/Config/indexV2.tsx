@@ -36,11 +36,11 @@ import {
 } from "@/components/ui/select";
 import { useContext } from "react";
 import { AuthContext } from "@/context/AuthContext";
-import { useNavigate } from "react-router-dom";
+// import { useNavigate } from "react-router-dom";
 
 const Config = () => {
   const { permissions }: any = useContext(AuthContext);
-  const navigate = useNavigate();
+  // const navigate = useNavigate();
   const [emailNotify, setEmailNotify] = useState("");
   const [storeName, setStoreName] = useState("");
   const [sendEmail, setSendEmail] = useState(false);
