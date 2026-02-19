@@ -113,26 +113,18 @@ const SellerCard = memo(function SellerCard({
                 return name.length > 17 ? name.substring(0, 17) + "..." : name;
               })()}
             </span>
-            {seller.scraping && (
-              <Badge className="h-5 px-1.5 text-[10px] bg-blue-500 text-white animate-pulse">
-                <Sparkles className="h-2.5 w-2.5 mr-1" />
-                scraping
-              </Badge>
-            )}
             {!seller.scraping && seller.unreadAlerts > 0 && (
               <Badge className="h-5 px-1.5 text-[10px] bg-destructive text-destructive-foreground">
                 {seller.unreadAlerts}
               </Badge>
             )}
           </div>
-          <div className="flex items-center gap-3 mt-1 text-xs text-muted-foreground">
+          <div className="flex items-center gap-2 mt-1 text-xs text-muted-foreground">
             <span className="flex items-center gap-1">
               <Package className="h-3 w-3" />
               {seller.totalProducts}
             </span>
-            <span>
-              {seller.scraping ? "Atualizando agora..." : fmtAgo(seller.lastRunAt)}
-            </span>
+            <span>{fmtAgo(seller.lastRunAt)}</span>
           </div>
         </div>
       </div>
@@ -179,6 +171,13 @@ const SellerCard = memo(function SellerCard({
             {seller.scraping ? "Scraping em andamento..." : "Executar scraping"}
           </TooltipContent>
         </Tooltip>
+
+        {seller.scraping && (
+          <Badge className="h-5 px-1.5 text-[10px] bg-blue-500 text-white animate-pulse">
+            <Sparkles className="h-2.5 w-2.5 mr-1" />
+            scraping
+          </Badge>
+        )}
 
         <div className="flex-1" />
 

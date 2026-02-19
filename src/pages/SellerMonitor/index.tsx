@@ -180,6 +180,15 @@ export default function SellerMonitorPage() {
       setSellers(data);
       prevSellersRef.current = new Map(data.map((s) => [s._id, s]));
 
+      // Garante que runningId é limpo se o seller não está mais em scraping,
+      // mesmo que a transição scraping: true → false não tenha sido capturada
+      setRunningId((current) => {
+        if (!current) return null;
+        const runningSeller = data.find((s) => s._id === current);
+        if (runningSeller && !runningSeller.scraping) return null;
+        return current;
+      });
+
       if (needReloadProducts && currSelectedId) loadProducts(currSelectedId);
       if (needReloadAlerts && currSelectedId) loadAlerts(currSelectedId);
     } catch {
