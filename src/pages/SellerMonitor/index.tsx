@@ -346,7 +346,7 @@ export default function SellerMonitorPage() {
   return (
     <TooltipProvider>
       <div className="flex h-screen bg-background">
-        <div className="hidden md:flex w-[300px] shrink-0">
+        <div className="hidden md:flex w-[300px] shrink-0 overflow-hidden">
           {loading ? (
             <div className="flex flex-1 items-center justify-center bg-card border-r border-border">
               <Loader className="h-6 w-6 animate-spin text-muted-foreground" />

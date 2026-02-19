@@ -90,7 +90,7 @@ const SellerCard = memo(function SellerCard({
       )}
       onClick={onSelect}
     >
-        <div className="flex items-start gap-3">
+        <div className="flex items-start gap-3 min-w-0">
         <div
           className={cn(
             "flex h-9 w-9 shrink-0 items-center justify-center rounded-lg transition-colors",
@@ -106,9 +106,12 @@ const SellerCard = memo(function SellerCard({
           )}
         </div>
         <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-1.5">
-            <span className="text-sm font-semibold truncate text-foreground">
-              {seller.name || seller.url.split("/")[4] || "Sem nome"}
+          <div className="flex items-center gap-1.5 min-w-0">
+            <span className="text-sm font-semibold text-foreground">
+              {(() => {
+                const name = seller.name || seller.url.split("/")[4] || seller.url || "Sem nome";
+                return name.length > 17 ? name.substring(0, 17) + "..." : name;
+              })()}
             </span>
             {seller.scraping && (
               <Badge className="h-5 px-1.5 text-[10px] bg-blue-500 text-white animate-pulse">
@@ -238,7 +241,7 @@ export default function SellerSidebar({
   );
 
   return (
-    <aside className="flex flex-col h-full bg-card border-r border-border">
+    <aside className="flex flex-col h-full w-full overflow-hidden bg-card border-r border-border">
       <div className="p-4 space-y-3">
         <div className="flex items-center justify-between">
           <h2 className="text-sm font-semibold text-foreground tracking-tight">
