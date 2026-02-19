@@ -4,13 +4,13 @@ import { memo } from "react";
 import {
   Search,
   Package,
-  // Bell,
   ExternalLink,
   RefreshCw,
   Trash2,
   Loader,
   PlusCircle,
   Store,
+  Sparkles,
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -40,6 +40,7 @@ export interface Seller {
   url: string;
   name: string;
   active: boolean;
+  scraping: boolean;
   lastRunAt: string | null;
   totalProducts: number;
   unreadAlerts: number;
@@ -89,7 +90,7 @@ const SellerCard = memo(function SellerCard({
       )}
       onClick={onSelect}
     >
-      <div className="flex items-start gap-3">
+        <div className="flex items-start gap-3">
         <div
           className={cn(
             "flex h-9 w-9 shrink-0 items-center justify-center rounded-lg transition-colors",
@@ -98,14 +99,24 @@ const SellerCard = memo(function SellerCard({
               : "bg-secondary text-muted-foreground"
           )}
         >
-          <Store className="h-4 w-4" />
+          {seller.scraping ? (
+            <Loader className="h-4 w-4 animate-spin" />
+          ) : (
+            <Store className="h-4 w-4" />
+          )}
         </div>
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-1.5">
             <span className="text-sm font-semibold truncate text-foreground">
-              {seller.name || "Sem nome"}
+              {seller.name || seller.url.split("/")[4] || "Sem nome"}
             </span>
-            {seller.unreadAlerts > 0 && (
+            {seller.scraping && (
+              <Badge className="h-5 px-1.5 text-[10px] bg-blue-500 text-white animate-pulse">
+                <Sparkles className="h-2.5 w-2.5 mr-1" />
+                scraping
+              </Badge>
+            )}
+            {!seller.scraping && seller.unreadAlerts > 0 && (
               <Badge className="h-5 px-1.5 text-[10px] bg-destructive text-destructive-foreground">
                 {seller.unreadAlerts}
               </Badge>
@@ -116,7 +127,9 @@ const SellerCard = memo(function SellerCard({
               <Package className="h-3 w-3" />
               {seller.totalProducts}
             </span>
-            <span>{fmtAgo(seller.lastRunAt)}</span>
+            <span>
+              {seller.scraping ? "Atualizando agora..." : fmtAgo(seller.lastRunAt)}
+            </span>
           </div>
         </div>
       </div>
@@ -149,17 +162,19 @@ const SellerCard = memo(function SellerCard({
               variant="ghost"
               size="icon"
               className="h-7 w-7 text-muted-foreground hover:text-foreground"
-              disabled={isRunning}
+              disabled={isRunning || seller.scraping}
               onClick={onRun}
             >
-              {isRunning ? (
+              {isRunning || seller.scraping ? (
                 <Loader className="h-3.5 w-3.5 animate-spin" />
               ) : (
                 <RefreshCw className="h-3.5 w-3.5" />
               )}
             </Button>
           </TooltipTrigger>
-          <TooltipContent side="bottom">Executar scraping</TooltipContent>
+          <TooltipContent side="bottom">
+            {seller.scraping ? "Scraping em andamento..." : "Executar scraping"}
+          </TooltipContent>
         </Tooltip>
 
         <div className="flex-1" />

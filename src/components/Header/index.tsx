@@ -1,6 +1,6 @@
 "use client";
 
-import { Bolt, LogOut, Users, Menu, Home, Gauge, Package, ChevronDown, BarChart3, Scan, FileText, PackageOpen } from "lucide-react";
+import { Bolt, LogOut, Users, Menu, Home, Gauge, Package, ChevronDown, BarChart3, Scan, FileText, PackageOpen, TrendingUp, Store } from "lucide-react";
 import { useState, useEffect, useRef } from "react";
 import { NavLink, useLocation, useNavigate } from "react-router-dom";
 
@@ -29,13 +29,16 @@ export default function Header({ handleAuthentication }: HeaderProps) {
   const [isSheetOpen, setIsSheetOpen] = useState(false);
   const [isExpedicaoDropdownOpen, setIsExpedicaoDropdownOpen] = useState(false);
   const [isFaccionistasDropdownOpen, setIsFaccionistasDropdownOpen] = useState(false);
+  const [isMonitorDropdownOpen, setIsMonitorDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const faccionistasDropdownRef = useRef<HTMLDivElement>(null);
+  const monitorDropdownRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     setIsSheetOpen(false);
     setIsExpedicaoDropdownOpen(false);
     setIsFaccionistasDropdownOpen(false);
+    setIsMonitorDropdownOpen(false);
   }, [location]);
 
   useEffect(() => {
@@ -45,6 +48,9 @@ export default function Header({ handleAuthentication }: HeaderProps) {
       }
       if (faccionistasDropdownRef.current && !faccionistasDropdownRef.current.contains(event.target as Node)) {
         setIsFaccionistasDropdownOpen(false);
+      }
+      if (monitorDropdownRef.current && !monitorDropdownRef.current.contains(event.target as Node)) {
+        setIsMonitorDropdownOpen(false);
       }
     };
 
@@ -103,16 +109,6 @@ export default function Header({ handleAuthentication }: HeaderProps) {
       href: "/products-catalog",
       condition: !production && can("manage_products_catalog"),
     },
-    {
-      title: "Análise de Preços",
-      href: "/price-analyze",
-      condition: !production && (isOwner || can("view_links") || can("view_nf")),
-    },
-    // {
-    //   title: "Seller Monitor",
-    //   href: "/seller-monitor",
-    //   condition: !production && can("view_links"),
-    // },
   ];
 
   const iconActions = [
@@ -125,6 +121,7 @@ export default function Header({ handleAuthentication }: HeaderProps) {
   ];
 
   const showFaccionistasMenu = canAny("manage_faccionistas", "view_production", "expedition_discharge");
+  const showMonitorMenu = !production && (isOwner || can("view_links") || can("view_nf") || can("seller_monitor"));
 
   return (
     <TooltipProvider>
@@ -222,6 +219,46 @@ export default function Header({ handleAuthentication }: HeaderProps) {
                                 <div className="flex items-center gap-x-2">
                                   <FileText className="h-4 w-4" />
                                   Relatório
+                                </div>
+                              </NavLink>
+                            )}
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Monitor - Dropdown Mobile */}
+                      {showMonitorMenu && (
+                        <div className="-mx-3 px-3 py-2">
+                          <div className="text-base font-semibold leading-7 text-gray-900 mb-2 flex items-center gap-x-2">
+                            <TrendingUp className="h-5 w-5" />
+                            Monitor
+                          </div>
+                          <div className="ml-7 space-y-2">
+                            {(isOwner || can("view_links") || can("view_nf")) && (
+                              <NavLink
+                                to="/price-analyze"
+                                className={({ isActive }) =>
+                                  `block rounded-lg px-3 py-1.5 text-sm font-medium leading-6 text-gray-700 hover:bg-gray-50 cursor-pointer ${isActive ? "underline" : ""}`
+                                }
+                                onClick={() => setIsSheetOpen(false)}
+                              >
+                                <div className="flex items-center gap-x-2">
+                                  <TrendingUp className="h-4 w-4" />
+                                  Análise de preços
+                                </div>
+                              </NavLink>
+                            )}
+                            {can("seller_monitor") && (
+                              <NavLink
+                                to="/seller-monitor"
+                                className={({ isActive }) =>
+                                  `block rounded-lg px-3 py-1.5 text-sm font-medium leading-6 text-gray-700 hover:bg-gray-50 cursor-pointer ${isActive ? "underline" : ""}`
+                                }
+                                onClick={() => setIsSheetOpen(false)}
+                              >
+                                <div className="flex items-center gap-x-2">
+                                  <Store className="h-4 w-4" />
+                                  Análise de vendedores
                                 </div>
                               </NavLink>
                             )}
@@ -360,6 +397,43 @@ export default function Header({ handleAuthentication }: HeaderProps) {
                       >
                         <FileText className="h-4 w-4" />
                         <span>Relatório</span>
+                      </NavLink>
+                    )}
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* Monitor - Dropdown Desktop */}
+            {showMonitorMenu && (
+              <div className="relative" ref={monitorDropdownRef}>
+                <button
+                  onClick={() => setIsMonitorDropdownOpen(!isMonitorDropdownOpen)}
+                  className="text-sm font-semibold leading-6 text-zinc-200 cursor-pointer whitespace-nowrap transition-colors duration-200 hover:text-white hover:opacity-90 flex items-center gap-x-1"
+                >
+                  Monitor
+                  <ChevronDown className={`h-4 w-4 transition-transform ${isMonitorDropdownOpen ? 'rotate-180' : ''}`} />
+                </button>
+                {isMonitorDropdownOpen && (
+                  <div className="absolute left-0 mt-2 w-56 bg-white rounded-md shadow-lg py-1 z-50 border border-gray-200">
+                    {(isOwner || can("view_links") || can("view_nf")) && (
+                      <NavLink
+                        to="/price-analyze"
+                        className="flex items-center gap-x-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
+                        onClick={() => setIsMonitorDropdownOpen(false)}
+                      >
+                        <TrendingUp className="h-4 w-4" />
+                        <span>Análise de preços</span>
+                      </NavLink>
+                    )}
+                    {can("seller_monitor") && (
+                      <NavLink
+                        to="/seller-monitor"
+                        className="flex items-center gap-x-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
+                        onClick={() => setIsMonitorDropdownOpen(false)}
+                      >
+                        <Store className="h-4 w-4" />
+                        <span>Análise de vendedores</span>
                       </NavLink>
                     )}
                   </div>

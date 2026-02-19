@@ -40,6 +40,7 @@ import DashboardExpedicao from "./pages/Expedicao/DashboardExpedicao";
 import RelatorioExpedicao from "./pages/Expedicao/RelatorioExpedicao";
 import DescarregamentoLotes from "./pages/DescarregamentoLotes";
 import SellerMonitor from "./pages/SellerMonitor";
+import CookiesPage from "./pages/Cookies";
 
 const queryClient = new QueryClient();
 
@@ -109,6 +110,12 @@ function App() {
                 <Route element={<LogsPage />} path="/logs" />
                 <Route element={<PriceAnalyze />} path="/price-analyze" />
                 <Route element={<SellerMonitor />} path="/seller-monitor" />
+                <Route
+                  path="/cookies-config"
+                  element={
+                    isOwner ? <CookiesPage /> : <Navigate to="/" replace />
+                  }
+                />
                 <Route element={<Expedicao />} path="/expedicao" />
                 <Route element={<DashboardExpedicao />} path="/dashboard-expedicao" />
                 <Route element={<RelatorioExpedicao />} path="/relatorio-expedicao" />

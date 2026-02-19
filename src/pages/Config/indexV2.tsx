@@ -25,6 +25,7 @@ import {
   Monitor,
   Save,
   Download,
+  // Cookie,
 } from "lucide-react";
 import {
   Select,
@@ -35,9 +36,11 @@ import {
 } from "@/components/ui/select";
 import { useContext } from "react";
 import { AuthContext } from "@/context/AuthContext";
+import { useNavigate } from "react-router-dom";
 
 const Config = () => {
   const { permissions }: any = useContext(AuthContext);
+  const navigate = useNavigate();
   const [emailNotify, setEmailNotify] = useState("");
   const [storeName, setStoreName] = useState("");
   const [sendEmail, setSendEmail] = useState(false);
@@ -302,11 +305,26 @@ const Config = () => {
 
         <Separator />
 
-        <div className="flex justify-end gap-10">
+
+        <div className="flex justify-end gap-4">
+
+
+        {/* <Button
+            size="lg"
+            className="min-w-[80px]"
+            onClick={(e) => {
+              e.preventDefault();
+              navigate("/cookies-config");
+            }}
+          >
+            <Cookie className="w-4 h-4 mr-2" />
+            Cookies
+        </Button> */}
+
           <Button
             disabled={load}
             size="lg"
-            className="min-w-[120px]"
+            className="min-w-[110px]"
             onClick={(e) => {
               e.preventDefault();
               backup();
@@ -318,7 +336,7 @@ const Config = () => {
           <Button
             disabled={load}
             size="lg"
-            className="min-w-[120px]"
+            className="min-w-[110px]"
             onClick={(e) => {
               e.preventDefault();
               clearOldJobs();
@@ -332,7 +350,7 @@ const Config = () => {
             type="submit"
             disabled={load}
             size="lg"
-            className="min-w-[120px]"
+            className="min-w-[110px]"
           >
             {load ? (
               <>

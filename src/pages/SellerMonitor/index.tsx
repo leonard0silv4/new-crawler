@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import {
   Bell,
   RefreshCw,
@@ -77,11 +77,21 @@ export default function SellerMonitorPage() {
   const [sellerSearch, setSellerSearch] = useState("");
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
 
+  // Refs para o polling — evitam closures stale
+  const selectedIdRef = useRef<string | null>(null);
+  const prevSellersRef = useRef<Map<string, Seller>>(new Map());
+  const pollTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  selectedIdRef.current = selectedId;
+
+  // ── Fetch inicial ─────────────────────────────────────────────────────────
+
   const fetchSellers = useCallback(async () => {
     setLoading(true);
     try {
       const data: Seller[] = await instance.get("/seller-monitor");
       setSellers(data);
+      prevSellersRef.current = new Map(data.map((s) => [s._id, s]));
     } catch {
       toast.error("Erro ao carregar sellers");
     } finally {
@@ -93,7 +103,9 @@ export default function SellerMonitorPage() {
     fetchSellers();
   }, [fetchSellers]);
 
-  const loadProducts = async (sellerId: string) => {
+  // ── Carrega produtos e alertas de um seller ───────────────────────────────
+
+  const loadProducts = useCallback(async (sellerId: string) => {
     setLoadingProducts(true);
     setProducts([]);
     try {
@@ -106,9 +118,9 @@ export default function SellerMonitorPage() {
     } finally {
       setLoadingProducts(false);
     }
-  };
+  }, []);
 
-  const loadAlerts = async (sellerId: string) => {
+  const loadAlerts = useCallback(async (sellerId: string) => {
     setLoadingAlerts(true);
     setAlerts([]);
     try {
@@ -121,7 +133,76 @@ export default function SellerMonitorPage() {
     } finally {
       setLoadingAlerts(false);
     }
-  };
+  }, []);
+
+  // ── Polling silencioso ────────────────────────────────────────────────────
+  // Intervalo dinâmico: 4 s quando há scraping ativo, 30 s como heartbeat.
+  // Detecta automaticamente:
+  //   - Scraping manual concluído (scraping: true → false)
+  //   - Atualizações do cron diário (lastRunAt mudou)
+
+  const silentPoll = useCallback(async () => {
+    try {
+      const data: Seller[] = await instance.get("/seller-monitor");
+      const prev = prevSellersRef.current;
+      const currSelectedId = selectedIdRef.current;
+
+      let needReloadProducts = false;
+      let needReloadAlerts = false;
+
+      data.forEach((seller) => {
+        const was = prev.get(seller._id);
+        if (!was) return;
+
+        const justFinished = was.scraping && !seller.scraping;
+        const cronUpdated =
+          !was.scraping &&
+          !seller.scraping &&
+          was.lastRunAt !== seller.lastRunAt;
+
+        if (justFinished) {
+          toast.success(
+            `Scraping de "${seller.name || "seller"}" concluído! ✓`,
+            { duration: 4000 }
+          );
+          setRunningId(null);
+        }
+
+        if ((justFinished || cronUpdated) && seller._id === currSelectedId) {
+          needReloadProducts = true;
+          needReloadAlerts = true;
+          if (cronUpdated) {
+            toast.info("Dados atualizados automaticamente.", { duration: 3000 });
+          }
+        }
+      });
+
+      setSellers(data);
+      prevSellersRef.current = new Map(data.map((s) => [s._id, s]));
+
+      if (needReloadProducts && currSelectedId) loadProducts(currSelectedId);
+      if (needReloadAlerts && currSelectedId) loadAlerts(currSelectedId);
+    } catch {
+      // Falha silenciosa — não mostra erro para o usuário durante o polling
+    }
+  }, [loadProducts, loadAlerts]);
+
+  // Agenda o próximo tick do polling com intervalo dinâmico
+  useEffect(() => {
+    const hasActiveScraping = sellers.some((s) => s.scraping);
+    const interval = hasActiveScraping ? 4_000 : 30_000;
+
+    pollTimerRef.current = setTimeout(async () => {
+      await silentPoll();
+    }, interval);
+
+    return () => {
+      if (pollTimerRef.current) clearTimeout(pollTimerRef.current);
+    };
+  // Re-agenda sempre que sellers muda (novo tick após cada resultado do poll)
+  }, [sellers, silentPoll]);
+
+  // ── Seleciona seller ──────────────────────────────────────────────────────
 
   const handleSelectSeller = (seller: Seller) => {
     if (selectedId === seller._id) return;
@@ -167,26 +248,29 @@ export default function SellerMonitorPage() {
 
   const handleRun = async (seller: Seller) => {
     setRunningId(seller._id);
-    toast.info("Iniciando scraping... Isso pode levar alguns minutos.");
     try {
-      const result: { seller: Partial<Seller> } = await instance.post(
-        `/seller-monitor/${seller._id}/run`
-      );
+      // Backend retorna 202 imediatamente — o scraper roda em background.
+      // O polling detecta o término e atualiza a UI automaticamente.
+      await instance.post(`/seller-monitor/${seller._id}/run`);
+      // Marca localmente como scraping até o próximo poll confirmar
       setSellers((prev) =>
         prev.map((s) =>
-          s._id === seller._id ? { ...s, ...result.seller } : s
+          s._id === seller._id ? { ...s, scraping: true } : s
         )
       );
-      toast.success("Scraping concluído!");
-      if (selectedId === seller._id) {
-        loadProducts(seller._id);
-        loadAlerts(seller._id);
+      toast.info(
+        `Scraping iniciado para "${seller.name || "seller"}". A tela atualiza automaticamente ao concluir.`,
+        { duration: 5000 }
+      );
+    } catch (err: any) {
+      if (err?.response?.status === 409) {
+        toast.warning("Scraping já em andamento para este seller.");
+      } else {
+        toast.error("Erro ao iniciar scraping");
       }
-    } catch {
-      toast.error("Erro ao executar scraping");
-    } finally {
       setRunningId(null);
     }
+    // Nota: setRunningId(null) é chamado pelo polling quando scraping: false
   };
 
   const handleDelete = async (seller: Seller) => {
@@ -452,7 +536,7 @@ export default function SellerMonitorPage() {
             </div>
             <div className="space-y-1.5">
               <label className="text-sm font-medium text-foreground">
-                Nome do seller (opcional)
+                Nome do seller 
               </label>
               <Input
                 placeholder="Ex: Azul Verde Garden"
