@@ -25,7 +25,7 @@ import {
   Monitor,
   Save,
   Download,
-  // Cookie,
+  Cookie,
 } from "lucide-react";
 import {
   Select,
@@ -36,11 +36,11 @@ import {
 } from "@/components/ui/select";
 import { useContext } from "react";
 import { AuthContext } from "@/context/AuthContext";
-// import { useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 const Config = () => {
   const { permissions }: any = useContext(AuthContext);
-  // const navigate = useNavigate();
+  const navigate = useNavigate();
   const [emailNotify, setEmailNotify] = useState("");
   const [storeName, setStoreName] = useState("");
   const [sendEmail, setSendEmail] = useState(false);
@@ -50,7 +50,7 @@ const Config = () => {
     !!(
       window.localStorage !== undefined &&
       localStorage.getItem("productionBrowser") == "yes"
-    )
+    ),
   );
   const [hour, setHour] = useState<number>(3);
 
@@ -305,11 +305,8 @@ const Config = () => {
 
         <Separator />
 
-
         <div className="flex justify-end gap-4">
-
-
-        {/* <Button
+          <Button
             size="lg"
             className="min-w-[80px]"
             onClick={(e) => {
@@ -319,7 +316,7 @@ const Config = () => {
           >
             <Cookie className="w-4 h-4 mr-2" />
             Cookies
-        </Button> */}
+          </Button>
 
           <Button
             disabled={load}
