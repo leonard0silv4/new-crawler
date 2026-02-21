@@ -69,6 +69,7 @@ export default function SellerMonitorPage() {
 
   const [runningId, setRunningId] = useState<string | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [resettingId, setResettingId] = useState<string | null>(null);
 
   const [newUrl, setNewUrl] = useState("");
   const [newName, setNewName] = useState("");
@@ -282,6 +283,26 @@ export default function SellerMonitorPage() {
     // Nota: setRunningId(null) é chamado pelo polling quando scraping: false
   };
 
+  const handleForceReset = async (seller: Seller) => {
+    setResettingId(seller._id);
+    try {
+      await instance.post(`/seller-monitor/${seller._id}/reset-stuck`);
+      setSellers((prev) =>
+        prev.map((s) =>
+          s._id === seller._id
+            ? { ...s, scraping: false, scrapingStartedAt: null }
+            : s
+        )
+      );
+      if (runningId === seller._id) setRunningId(null);
+      toast.success(`Scraping de "${seller.name || "seller"}" foi resetado.`);
+    } catch {
+      toast.error("Erro ao resetar scraping");
+    } finally {
+      setResettingId(null);
+    }
+  };
+
   const handleDelete = async (seller: Seller) => {
     setDeletingId(seller._id);
     try {
@@ -346,8 +367,10 @@ export default function SellerMonitorPage() {
       onRunScrape={handleRun}
       onDeleteSeller={handleDelete}
       onOpenAddDialog={() => setAddDialogOpen(true)}
+      onForceReset={handleForceReset}
       runningId={runningId}
       deletingId={deletingId}
+      resettingId={resettingId}
       fmtAgo={fmtAgo}
     />
   );

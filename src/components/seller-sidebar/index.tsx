@@ -11,6 +11,8 @@ import {
   PlusCircle,
   Store,
   Sparkles,
+  AlertTriangle,
+  RotateCcw,
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -41,10 +43,18 @@ export interface Seller {
   name: string;
   active: boolean;
   scraping: boolean;
+  scrapingStartedAt: string | null;
   lastRunAt: string | null;
   totalProducts: number;
   unreadAlerts: number;
   createdAt: string;
+}
+
+const STUCK_THRESHOLD_MS = 20 * 60 * 1000; // 20 minutos
+
+function isScrapingStuck(seller: Seller): boolean {
+  if (!seller.scraping || !seller.scrapingStartedAt) return false;
+  return Date.now() - new Date(seller.scrapingStartedAt).getTime() > STUCK_THRESHOLD_MS;
 }
 
 export interface SellerSidebarProps {
@@ -56,8 +66,10 @@ export interface SellerSidebarProps {
   onRunScrape: (seller: Seller) => void;
   onDeleteSeller: (seller: Seller) => void;
   onOpenAddDialog: () => void;
+  onForceReset: (seller: Seller) => void;
   runningId: string | null;
   deletingId: string | null;
+  resettingId: string | null;
   fmtAgo: (d: string | null) => string;
 }
 
@@ -66,20 +78,25 @@ const SellerCard = memo(function SellerCard({
   isSelected,
   isRunning,
   isDeleting,
+  isResetting,
   onSelect,
   onRun,
   onDelete,
+  onForceReset,
   fmtAgo,
 }: {
   seller: Seller;
   isSelected: boolean;
   isRunning: boolean;
   isDeleting: boolean;
+  isResetting: boolean;
   onSelect: () => void;
   onRun: () => void;
   onDelete: () => void;
+  onForceReset: () => void;
   fmtAgo: (d: string | null) => string;
 }) {
+  const stuck = isScrapingStuck(seller);
   return (
     <div
       className={cn(
@@ -172,11 +189,46 @@ const SellerCard = memo(function SellerCard({
           </TooltipContent>
         </Tooltip>
 
-        {seller.scraping && (
+        {seller.scraping && !stuck && (
           <Badge className="h-5 px-1.5 text-[10px] bg-blue-500 text-white animate-pulse">
             <Sparkles className="h-2.5 w-2.5 mr-1" />
             scraping
           </Badge>
+        )}
+
+        {stuck && (
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Badge className="h-5 px-1.5 text-[10px] bg-amber-500 text-white animate-pulse">
+                <AlertTriangle className="h-2.5 w-2.5 mr-1" />
+                travado
+              </Badge>
+            </TooltipTrigger>
+            <TooltipContent side="bottom">
+              Scraping parado há mais de 20 min. Clique em Resetar para liberar.
+            </TooltipContent>
+          </Tooltip>
+        )}
+
+        {stuck && (
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-7 w-7 text-amber-500 hover:text-amber-600 hover:bg-amber-50"
+                disabled={isResetting}
+                onClick={(e) => { e.stopPropagation(); onForceReset(); }}
+              >
+                {isResetting ? (
+                  <Loader className="h-3.5 w-3.5 animate-spin" />
+                ) : (
+                  <RotateCcw className="h-3.5 w-3.5" />
+                )}
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent side="bottom">Resetar scraping travado</TooltipContent>
+          </Tooltip>
         )}
 
         <div className="flex-1" />
@@ -229,8 +281,10 @@ export default function SellerSidebar({
   onRunScrape,
   onDeleteSeller,
   onOpenAddDialog,
+  onForceReset,
   runningId,
   deletingId,
+  resettingId,
   fmtAgo,
 }: SellerSidebarProps) {
   const filteredSellers = sellers.filter(
@@ -284,9 +338,11 @@ export default function SellerSidebar({
                 isSelected={selectedId === seller._id}
                 isRunning={runningId === seller._id}
                 isDeleting={deletingId === seller._id}
+                isResetting={resettingId === seller._id}
                 onSelect={() => onSelectSeller(seller)}
                 onRun={() => onRunScrape(seller)}
                 onDelete={() => onDeleteSeller(seller)}
+                onForceReset={() => onForceReset(seller)}
                 fmtAgo={fmtAgo}
               />
             ))
