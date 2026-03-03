@@ -165,6 +165,11 @@ export function VerifyProductModal({
                     {product.sku2}
                   </Badge>
                 )}
+                {product.sku3 && (
+                  <Badge variant="outline" className="font-mono text-xs">
+                    {product.sku3}
+                  </Badge>
+                )}
                 {product.medidas && (
                   <Badge className="bg-blue-100 text-blue-700 border-blue-300 text-xs">
                     {product.medidas}

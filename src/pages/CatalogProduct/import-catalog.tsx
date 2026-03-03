@@ -154,6 +154,9 @@ export function ImportCatalog({ isOpen, onClose }: ImportCatalogProps) {
                 • <strong>SKU-2</strong>: Código SKU secundário
               </li>
               <li>
+                • <strong>SKU-3</strong>: Código SKU alternativo (opcional)
+              </li>
+              <li>
                 • <strong>PRODUTO</strong>: Nome do produto
               </li>
               <li>

@@ -20,6 +20,7 @@ import type { CatalogProduct } from "@/hooks/useCatalogProduct";
 export interface CatalogFormData {
   sku1: string;
   sku2: string;
+  sku3: string;
   produto: string;
   medidas: string;
   largura: number;
@@ -73,6 +74,7 @@ export function CatalogProductForm({
       reset({
         sku1: initialData.sku1,
         sku2: initialData.sku2,
+        sku3: initialData.sku3,
         produto: initialData.produto,
         medidas: initialData.medidas,
         largura: initialData.largura,
@@ -84,6 +86,7 @@ export function CatalogProductForm({
       reset({
         sku1: "",
         sku2: "",
+        sku3: "",
         produto: "",
         medidas: "",
         largura: 0,
@@ -116,7 +119,7 @@ export function CatalogProductForm({
         </DialogHeader>
 
         <form onSubmit={handleSubmit(onSubmitForm)} className="space-y-5">
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <div className="space-y-2">
               <Label htmlFor="sku1">SKU-1</Label>
               <Input
@@ -135,6 +138,15 @@ export function CatalogProductForm({
                 id="sku2"
                 placeholder="Ex: SBISOMB8002002X1"
                 {...register("sku2")}
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="sku3">SKU-3</Label>
+              <Input
+                id="sku3"
+                placeholder="SKU alternativo"
+                {...register("sku3")}
               />
             </div>
           </div>

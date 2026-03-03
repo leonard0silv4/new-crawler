@@ -10,6 +10,7 @@ export type CatalogProduct = {
   _id: string;
   sku1: string;
   sku2: string;
+  sku3: string;
   produto: string;
   medidas: string;
   largura: number;

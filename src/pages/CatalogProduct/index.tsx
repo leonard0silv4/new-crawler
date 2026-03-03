@@ -230,6 +230,14 @@ export default function CatalogProductPage() {
                                   {product.sku2}
                                 </Badge>
                               )}
+                              {product.sku3 && (
+                                <Badge
+                                  variant="outline"
+                                  className="bg-slate-100 text-slate-700 border-slate-300 dark:bg-slate-700 dark:text-slate-300 dark:border-slate-600 font-mono text-xs w-fit"
+                                >
+                                  {product.sku3}
+                                </Badge>
+                              )}
                             </div>
                           </TableCell>
                           <TableCell className="font-medium text-slate-900 dark:text-slate-100 max-w-[280px]">
