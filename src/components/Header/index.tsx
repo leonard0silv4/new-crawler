@@ -1,6 +1,6 @@
 "use client";
 
-import { Bolt, LogOut, Users, Menu, Home, Gauge, Package, ChevronDown, BarChart3, Scan, FileText, PackageOpen, TrendingUp, Store } from "lucide-react";
+import { Bolt, LogOut, Users, Menu, Home, Gauge, Package, ChevronDown, BarChart3, Scan, FileText, PackageOpen, TrendingUp, Store, /*Ruler,*/ Box, ShoppingBag, RulerDimensionLine } from "lucide-react";
 import { useState, useEffect, useRef } from "react";
 import { NavLink, useLocation, useNavigate } from "react-router-dom";
 
@@ -30,15 +30,18 @@ export default function Header({ handleAuthentication }: HeaderProps) {
   const [isExpedicaoDropdownOpen, setIsExpedicaoDropdownOpen] = useState(false);
   const [isFaccionistasDropdownOpen, setIsFaccionistasDropdownOpen] = useState(false);
   const [isMonitorDropdownOpen, setIsMonitorDropdownOpen] = useState(false);
+  const [isProdutosDropdownOpen, setIsProdutosDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const faccionistasDropdownRef = useRef<HTMLDivElement>(null);
   const monitorDropdownRef = useRef<HTMLDivElement>(null);
+  const produtosDropdownRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     setIsSheetOpen(false);
     setIsExpedicaoDropdownOpen(false);
     setIsFaccionistasDropdownOpen(false);
     setIsMonitorDropdownOpen(false);
+    setIsProdutosDropdownOpen(false);
   }, [location]);
 
   useEffect(() => {
@@ -51,6 +54,9 @@ export default function Header({ handleAuthentication }: HeaderProps) {
       }
       if (monitorDropdownRef.current && !monitorDropdownRef.current.contains(event.target as Node)) {
         setIsMonitorDropdownOpen(false);
+      }
+      if (produtosDropdownRef.current && !produtosDropdownRef.current.contains(event.target as Node)) {
+        setIsProdutosDropdownOpen(false);
       }
     };
 
@@ -104,11 +110,6 @@ export default function Header({ handleAuthentication }: HeaderProps) {
       href: "/nf",
       condition: !production && can("view_nf"),
     },
-    {
-      title: "Produtos",
-      href: "/products-catalog",
-      condition: !production && can("manage_products_catalog"),
-    },
   ];
 
   const iconActions = [
@@ -122,6 +123,7 @@ export default function Header({ handleAuthentication }: HeaderProps) {
 
   const showFaccionistasMenu = canAny("manage_faccionistas", "view_production", "expedition_discharge");
   const showMonitorMenu = !production && (isOwner || can("view_links") || can("view_nf") || can("seller_monitor"));
+  const showProdutosMenu = !production && canAny("manage_products_catalog", "catalog_product_");
 
   return (
     <TooltipProvider>
@@ -219,6 +221,58 @@ export default function Header({ handleAuthentication }: HeaderProps) {
                                 <div className="flex items-center gap-x-2">
                                   <FileText className="h-4 w-4" />
                                   Relatório
+                                </div>
+                              </NavLink>
+                            )}
+                            {/* <NavLink
+                              to="/meli-shipment"
+                              className={({ isActive }) =>
+                                `block rounded-lg px-3 py-1.5 text-sm font-medium leading-6 text-gray-700 hover:bg-gray-50 cursor-pointer ${isActive ? "underline" : ""}`
+                              }
+                              onClick={() => setIsSheetOpen(false)}
+                            >
+                              <div className="flex items-center gap-x-2">
+                                <Ruler className="h-4 w-4" />
+                                Dimensões ML
+                              </div>
+                            </NavLink> */}
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Produtos - Dropdown Mobile */}
+                      {showProdutosMenu && (
+                        <div className="-mx-3 px-3 py-2">
+                          <div className="text-base font-semibold leading-7 text-gray-900 mb-2 flex items-center gap-x-2">
+                            <ShoppingBag className="h-5 w-5" />
+                            Produtos
+                          </div>
+                          <div className="ml-7 space-y-2">
+                            {can("manage_products_catalog") && (
+                              <NavLink
+                                to="/products-catalog"
+                                className={({ isActive }) =>
+                                  `block rounded-lg px-3 py-1.5 text-sm font-medium leading-6 text-gray-700 hover:bg-gray-50 cursor-pointer ${isActive ? "underline" : ""}`
+                                }
+                                onClick={() => setIsSheetOpen(false)}
+                              >
+                                <div className="flex items-center gap-x-2">
+                                  <Package className="h-4 w-4" />
+                                  Produtos
+                                </div>
+                              </NavLink>
+                            )}
+                            {can("catalog_product_") && (
+                              <NavLink
+                                to="/catalog-product"
+                                className={({ isActive }) =>
+                                  `block rounded-lg px-3 py-1.5 text-sm font-medium leading-6 text-gray-700 hover:bg-gray-50 cursor-pointer ${isActive ? "underline" : ""}`
+                                }
+                                onClick={() => setIsSheetOpen(false)}
+                              >
+                                <div className="flex items-center gap-x-2">
+                                  <Box className="h-4 w-4" />
+                                  Catálogo
                                 </div>
                               </NavLink>
                             )}
@@ -356,6 +410,42 @@ export default function Header({ handleAuthentication }: HeaderProps) {
                   </NavLink>
                 )
             )}
+
+{showProdutosMenu && (
+              <div className="relative" ref={produtosDropdownRef}>
+                <button
+                  onClick={() => setIsProdutosDropdownOpen(!isProdutosDropdownOpen)}
+                  className="text-sm font-semibold leading-6 text-zinc-200 cursor-pointer whitespace-nowrap transition-colors duration-200 hover:text-white hover:opacity-90 flex items-center gap-x-1"
+                >
+                  Produtos
+                  <ChevronDown className={`h-4 w-4 transition-transform ${isProdutosDropdownOpen ? 'rotate-180' : ''}`} />
+                </button>
+                {isProdutosDropdownOpen && (
+                  <div className="absolute left-0 mt-2 w-56 bg-white rounded-md shadow-lg py-1 z-50 border border-gray-200">
+                    {can("manage_products_catalog") && (
+                      <NavLink
+                        to="/products-catalog"
+                        className="flex items-center gap-x-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
+                        onClick={() => setIsProdutosDropdownOpen(false)}
+                      >
+                        <Package className="h-4 w-4" />
+                        <span>Produtos</span>
+                      </NavLink>
+                    )}
+                    {can("catalog_product_") && (
+                      <NavLink
+                        to="/catalog-product"
+                        className="flex items-center gap-x-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
+                        onClick={() => setIsProdutosDropdownOpen(false)}
+                      >
+                        <RulerDimensionLine className="h-4 w-4" />
+                        <span>Catálogo Medidas</span>
+                      </NavLink>
+                    )}
+                  </div>
+                )}
+              </div>
+            )}
             
             {/* Expedição - Dropdown Desktop */}
             {!production && canAny("expedition_entry", "view_expedition_dashboard", "expedition_report") && (
@@ -399,10 +489,20 @@ export default function Header({ handleAuthentication }: HeaderProps) {
                         <span>Relatório</span>
                       </NavLink>
                     )}
+                    {/* <NavLink
+                      to="/meli-shipment"
+                      className="flex items-center gap-x-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
+                      onClick={() => setIsExpedicaoDropdownOpen(false)}
+                    >
+                      <Ruler className="h-4 w-4" />
+                      <span>Dimensões ML</span>
+                    </NavLink> */}
                   </div>
                 )}
               </div>
             )}
+
+
 
             {/* Monitor - Dropdown Desktop */}
             {showMonitorMenu && (

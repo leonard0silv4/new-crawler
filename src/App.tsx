@@ -41,6 +41,8 @@ import RelatorioExpedicao from "./pages/Expedicao/RelatorioExpedicao";
 import DescarregamentoLotes from "./pages/DescarregamentoLotes";
 import SellerMonitor from "./pages/SellerMonitor";
 import CookiesPage from "./pages/Cookies";
+import MeliShipment from "./pages/MeliShipment";
+import CatalogProductPage from "./pages/CatalogProduct";
 
 const queryClient = new QueryClient();
 
@@ -119,6 +121,17 @@ function App() {
                 <Route element={<Expedicao />} path="/expedicao" />
                 <Route element={<DashboardExpedicao />} path="/dashboard-expedicao" />
                 <Route element={<RelatorioExpedicao />} path="/relatorio-expedicao" />
+                <Route element={<MeliShipment />} path="/meli-shipment" />
+                <Route
+                  path="/catalog-product"
+                  element={
+                    can("catalog_product_") ? (
+                      <CatalogProductPage />
+                    ) : (
+                      <Navigate to="/" replace />
+                    )
+                  }
+                />
                 <Route
                   path="/descarregamento-lotes"
                   element={
