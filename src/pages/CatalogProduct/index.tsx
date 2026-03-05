@@ -9,6 +9,8 @@ import {
   Search,
   Loader2,
   Box,
+  PackagePlus,
+  PackageCheck,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -25,6 +27,10 @@ import { Badge } from "@/components/ui/badge";
 import { CatalogProductForm } from "./catalog-product-form";
 import { ImportCatalog } from "./import-catalog";
 import { VerifyProductModal } from "./verify-product-modal";
+import {
+  VerifyPackageModal,
+  type PackageItem,
+} from "./verify-package-modal";
 import {
   useCatalogProductService,
   type CatalogProduct,
@@ -68,6 +74,25 @@ export default function CatalogProductPage() {
   );
   const [hiddenIds, setHiddenIds] = useState<Set<string>>(new Set());
   const [verifyProduct, setVerifyProduct] = useState<CatalogProduct | null>(null);
+  const [packageItems, setPackageItems] = useState<PackageItem[]>([]);
+  const [isPackageOpen, setIsPackageOpen] = useState(false);
+
+  const addToPackage = (product: CatalogProduct) => {
+    setPackageItems((prev) => {
+      if (prev.some((i) => i.product._id === product._id)) return prev;
+      return [...prev, { product, qty: "1" }];
+    });
+  };
+
+  const removeFromPackage = (id: string) => {
+    setPackageItems((prev) => prev.filter((i) => i.product._id !== id));
+  };
+
+  const updatePackageQty = (id: string, qty: string) => {
+    setPackageItems((prev) =>
+      prev.map((i) => (i.product._id === id ? { ...i, qty } : i))
+    );
+  };
 
   const openEditForm = (product: CatalogProduct) => {
     setEditingProduct(product);
@@ -133,7 +158,7 @@ export default function CatalogProductPage() {
             )}
           </div>
 
-          <div className="flex justify-between items-center">
+          <div className="flex justify-between items-center gap-3">
             <div className="relative w-80">
               <Input
                 type="text"
@@ -144,6 +169,29 @@ export default function CatalogProductPage() {
               />
               <Search className="absolute left-3 top-2.5 h-5 w-5 text-gray-400" />
             </div>
+            {packageItems.length > 0 && (
+              <div className="flex items-center gap-2 animate-in fade-in">
+                <Button
+                  onClick={() => setIsPackageOpen(true)}
+                  className="gap-2"
+                >
+                  <PackageCheck className="h-4 w-4" />
+                  Verificar Pacote
+                  <Badge variant="secondary" className="ml-1 bg-white/20 text-white">
+                    {packageItems.length}
+                  </Badge>
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setPackageItems([])}
+                  className="text-muted-foreground hover:text-destructive gap-1.5"
+                >
+                  <Trash2 className="h-3.5 w-3.5" />
+                  Limpar
+                </Button>
+              </div>
+            )}
           </div>
         </div>
 
@@ -181,17 +229,15 @@ export default function CatalogProductPage() {
                     <TableHead className="font-semibold text-slate-700 dark:text-slate-300">
                       P. Cúbico (kg)
                     </TableHead>
-                    {canEdit && (
-                      <TableHead className="text-right font-semibold text-slate-700 dark:text-slate-300">
-                        Ações
-                      </TableHead>
-                    )}
+                    <TableHead className="text-right font-semibold text-slate-700 dark:text-slate-300">
+                      Ações
+                    </TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {allProducts.length === 0 ? (
                     <TableRow>
-                      <TableCell colSpan={canEdit ? 7 : 6} className="text-center py-12">
+                      <TableCell colSpan={7} className="text-center py-12">
                         <div className="flex flex-col items-center space-y-3">
                           <div className="w-16 h-16 bg-slate-100 dark:bg-slate-800 rounded-full flex items-center justify-center">
                             <Search className="h-8 w-8 text-slate-400" />
@@ -262,31 +308,45 @@ export default function CatalogProductPage() {
                               ? product.pesoCubico.toFixed(3).replace(".", ",")
                               : "—"}
                           </TableCell>
-                          {canEdit && (
-                            <TableCell
-                              className="text-right"
-                              onClick={(e) => e.stopPropagation()}
-                            >
-                              <div className="flex justify-end gap-1">
-                                <Button
-                                  variant="ghost"
-                                  size="sm"
-                                  onClick={() => openEditForm(product)}
-                                  className="h-8 w-8 p-0 hover:bg-blue-100 dark:hover:bg-blue-900/50 hover:text-blue-600 dark:hover:text-blue-400"
-                                >
-                                  <Edit className="h-4 w-4" />
-                                </Button>
-                                <Button
-                                  variant="ghost"
-                                  size="sm"
-                                  onClick={() => handleDelete(product._id)}
-                                  className="h-8 w-8 p-0 hover:bg-red-100 dark:hover:bg-red-900/50 hover:text-red-600 dark:hover:text-red-400"
-                                >
-                                  <Trash2 className="h-4 w-4" />
-                                </Button>
-                              </div>
-                            </TableCell>
-                          )}
+                          <TableCell
+                            className="text-right"
+                            onClick={(e) => e.stopPropagation()}
+                          >
+                            <div className="flex justify-end gap-1">
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => addToPackage(product)}
+                                disabled={packageItems.some(
+                                  (i) => i.product._id === product._id
+                                )}
+                                className="h-8 w-8 p-0 hover:bg-green-100 dark:hover:bg-green-900/50 hover:text-green-600 dark:hover:text-green-400 disabled:opacity-30"
+                                title="Adicionar ao pacote"
+                              >
+                                <PackagePlus className="h-4 w-4" />
+                              </Button>
+                              {canEdit && (
+                                <>
+                                  <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    onClick={() => openEditForm(product)}
+                                    className="h-8 w-8 p-0 hover:bg-blue-100 dark:hover:bg-blue-900/50 hover:text-blue-600 dark:hover:text-blue-400"
+                                  >
+                                    <Edit className="h-4 w-4" />
+                                  </Button>
+                                  <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    onClick={() => handleDelete(product._id)}
+                                    className="h-8 w-8 p-0 hover:bg-red-100 dark:hover:bg-red-900/50 hover:text-red-600 dark:hover:text-red-400"
+                                  >
+                                    <Trash2 className="h-4 w-4" />
+                                  </Button>
+                                </>
+                              )}
+                            </div>
+                          </TableCell>
                         </TableRow>
                       ))
                   )}
@@ -320,6 +380,15 @@ export default function CatalogProductPage() {
           product={verifyProduct}
           isOpen={!!verifyProduct}
           onClose={() => setVerifyProduct(null)}
+        />
+
+        <VerifyPackageModal
+          items={packageItems}
+          isOpen={isPackageOpen}
+          onClose={() => setIsPackageOpen(false)}
+          onRemoveItem={removeFromPackage}
+          onQtyChange={updatePackageQty}
+          onClear={() => setPackageItems([])}
         />
       </div>
     </div>
